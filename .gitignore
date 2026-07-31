@@ -9,7 +9,3 @@ __pycache__/
 /book-text-editor/.agents/
 /book-text-editor/.codex/
 .idea
-/apply-to-develop.sh
-/CHECKS.json
-/MANIFEST.md
-/files/
