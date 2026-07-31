@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/text/cases"
 	"golang.org/x/text/unicode/norm"
@@ -35,17 +36,34 @@ func transcriptMatches(expected, actual string) bool {
 		return false
 	}
 
+	if !equalValidationTokenSequences(
+		criticalValidationTokens(expectedTokens),
+		criticalValidationTokens(actualTokens),
+	) {
+		return false
+	}
+
 	tokenBudget := transcriptTokenBudget(len(expectedTokens))
 	if absInt(len(expectedTokens)-len(actualTokens)) > tokenBudget {
 		return false
 	}
-	if boundedTokenEditDistance(expectedTokens, actualTokens, tokenBudget) > tokenBudget {
+	tokenStats := boundedTokenEditStats(
+		expectedTokens,
+		actualTokens,
+		tokenBudget,
+	)
+	if tokenStats.Distance > tokenBudget ||
+		(tokenStats.Insertions > 0 && tokenStats.Deletions > 0) {
 		return false
 	}
 
 	expectedRunes := []rune(strings.Join(expectedTokens, " "))
 	actualRunes := []rune(strings.Join(actualTokens, " "))
-	runeBudget := transcriptRuneBudget(max(len(expectedRunes), len(actualRunes)))
+	runeBudget := min(
+		maxTranscriptRuneDistance,
+		transcriptRuneBudget(max(len(expectedRunes), len(actualRunes)))+
+			tokenStats.IndelRunes,
+	)
 	return boundedRuneEditDistance(expectedRunes, actualRunes, runeBudget) <= runeBudget
 }
 
@@ -199,6 +217,199 @@ func parseRussianNumber(tokens []string) (value int64, consumed int, ok bool) {
 		return 0, 0, false
 	}
 	return total + current, consumed, true
+}
+
+func criticalValidationTokens(tokens []string) []string {
+	result := make([]string, 0)
+	for _, token := range tokens {
+		if strings.HasPrefix(token, "#") {
+			result = append(result, token)
+			continue
+		}
+		switch token {
+		case "не", "ни", "нет", "без":
+			result = append(result, token)
+		}
+	}
+	return result
+}
+
+func equalValidationTokenSequences(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for index := range left {
+		if left[index] != right[index] {
+			return false
+		}
+	}
+	return true
+}
+
+type tokenEditStats struct {
+	Distance   int
+	Insertions int
+	Deletions  int
+	IndelRunes int
+}
+
+func boundedTokenEditStats(
+	left, right []string,
+	limit int,
+) tokenEditStats {
+	invalid := tokenEditStats{Distance: limit + 1}
+	if limit < 0 || absInt(len(left)-len(right)) > limit {
+		return invalid
+	}
+
+	previous := make([]tokenEditStats, len(right)+1)
+	current := make([]tokenEditStats, len(right)+1)
+	for index := range previous {
+		previous[index] = invalid
+		current[index] = invalid
+	}
+	previous[0] = tokenEditStats{}
+	for rightIndex := 1; rightIndex <= min(len(right), limit); rightIndex++ {
+		previous[rightIndex] = advanceTokenEditStats(
+			previous[rightIndex-1],
+			1,
+			1,
+			0,
+			tokenRuneCost(right[rightIndex-1]),
+			limit,
+		)
+	}
+
+	for leftIndex := 1; leftIndex <= len(left); leftIndex++ {
+		for index := range current {
+			current[index] = invalid
+		}
+		if leftIndex <= limit {
+			current[0] = advanceTokenEditStats(
+				previous[0],
+				1,
+				0,
+				1,
+				tokenRuneCost(left[leftIndex-1]),
+				limit,
+			)
+		}
+
+		start := max(1, leftIndex-limit)
+		end := min(len(right), leftIndex+limit)
+		rowMinimum := limit + 1
+		for rightIndex := start; rightIndex <= end; rightIndex++ {
+			best := invalid
+			best = betterTokenEditStats(
+				best,
+				advanceTokenEditStats(
+					previous[rightIndex],
+					1,
+					0,
+					1,
+					tokenRuneCost(left[leftIndex-1]),
+					limit,
+				),
+			)
+			best = betterTokenEditStats(
+				best,
+				advanceTokenEditStats(
+					current[rightIndex-1],
+					1,
+					1,
+					0,
+					tokenRuneCost(right[rightIndex-1]),
+					limit,
+				),
+			)
+
+			leftToken := left[leftIndex-1]
+			rightToken := right[rightIndex-1]
+			switch {
+			case leftToken == rightToken:
+				best = betterTokenEditStats(best, previous[rightIndex-1])
+			case validationTokensSimilar(leftToken, rightToken):
+				best = betterTokenEditStats(
+					best,
+					advanceTokenEditStats(
+						previous[rightIndex-1],
+						1,
+						0,
+						0,
+						0,
+						limit,
+					),
+				)
+			}
+			current[rightIndex] = best
+			rowMinimum = min(rowMinimum, best.Distance)
+		}
+		if rowMinimum > limit {
+			return invalid
+		}
+		previous, current = current, previous
+	}
+
+	if previous[len(right)].Distance > limit {
+		return invalid
+	}
+	return previous[len(right)]
+}
+
+func advanceTokenEditStats(
+	stats tokenEditStats,
+	distance, insertions, deletions, indelRunes, limit int,
+) tokenEditStats {
+	if stats.Distance > limit {
+		return tokenEditStats{Distance: limit + 1}
+	}
+	stats.Distance += distance
+	stats.Insertions += insertions
+	stats.Deletions += deletions
+	stats.IndelRunes += indelRunes
+	if stats.Distance > limit {
+		return tokenEditStats{Distance: limit + 1}
+	}
+	return stats
+}
+
+func betterTokenEditStats(current, candidate tokenEditStats) tokenEditStats {
+	if candidate.Distance != current.Distance {
+		if candidate.Distance < current.Distance {
+			return candidate
+		}
+		return current
+	}
+	candidateIndels := candidate.Insertions + candidate.Deletions
+	currentIndels := current.Insertions + current.Deletions
+	if candidateIndels != currentIndels {
+		if candidateIndels < currentIndels {
+			return candidate
+		}
+		return current
+	}
+	if candidate.IndelRunes < current.IndelRunes {
+		return candidate
+	}
+	return current
+}
+
+func validationTokensSimilar(left, right string) bool {
+	if strings.HasPrefix(left, "#") || strings.HasPrefix(right, "#") {
+		return false
+	}
+	leftRunes := []rune(left)
+	rightRunes := []rune(right)
+	longest := max(len(leftRunes), len(rightRunes))
+	if longest < 5 {
+		return false
+	}
+	budget := max(1, longest/5)
+	return boundedRuneEditDistance(leftRunes, rightRunes, budget) <= budget
+}
+
+func tokenRuneCost(token string) int {
+	return utf8.RuneCountInString(token) + 1
 }
 
 func boundedTokenEditDistance(left, right []string, limit int) int {

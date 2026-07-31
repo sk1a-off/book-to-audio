@@ -34,9 +34,14 @@ type Result struct {
 	Warnings []Warning
 }
 
+// WarningHandler receives non-fatal diagnostics for phrases that are kept
+// intact even though they exceed the preferred word limit.
+type WarningHandler func(Warning)
+
 // Segmenter splits text at semantic boundaries. The zero value is ready to use.
 type Segmenter struct {
-	maxWords int
+	maxWords  int
+	onWarning WarningHandler
 }
 
 // New creates a Segmenter with the requested preferred word limit.
@@ -45,6 +50,13 @@ func New(maxWords int) (Segmenter, error) {
 		return Segmenter{}, fmt.Errorf("max words must be positive, got %d", maxWords)
 	}
 	return Segmenter{maxWords: maxWords}, nil
+}
+
+// WithWarningHandler returns a copy that reports non-fatal segmentation
+// warnings. The handler is optional and is never called by SplitDetailed.
+func (s Segmenter) WithWarningHandler(handler WarningHandler) Segmenter {
+	s.onWarning = handler
+	return s
 }
 
 // MaxWords returns the effective preferred word limit.
@@ -57,7 +69,13 @@ func (s Segmenter) MaxWords() int {
 
 // Split is the compatibility entry point used by the FB2 parser.
 func (s Segmenter) Split(text string) []string {
-	return s.SplitDetailed(text).Segments
+	result := s.SplitDetailed(text)
+	if s.onWarning != nil {
+		for _, warning := range result.Warnings {
+			s.onWarning(warning)
+		}
+	}
+	return result.Segments
 }
 
 // SplitDetailed packs complete phrases up to MaxWords. A single phrase longer

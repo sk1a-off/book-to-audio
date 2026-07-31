@@ -55,6 +55,15 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
 	if err != nil {
 		return fmt.Errorf("некорректный параметр -max-words: %w", err)
 	}
+	textSegmenter = textSegmenter.WithWarningHandler(func(warning segment.Warning) {
+		_, _ = fmt.Fprintf(
+			stderr,
+			"Предупреждение: фраза из %d слов превышает лимит %d и сохранена целиком: %q\n",
+			warning.Words,
+			warning.Limit,
+			warning.Phrase,
+		)
+	})
 
 	parser := fb2.NewParser(textSegmenter)
 	parsedBook, err := parseInput(flags.Arg(0), stdin, parser)

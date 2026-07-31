@@ -26,9 +26,13 @@ func TestUIServesEmbeddedApplicationAndAssets(t *testing.T) {
 				`id="generate-button"`,
 				`id="job-dashboard"`,
 				`id="chapter-downloads"`,
+				`id="fragment-studio"`,
+				`id="fragment-studio-list"`,
 				`id="warnings-list"`,
 				`href="/assets/app.css"`,
+				`href="/assets/enhancements.css"`,
 				`src="/assets/app.js"`,
+				`src="/assets/fragments.js"`,
 			},
 		},
 		{
@@ -42,26 +46,47 @@ func TestUIServesEmbeddedApplicationAndAssets(t *testing.T) {
 			},
 		},
 		{
+			path:        "/assets/enhancements.css",
+			contentType: "text/css; charset=utf-8",
+			contains: []string{
+				".fragment-studio",
+				".fragment-counter-grid",
+				".fragment-card-body",
+				".fragment-status[data-status=\"warning\"]",
+				"prefers-reduced-motion",
+			},
+		},
+		{
 			path:        "/assets/app.js",
 			contentType: "text/javascript; charset=utf-8",
 			contains: []string{
-				`this.api.request("/v1/book"`,
-				`this.api.request("/v1/voice"`,
-				"`/v1/generate/book/${encodeURIComponent(bookID)}`",
-				"`/v1/job/${encodeURIComponent(jobID)}/chapters`",
-				"`/v1/fragment/${encodeURIComponent(fragment.id)}/audio.wav`",
-				"Сохранить и переозвучить",
-				"chapter.audio_url",
-				"FLAC собирается только после нажатия",
-				"loadFragmentCatalog(jobID)",
-				"createProgressFragmentCard(fragment)",
+				"class APIClient",
+				"uploadBook(file)",
+				"DEFAULT_GENERATION_SETTINGS",
+				"getFragmentRevisions(fragmentID)",
+				"restoreFragmentRevision(fragmentID, revisionID, reason)",
 				"rewriteWarnings(jobID, payload)",
 				"resumeStoredRewrite()",
 				"renderRewriteTask(task)",
 				"audio.preload = \"none\"",
-				"textContent",
-				"URLSearchParams",
 				"window.localStorage",
+			},
+		},
+		{
+			path:        "/assets/fragments.js",
+			contentType: "text/javascript; charset=utf-8",
+			contains: []string{
+				"class FragmentStudio",
+				"catalog(jobID)",
+				"edit(fragmentID, newText)",
+				"Сохранить и переозвучить",
+				"fragment.audio_available",
+				"audio.preload = \"none\"",
+				"/audio.flac",
+				"FRAGMENT_SAVED_QUEUE_FULL",
+				"MutationObserver",
+				"encodeURIComponent",
+				"JSON.stringify",
 			},
 		},
 	}
@@ -102,15 +127,24 @@ func TestUIServesEmbeddedApplicationAndAssets(t *testing.T) {
 
 func TestUIUsesSafeSameOriginDOMRendering(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
-	response := endpointTestRequest(
-		t,
-		fixture.server.Handler(),
-		http.MethodGet,
-		"/assets/app.js",
-		nil,
-		"",
-	)
-	javascript := response.Body.String()
+	handler := fixture.server.Handler()
+	var javascript strings.Builder
+	for _, path := range []string{"/assets/app.js", "/assets/fragments.js"} {
+		response := endpointTestRequest(
+			t,
+			handler,
+			http.MethodGet,
+			path,
+			nil,
+			"",
+		)
+		if response.Code != http.StatusOK {
+			t.Fatalf("GET %s status = %d", path, response.Code)
+		}
+		javascript.WriteString(response.Body.String())
+		javascript.WriteByte('\n')
+	}
+	content := javascript.String()
 	for _, forbidden := range []string{
 		"innerHTML",
 		"outerHTML",
@@ -120,7 +154,7 @@ func TestUIUsesSafeSameOriginDOMRendering(t *testing.T) {
 		"localhost:",
 		"127.0.0.1:",
 	} {
-		if strings.Contains(javascript, forbidden) {
+		if strings.Contains(content, forbidden) {
 			t.Errorf("JavaScript contains unsafe/direct reference %q", forbidden)
 		}
 	}
@@ -130,8 +164,9 @@ func TestUIUsesSafeSameOriginDOMRendering(t *testing.T) {
 		"JSON.stringify",
 		"busyOperations.has",
 		"TERMINAL_JOB_STATUSES",
+		"textContent",
 	} {
-		if !strings.Contains(javascript, required) {
+		if !strings.Contains(content, required) {
 			t.Errorf("JavaScript misses lifecycle guard %q", required)
 		}
 	}
@@ -156,9 +191,9 @@ func TestUIRouteIsExactAndDoesNotShadowAPI(t *testing.T) {
 func TestUIConditionalAndHeadRequests(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
 	handler := fixture.server.Handler()
-	initial := endpointTestRequest(t, handler, http.MethodGet, "/assets/app.js", nil, "")
+	initial := endpointTestRequest(t, handler, http.MethodGet, "/assets/fragments.js", nil, "")
 	etag := initial.Header().Get("ETag")
-	request := httptest.NewRequest(http.MethodGet, "/assets/app.js", nil)
+	request := httptest.NewRequest(http.MethodGet, "/assets/fragments.js", nil)
 	request.Header.Set("If-None-Match", etag)
 	conditional := endpointTestDo(t, handler, request)
 	if conditional.Code != http.StatusNotModified || conditional.Body.Len() != 0 {
@@ -180,6 +215,7 @@ func endpointTestAssertUISecurityHeaders(
 		"default-src 'self'",
 		"script-src 'self'",
 		"style-src 'self'",
+		"media-src 'self'",
 		"connect-src 'self'",
 		"frame-ancestors 'none'",
 	} {

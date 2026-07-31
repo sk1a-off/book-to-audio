@@ -10,7 +10,9 @@
   >
   <title>Голос Книги — студия аудиокниг</title>
   <link rel="stylesheet" href="/assets/app.css">
+  <link rel="stylesheet" href="/assets/enhancements.css">
   <script src="/assets/app.js" defer></script>
+  <script src="/assets/fragments.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#workspace">Перейти к рабочей области</a>
@@ -47,7 +49,7 @@
   <main id="workspace" tabindex="-1">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">От FB2 до готового архива</p>
+        <p class="eyebrow">От FB2 до готовых FLAC</p>
         <h1 id="hero-title">
           Соберите аудиокнигу
           <span>в одном спокойном рабочем потоке</span>
@@ -74,7 +76,7 @@
         </li>
         <li>
           <span>04</span>
-          <div><strong>Экспорт</strong><small>ZIP с главами FLAC</small></div>
+          <div><strong>Экспорт</strong><small>глава FLAC или книга ZIP</small></div>
         </li>
       </ol>
     </section>
@@ -560,6 +562,103 @@
           <div id="chapter-downloads-list" class="chapter-downloads-list"></div>
         </section>
       </div>
+    </section>
+
+    <section
+      id="fragment-studio"
+      class="fragment-studio"
+      aria-labelledby="fragment-studio-title"
+      hidden
+    >
+      <div class="fragment-studio-heading">
+        <div>
+          <p class="eyebrow">Живая проверка</p>
+          <h2 id="fragment-studio-title">Фрагменты во время озвучивания</h2>
+          <p>
+            Каталог обновляется без сборки глав и без загрузки PCM. Готовые
+            фрагменты можно прослушать, а готовые, спорные и ошибочные —
+            исправить и сразу отправить на переозвучивание.
+          </p>
+        </div>
+        <div class="fragment-studio-status" role="status" aria-live="polite">
+          <strong id="fragment-studio-summary">Откройте задачу, чтобы увидеть фрагменты.</strong>
+          <span id="fragment-studio-refreshed">Ожидаем ID задачи.</span>
+        </div>
+      </div>
+
+      <div class="fragment-progress-shell">
+        <progress
+          id="fragment-studio-progress"
+          max="100"
+          value="0"
+          aria-label="Готовность фрагментов"
+        >0%</progress>
+        <strong id="fragment-studio-progress-label">0%</strong>
+      </div>
+
+      <dl class="fragment-counter-grid">
+        <div class="fragment-counter">
+          <dt>Всего</dt>
+          <dd id="fragment-count-total">0</dd>
+        </div>
+        <div class="fragment-counter">
+          <dt>В работе</dt>
+          <dd id="fragment-count-pending">0</dd>
+        </div>
+        <div class="fragment-counter fragment-counter--ready">
+          <dt>Готово</dt>
+          <dd id="fragment-count-ready">0</dd>
+        </div>
+        <div class="fragment-counter fragment-counter--warning">
+          <dt>Проверить</dt>
+          <dd id="fragment-count-warning">0</dd>
+        </div>
+        <div class="fragment-counter fragment-counter--failed">
+          <dt>Ошибки</dt>
+          <dd id="fragment-count-failed">0</dd>
+        </div>
+      </dl>
+
+      <div class="fragment-toolbar" aria-label="Фильтры каталога фрагментов">
+        <label for="fragment-filter">
+          <span>Статус</span>
+          <select id="fragment-filter">
+            <option value="all">Все фрагменты</option>
+            <option value="actionable">Можно проверить или исправить</option>
+            <option value="in_progress">Ожидают или озвучиваются</option>
+            <option value="ready">Готовые</option>
+            <option value="warning">С предупреждением</option>
+            <option value="failed">С ошибкой</option>
+          </select>
+        </label>
+        <label for="fragment-search">
+          <span>Поиск</span>
+          <input
+            id="fragment-search"
+            type="search"
+            placeholder="Текст, глава, номер, ошибка…"
+            autocomplete="off"
+          >
+        </label>
+        <button id="fragment-refresh-button" class="button button--quiet" type="button">
+          Обновить
+        </button>
+      </div>
+
+      <div
+        id="fragment-studio-list"
+        class="fragment-studio-list"
+        aria-live="polite"
+      ></div>
+      <p id="fragment-studio-empty" class="fragment-studio-empty" hidden>
+        По выбранному фильтру фрагментов нет.
+      </p>
+      <button
+        id="fragment-load-more"
+        class="button button--quiet fragment-load-more"
+        type="button"
+        hidden
+      >Показать ещё</button>
     </section>
 
     <section id="warnings-section" class="warnings-section" aria-labelledby="warnings-title" hidden>

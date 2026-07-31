@@ -371,6 +371,15 @@ func TestFragmentRevisionEndpoints(t *testing.T) {
 	if editResponse.Code != http.StatusOK {
 		t.Fatalf("PATCH fragment status = %d, body = %s", editResponse.Code, editResponse.Body)
 	}
+	// PATCH now persists the revision and queues regeneration. Wait until the
+	// worker has released the fragment before exercising the restore endpoint;
+	// restoring text while TTS/STT is using it must remain a conflict.
+	endpointTestWaitForJob(
+		t,
+		handler,
+		generation.JobID,
+		JobStatusCompleted,
+	)
 
 	manualResponse := endpointTestRequest(
 		t,

@@ -1,0 +1,468 @@
+:root {
+  --studio-surface: rgba(255, 255, 255, 0.92);
+  --studio-border: rgba(16, 42, 67, 0.12);
+  --studio-shadow: 0 18px 48px rgba(16, 42, 67, 0.12);
+  --studio-muted: #61758a;
+  --studio-success: #13795b;
+  --studio-warning: #b05a00;
+  --studio-danger: #b42318;
+  --studio-accent: #3563e9;
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 6%, rgba(53, 99, 233, 0.1), transparent 24rem),
+    radial-gradient(circle at 92% 18%, rgba(19, 121, 91, 0.08), transparent 24rem),
+    #f5f8fc;
+}
+
+.site-header {
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.86);
+  border-bottom: 1px solid var(--studio-border);
+}
+
+.hero,
+.panel,
+.jobs-card,
+.job-shell,
+.warnings-section,
+.fragment-studio {
+  box-shadow: var(--studio-shadow);
+}
+
+.panel,
+.jobs-card,
+.fragment-card,
+.chapter-download-link {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.panel:hover,
+.jobs-card:hover,
+.fragment-card:hover,
+.chapter-download-link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(53, 99, 233, 0.28);
+  box-shadow: 0 16px 36px rgba(16, 42, 67, 0.11);
+}
+
+.button:focus-visible,
+.icon-button:focus-visible,
+.copy-button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+audio:focus-visible {
+  outline: 3px solid rgba(53, 99, 233, 0.28);
+  outline-offset: 3px;
+}
+
+.fragment-studio {
+  margin-top: 2rem;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  border: 1px solid var(--studio-border);
+  border-radius: 24px;
+  background: var(--studio-surface);
+}
+
+.fragment-studio[hidden] {
+  display: none;
+}
+
+.fragment-studio-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.fragment-studio-heading h2 {
+  margin: 0.25rem 0 0.55rem;
+}
+
+.fragment-studio-heading p {
+  max-width: 72ch;
+}
+
+.fragment-studio-status {
+  min-width: 15rem;
+  text-align: right;
+}
+
+.fragment-studio-status strong,
+.fragment-studio-status span {
+  display: block;
+}
+
+.fragment-studio-status span {
+  margin-top: 0.3rem;
+  color: var(--studio-muted);
+  font-size: 0.86rem;
+}
+
+.fragment-progress-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  margin: 1.3rem 0 1rem;
+}
+
+.fragment-progress-shell progress {
+  width: 100%;
+  height: 0.75rem;
+}
+
+.fragment-progress-shell strong {
+  min-width: 3rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.fragment-counter-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.fragment-counter {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--studio-border);
+  border-radius: 16px;
+  background: rgba(245, 248, 252, 0.78);
+}
+
+.fragment-counter dt {
+  color: var(--studio-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fragment-counter dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.fragment-counter--ready dd {
+  color: var(--studio-success);
+}
+
+.fragment-counter--warning dd {
+  color: var(--studio-warning);
+}
+
+.fragment-counter--failed dd {
+  color: var(--studio-danger);
+}
+
+.fragment-toolbar {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.55fr) minmax(16rem, 1fr) auto;
+  gap: 0.85rem;
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid var(--studio-border);
+  border-radius: 18px;
+  background: rgba(245, 248, 252, 0.78);
+}
+
+.fragment-toolbar label {
+  display: grid;
+  gap: 0.4rem;
+  color: #263f55;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.fragment-toolbar input,
+.fragment-toolbar select {
+  min-height: 2.75rem;
+}
+
+.fragment-studio-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.fragment-chapter {
+  overflow: clip;
+  border: 1px solid var(--studio-border);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.fragment-chapter > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  list-style: none;
+  background: linear-gradient(135deg, rgba(53, 99, 233, 0.06), rgba(19, 121, 91, 0.04));
+}
+
+.fragment-chapter > summary::-webkit-details-marker {
+  display: none;
+}
+
+.fragment-chapter > summary::after {
+  content: "⌄";
+  color: var(--studio-muted);
+  transition: transform 160ms ease;
+}
+
+.fragment-chapter[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.fragment-chapter-title {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.fragment-chapter-title small,
+.fragment-chapter-health {
+  color: var(--studio-muted);
+  font-size: 0.82rem;
+}
+
+.fragment-cards {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.fragment-card {
+  overflow: hidden;
+  border: 1px solid var(--studio-border);
+  border-left-width: 4px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.fragment-card--ready {
+  border-left-color: var(--studio-success);
+}
+
+.fragment-card--warning {
+  border-left-color: var(--studio-warning);
+}
+
+.fragment-card--failed {
+  border-left-color: var(--studio-danger);
+}
+
+.fragment-card--pending,
+.fragment-card--generating {
+  border-left-color: var(--studio-accent);
+}
+
+.fragment-card > header,
+.fragment-card > footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+}
+
+.fragment-card > header {
+  border-bottom: 1px solid var(--studio-border);
+  background: rgba(245, 248, 252, 0.72);
+}
+
+.fragment-card > header > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.fragment-card > header small {
+  color: var(--studio-muted);
+}
+
+.fragment-status {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: #e9eef5;
+  color: #36506a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.fragment-status[data-status="ready"] {
+  background: #e4f6ef;
+  color: var(--studio-success);
+}
+
+.fragment-status[data-status="warning"] {
+  background: #fff1df;
+  color: var(--studio-warning);
+}
+
+.fragment-status[data-status="failed"] {
+  background: #fee9e7;
+  color: var(--studio-danger);
+}
+
+.fragment-status[data-status="generating"] {
+  background: #e9efff;
+  color: #294cc7;
+}
+
+.fragment-card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.8fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.fragment-editor,
+.fragment-review-column {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+}
+
+.fragment-editor > span,
+.fragment-column-label {
+  color: #263f55;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.fragment-editor textarea {
+  min-height: 7.5rem;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.fragment-editor textarea:disabled {
+  color: #3f5263;
+  background: #f4f6f8;
+  opacity: 1;
+}
+
+.fragment-review-column audio {
+  width: 100%;
+}
+
+.fragment-transcript {
+  border: 1px solid var(--studio-border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.fragment-transcript summary {
+  padding: 0.7rem 0.8rem;
+  cursor: pointer;
+  color: #36506a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.fragment-transcript pre {
+  max-height: 12rem;
+  margin: 0;
+  padding: 0.8rem;
+  overflow: auto;
+  border-top: 1px solid var(--studio-border);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.fragment-audio-unavailable,
+.fragment-diagnostic {
+  margin: 0;
+  color: var(--studio-muted);
+  font-size: 0.86rem;
+}
+
+.fragment-card > footer {
+  border-top: 1px solid var(--studio-border);
+}
+
+.fragment-card > footer .fragment-save {
+  flex: 0 0 auto;
+}
+
+.fragment-studio-empty {
+  margin: 1rem 0 0;
+  padding: 1.2rem;
+  border: 1px dashed rgba(16, 42, 67, 0.22);
+  border-radius: 16px;
+  color: var(--studio-muted);
+  text-align: center;
+}
+
+.fragment-load-more {
+  display: block;
+  margin: 1rem auto 0;
+}
+
+@media (max-width: 900px) {
+  .fragment-studio-heading,
+  .fragment-card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .fragment-studio-status {
+    text-align: left;
+  }
+
+  .fragment-counter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fragment-counter:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .fragment-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .fragment-studio {
+    border-radius: 18px;
+  }
+
+  .fragment-counter-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fragment-card > header,
+  .fragment-card > footer,
+  .fragment-chapter > summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fragment-card > footer .fragment-save {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .jobs-card,
+  .fragment-card,
+  .chapter-download-link,
+  .fragment-chapter > summary::after {
+    transition: none;
+  }
+}

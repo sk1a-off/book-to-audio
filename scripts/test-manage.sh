@@ -87,7 +87,10 @@ reset_log() {
 
 run_manage() {
   reset_log
-  bash "${manage_script}" "$@"
+  # All Docker calls are handled by the fake binary above. Keep normal test
+  # output concise so simulated destructive commands cannot be mistaken for
+  # real cleanup of the developer's Docker resources.
+  bash "${manage_script}" "$@" >/dev/null 2>&1
 }
 
 bash -n "${manage_script}"

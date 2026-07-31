@@ -69,6 +69,25 @@ func TestSplitDetailed(t *testing.T) {
 	}
 }
 
+func TestSplitReportsWarningsThroughHandler(t *testing.T) {
+	t.Parallel()
+	segmenter, err := New(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var warnings []Warning
+	segmenter = segmenter.WithWarningHandler(func(warning Warning) {
+		warnings = append(warnings, warning)
+	})
+	segments := segmenter.Split("один два три четыре.")
+	if got, want := segments, []string{"один два три четыре."}; !slices.Equal(got, want) {
+		t.Fatalf("segments = %q, want %q", got, want)
+	}
+	if len(warnings) != 1 || warnings[0].Words != 4 || warnings[0].Limit != 2 {
+		t.Fatalf("warnings = %#v", warnings)
+	}
+}
+
 func TestOversizedWarningContainsActionableMetadata(t *testing.T) {
 	t.Parallel()
 	segmenter, err := New(3)

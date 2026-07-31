@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-//go:embed web/index.html web/app.css web/app.js
+//go:embed web/index.html web/app.css web/app.js web/enhancements.css web/fragments.js
 var uiFileSystem embed.FS
 
 type uiFile struct {
@@ -34,8 +34,18 @@ var (
 			"text/css; charset=utf-8",
 			"no-cache",
 		),
+		"enhancements.css": mustLoadUIFile(
+			"web/enhancements.css",
+			"text/css; charset=utf-8",
+			"no-cache",
+		),
 		"app.js": mustLoadUIFile(
 			"web/app.js",
+			"text/javascript; charset=utf-8",
+			"no-cache",
+		),
+		"fragments.js": mustLoadUIFile(
+			"web/fragments.js",
 			"text/javascript; charset=utf-8",
 			"no-cache",
 		),
@@ -103,13 +113,14 @@ func setUISecurityHeaders(header http.Header) {
 		"default-src 'self'; base-uri 'none'; object-src 'none'; "+
 			"frame-ancestors 'none'; form-action 'self'; "+
 			"script-src 'self'; style-src 'self'; img-src 'self' data:; "+
-			"connect-src 'self'",
+			"media-src 'self'; connect-src 'self'",
 	)
 	header.Set("Cross-Origin-Opener-Policy", "same-origin")
 	header.Set("Cross-Origin-Resource-Policy", "same-origin")
 	header.Set("Permissions-Policy", "camera=(), geolocation=(), microphone=()")
 	header.Set("Referrer-Policy", "no-referrer")
 	header.Set("X-Frame-Options", "DENY")
+	header.Set("X-Content-Type-Options", "nosniff")
 }
 
 func mustLoadUIFile(

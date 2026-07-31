@@ -13,7 +13,7 @@ import (
 	"book-text-editor/internal/book"
 )
 
-func TestRunParsesStdinAndWritesSummary(t *testing.T) {
+func TestRunKeepsLongSentenceIntactAndReportsWarning(t *testing.T) {
 	t.Parallel()
 
 	var stdout bytes.Buffer
@@ -27,18 +27,26 @@ func TestRunParsesStdinAndWritesSummary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("run() error = %v", err)
 	}
-	if stderr.Len() != 0 {
-		t.Fatalf("stderr = %q, want empty output", stderr.String())
-	}
 
 	expected := "" +
 		"Название: Книга\n" +
 		"Авторы: Автор\n" +
 		"Главы: 1\n" +
-		"1. Глава — 2 сегм.\n" +
-		"Всего сегментов: 2\n"
+		"1. Глава — 1 сегм.\n" +
+		"Всего сегментов: 1\n"
 	if stdout.String() != expected {
 		t.Fatalf("stdout = %q, want %q", stdout.String(), expected)
+	}
+	for _, expectedWarning := range []string{
+		"Предупреждение",
+		"4 слов",
+		"лимит 2",
+		"сохранена целиком",
+		"Один два три четыре.",
+	} {
+		if !strings.Contains(stderr.String(), expectedWarning) {
+			t.Errorf("stderr = %q, want %q", stderr.String(), expectedWarning)
+		}
 	}
 }
 
@@ -51,17 +59,49 @@ func TestRunParsesFile(t *testing.T) {
 	}
 
 	var stdout bytes.Buffer
+	var stderr bytes.Buffer
 	err := run(
 		[]string{"-max-words=2", path},
 		strings.NewReader(""),
 		&stdout,
-		io.Discard,
+		&stderr,
+	)
+	if err != nil {
+		t.Fatalf("run() error = %v", err)
+	}
+	if !strings.Contains(stdout.String(), "Всего сегментов: 1") {
+		t.Fatalf("stdout = %q, want segment count", stdout.String())
+	}
+	if !strings.Contains(stderr.String(), "сохранена целиком") {
+		t.Fatalf("stderr = %q, want long phrase warning", stderr.String())
+	}
+}
+
+func TestRunDoesNotWarnForPhrasesWithinLimit(t *testing.T) {
+	t.Parallel()
+
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	document := strings.Replace(
+		cliTestDocument,
+		"Один два три четыре.",
+		"Один два. Три четыре.",
+		1,
+	)
+	err := run(
+		[]string{"-max-words=2", "-"},
+		strings.NewReader(document),
+		&stdout,
+		&stderr,
 	)
 	if err != nil {
 		t.Fatalf("run() error = %v", err)
 	}
 	if !strings.Contains(stdout.String(), "Всего сегментов: 2") {
-		t.Fatalf("stdout = %q, want segment count", stdout.String())
+		t.Fatalf("stdout = %q, want two segments", stdout.String())
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("stderr = %q, want no warnings", stderr.String())
 	}
 }
 

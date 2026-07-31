@@ -39,6 +39,18 @@ func TestTranscriptMatches(t *testing.T) {
 			want:     false,
 		},
 		{
+			name:     "single semantic token replacement",
+			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
+			actual:   "Однажды вечером путник медленно вошёл в новый пустой дом.",
+			want:     false,
+		},
+		{
+			name:     "negation omission",
+			expected: "Путник никогда не открывал эту старую тяжёлую дверь.",
+			actual:   "Путник никогда открывал эту старую тяжёлую дверь.",
+			want:     false,
+		},
+		{
 			name:     "material replacement",
 			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
 			actual:   "Утром поезд быстро покинул новый большой город.",
