@@ -112,6 +112,25 @@ type repository interface {
 	) (jobTask, error)
 	cancelRetry(context.Context, jobTask, time.Time) error
 
+	// Fragment review application port. These methods keep the new workflow
+	// explicit at compile time instead of relying on runtime type assertions.
+	jobFragments(
+		context.Context,
+		string,
+	) (jobFragmentSnapshot, bool, error)
+	editAndPrepareFragment(
+		context.Context,
+		string,
+		string,
+		string,
+		time.Time,
+	) (FragmentResource, jobTask, error)
+	downloadableChapterSnapshot(
+		context.Context,
+		string,
+		int,
+	) (archiveSnapshot, error)
+
 	startTask(context.Context, jobTask, time.Time) error
 	workItem(context.Context, string) (fragmentWorkItem, error)
 	startFragment(context.Context, string, time.Time) (FragmentResource, error)

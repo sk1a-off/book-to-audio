@@ -59,6 +59,7 @@ type Server struct {
 
 	handler       http.Handler
 	runner        *jobRunner
+	fragments     *fragmentService
 	rewriteRunner *rewriteRunner
 }
 
@@ -115,7 +116,7 @@ func newServerWithRepository(
 	}
 
 	server := &Server{
-		store:           newRepositoryFacade(store),
+		store:           store,
 		parser:          fb2.NewParser(segment.Segmenter{}),
 		tts:             dependencies.TTS,
 		stt:             dependencies.STT,
@@ -127,6 +128,12 @@ func newServerWithRepository(
 		rewriterTimeout: rewriterTimeout,
 	}
 	server.runner = newJobRunner(server, queueSize)
+	fragments, err := newFragmentService(store, server.runner.enqueue)
+	if err != nil {
+		server.runner.close()
+		return nil, fmt.Errorf("configure fragment workflow: %w", err)
+	}
+	server.fragments = fragments
 	server.rewriteRunner = newRewriteRunner(server, rewriteQueueSize)
 	server.handler = server.routes()
 
@@ -659,7 +666,7 @@ func (s *Server) editFragment(writer http.ResponseWriter, request *http.Request)
 	}
 
 	now := s.now().UTC()
-	fragment, err := s.store.editFragment(
+	fragment, err := s.fragments.editAndQueue(
 		request.Context(),
 		request.PathValue("fragmentID"),
 		input.NewText,
@@ -683,27 +690,25 @@ func (s *Server) editFragment(writer http.ResponseWriter, request *http.Request)
 			"FRAGMENT_BUSY",
 			err.Error(),
 		)
-	case err != nil:
-		s.internalStoreError(writer, request, "update fragment", err)
-	default:
-		updated, queued, queueErr := s.queueEditedFragment(
-			request.Context(),
-			fragment,
-			now,
+	case errors.Is(err, errGenerationQueueFull):
+		s.logger.Warn(
+			"edited fragment was saved but generation queue is full",
+			"request_id", requestID(request.Context()),
+			"job_id", fragment.JobID,
+			"fragment_id", fragment.ID,
+			"error", err,
 		)
-		if queueErr != nil {
-			s.logger.Warn(
-				"edited fragment was saved but not queued",
-				"request_id", requestID(request.Context()),
-				"job_id", fragment.JobID,
-				"fragment_id", fragment.ID,
-				"error", queueErr,
-			)
-		}
-		if queued {
-			writer.Header().Set("X-Fragment-Regeneration-Queued", "true")
-			fragment = updated
-		}
+		writeProblem(
+			writer,
+			request,
+			http.StatusServiceUnavailable,
+			"FRAGMENT_SAVED_QUEUE_FULL",
+			"fragment text was saved, but the generation queue is full; retry the fragment later",
+		)
+	case err != nil:
+		s.internalStoreError(writer, request, "edit and queue fragment", err)
+	default:
+		writer.Header().Set("X-Fragment-Regeneration-Queued", "true")
 		writeJSON(writer, http.StatusOK, fragment)
 	}
 }

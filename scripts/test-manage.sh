@@ -141,6 +141,27 @@ assert_log_contains "volume rm tts-microservice-mvp_stt-models"
 assert_log_contains "volume rm tts-microservice-mvp_rewriter-models"
 assert_log_excludes "image rm"
 
+reset_log
+if bash "${manage_script}" full-reset >/dev/null 2>&1; then
+  fail "full-reset without --yes unexpectedly succeeded"
+fi
+[[ ! -s "${docker_log}" ]] ||
+  fail "full-reset without --yes invoked Docker"
+
+run_manage full-reset --yes
+assert_log_contains "down --remove-orphans"
+assert_log_contains "volume rm tts-microservice-mvp_postgres-data"
+assert_log_contains "volume rm tts-microservice-mvp_omnivoice-models"
+assert_log_contains "volume rm tts-microservice-mvp_stt-models"
+assert_log_contains "volume rm tts-microservice-mvp_rewriter-models"
+assert_log_contains "image rm tts-microservice-mvp/audiobook-api:local"
+assert_log_contains "tts-microservice-mvp/omnivoice-worker:local"
+assert_log_contains "tts-microservice-mvp/stt-worker:local"
+assert_log_contains "tts-microservice-mvp/rewriter-worker:local"
+assert_log_contains "image rm sha256:managed-dangling"
+assert_before "down --remove-orphans" "volume rm tts-microservice-mvp_postgres-data"
+assert_before "volume rm tts-microservice-mvp_rewriter-models" "image rm tts-microservice-mvp/audiobook-api"
+
 run_manage restart
 assert_log_contains "config --quiet"
 assert_log_contains "down --remove-orphans"
@@ -180,7 +201,7 @@ if grep --extended-regexp --quiet \
   fail "global Docker cleanup command detected"
 fi
 
-for command in up rebuild restart stop down status ps logs smoke clean reset; do
+for command in up rebuild restart stop down status ps logs smoke clean reset full-reset; do
   grep --fixed-strings --quiet -- "${command}" "${manage_script}" ||
     fail "manage script does not mention command: ${command}"
 done

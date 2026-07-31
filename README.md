@@ -88,17 +88,21 @@ Content-Type: application/json
 {"new_text":"Исправленный текст фрагмента."}
 ```
 
-Редактировать можно статусы `ready`, `warning` и `failed`. Сервис атомарно:
+Редактировать можно статусы `ready`, `warning` и `failed`. В одной
+транзакции PostgreSQL — либо в одной критической секции memory-adapter — сервис:
 
 1. создаёт новую текстовую ревизию;
 2. удаляет устаревшее аудио текущей версии;
-3. переводит фрагмент в очередь;
-4. запускает TTS и STT повторно;
-5. пересчитывает состояние job.
+3. переводит фрагмент в `pending`;
+4. пересчитывает состояние job и подготавливает задачу повторной генерации.
 
-Клиент получает заголовок
-`X-Fragment-Regeneration-Queued: true`, когда повторная генерация успешно
-поставлена в очередь.
+После фиксации состояния application service передаёт задачу bounded runner.
+При успехе клиент получает `X-Fragment-Regeneration-Queued: true`, затем TTS и
+STT выполняются асинхронно. Если очередь переполнена, API отвечает
+`503 FRAGMENT_SAVED_QUEUE_FULL`: исправленный текст остаётся сохранённым,
+фрагмент возвращается в retryable `warning`, и его можно повторить позже. Это
+не выдаёт внешнюю in-memory очередь за часть SQL-транзакции и не оставляет
+устаревшее аудио после правки.
 
 ## Экспорт без преждевременной сборки
 
@@ -155,6 +159,10 @@ manifest.json
 - `ё` и `е` считаются эквивалентными;
 - для достаточно длинных фраз разрешена небольшая token edit distance;
 - дополнительно проверяется символьная похожесть;
+- цифры и русские числительные сравниваются по значению (`25` = «двадцать
+  пять», но «пять» ≠ «пятьсот»);
+- edit distance вычисляется полосовым алгоритмом с жёстким бюджетом, поэтому
+  большой вход не вызывает квадратичного потребления CPU/памяти;
 - короткие фразы остаются строгими;
 - пустая или существенно другая расшифровка по-прежнему даёт warning.
 
@@ -171,11 +179,11 @@ Browser
   ▼
 audiobook-api (Go)
   ├─ HTTP transport / embedded UI
-  ├─ generation and review use cases
-  ├─ fragment read model
-  ├─ repository facade
-  ├─ PostgreSQL repository
-  ├─ in-memory repository for tests
+  ├─ generation and review application services
+  ├─ fragment read model + focused persistence port
+  ├─ PostgreSQL fragment adapter
+  ├─ in-memory fragment adapter for tests
+  ├─ existing repository implementations
   ├─ TTS/STT/rewrite clients
   └─ on-demand FLAC/ZIP exporter
        │
@@ -203,18 +211,23 @@ audiobook-api (Go)
 - не имеют DB credentials;
 - не владеют persistent artifact paths.
 
-**Repository facade и focused capabilities**
+**Application service и focused persistence port**
 
-Старый широкий repository contract сохранён для обратной совместимости, а
-новые сценарии выделены в небольшие capability-интерфейсы:
+HTTP-обработчики не выполняют storage orchestration самостоятельно. Сценарий
+просмотра/редактирования/повторной генерации выделен в `fragmentService`, а его
+зависимость описана небольшим `fragmentWorkflowStore`:
 
-- чтение fragment catalog;
-- редактирование завершённого фрагмента;
-- подготовка одного изменённого фрагмента к генерации;
-- получение готового snapshot конкретной главы.
+- metadata-only fragment catalog;
+- атомарная правка текста и подготовка retry task;
+- компенсация при переполненной runner queue;
+- snapshot одной полностью готовой главы для on-demand экспорта.
 
-Это уменьшает связанность HTTP-обработчиков с конкретным storage и позволяет
-одинаково выполнять workflow в memory и PostgreSQL реализациях.
+Memory и PostgreSQL находятся за отдельными adapter-файлами. В результате
+transport отвечает за HTTP-контракт, application service — за последовательность
+use case, repository adapters — за транзакции и блокировки, runner — за фоновые
+TTS/STT задания, exporter — только за PCM/FLAC/ZIP. Это не полная миграция всего
+старого пакета `api` на textbook Clean Architecture, но новый workflow больше не
+расширяет монолитный handler/storage coupling и имеет отдельные unit-тесты.
 
 ## Основные endpoint'ы
 
@@ -262,7 +275,10 @@ book-text-editor/
   api/
     endpoints.go              # HTTP transport and routing
     jobs.go                   # generation orchestration
-    fragment_workflow.go      # read/edit/regenerate use cases
+    fragment_service.go       # fragment review application service
+    fragment_store_memory.go  # in-memory adapter
+    fragment_store_postgres.go # PostgreSQL adapter and transactions
+    transcript_validation.go  # bounded deterministic STT comparison
     chapter_archive.go        # metadata catalog and direct FLAC download
     archive.go                # PCM concatenation and encoding
     postgres_store.go         # PostgreSQL implementation
@@ -326,9 +342,24 @@ Python test suites и lock-файлы находятся в каталогах �
 ./scripts/manage.sh smoke
 ```
 
-`clean` удаляет только allowlisted project images. `reset --yes` дополнительно
-удаляет project volumes PostgreSQL и model cache. Глобальные Docker resources
-скрипт не очищает.
+Команды очистки намеренно разделены:
+
+```bash
+./scripts/manage.sh clean
+./scripts/manage.sh reset --yes
+./scripts/manage.sh full-reset --yes
+```
+
+- `clean` удаляет containers/network и только allowlisted project images,
+  сохраняя volumes;
+- существующий `reset --yes` удаляет containers/network и четыре project
+  volumes PostgreSQL/model cache, но **сохраняет images**;
+- новый `full-reset --yes` удаляет containers/network, четыре project volumes,
+  четыре project images и managed dangling images.
+
+Даже `full-reset` не выполняет глобальный Docker prune, не удаляет исходники,
+`deploy/compose/.env` и посторонние images/volumes. Для обеих команд с удалением
+данных обязателен явный `--yes`.
 
 ## Безопасность
 

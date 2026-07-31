@@ -207,6 +207,27 @@ func TestEndpointsGenerateAndDownloadDirectChapterFLAC(t *testing.T) {
 		t.Errorf("Content-Type=%q", got)
 	}
 	endpointTestAssertFLAC(t, "chapter", flacResponse.Body.Bytes())
+
+	legacyResponse := endpointTestRequest(
+		t,
+		handler,
+		http.MethodGet,
+		catalog.Chapters[0].AudioZIPURL,
+		nil,
+		"",
+	)
+	if legacyResponse.Code != http.StatusOK ||
+		legacyResponse.Header().Get("Content-Type") != "audio/flac" ||
+		legacyResponse.Header().Get("Deprecation") != "true" {
+		t.Fatalf(
+			"legacy chapter response status=%d type=%q deprecation=%q body=%s",
+			legacyResponse.Code,
+			legacyResponse.Header().Get("Content-Type"),
+			legacyResponse.Header().Get("Deprecation"),
+			legacyResponse.Body,
+		)
+	}
+	endpointTestAssertFLAC(t, "legacy chapter", legacyResponse.Body.Bytes())
 }
 
 func TestReadyFragmentCanBeEditedAndAutomaticallyRequeued(t *testing.T) {

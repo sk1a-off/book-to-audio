@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"slices"
 	"strconv"
+	"strings"
 )
 
 // ChapterAudioResource describes chapter progress without assembling audio.
@@ -48,18 +49,7 @@ func (s *Server) listJobChapters(
 	request *http.Request,
 ) {
 	jobID := request.PathValue("jobID")
-	reader, ok := s.store.(jobFragmentReader)
-	if !ok {
-		s.internalStoreError(
-			writer,
-			request,
-			"list job fragments",
-			errors.New("repository does not expose fragment read model"),
-		)
-		return
-	}
-
-	snapshot, found, err := reader.jobFragments(request.Context(), jobID)
+	snapshot, found, err := s.fragments.catalog(request.Context(), jobID)
 	switch {
 	case err != nil:
 		s.internalStoreError(writer, request, "list job fragments", err)
@@ -88,18 +78,13 @@ func (s *Server) listJobChapters(
 		return
 	}
 
-	job, exists, err := s.store.job(request.Context(), jobID)
-	if err != nil {
-		s.internalStoreError(writer, request, "get job for chapter catalog", err)
-		return
-	}
 	response := JobChaptersResponse{
 		JobID:     jobID,
-		BookID:    snapshot.BookID,
+		BookID:    snapshot.Job.BookID,
 		Chapters:  chapters,
 		Fragments: snapshot.Fragments,
 	}
-	if exists && job.Status == JobStatusCompleted {
+	if snapshot.Job.Status == JobStatusCompleted {
 		response.AudioZIPURL = "/v1/job/" + url.PathEscape(jobID) + "/audio.zip"
 	}
 	writeJSON(writer, http.StatusOK, response)
@@ -126,7 +111,7 @@ func (s *Server) getChapterAudioFLAC(
 	}
 
 	jobID := request.PathValue("jobID")
-	snapshot, err := s.store.chapterArchiveSnapshot(
+	snapshot, err := s.fragments.chapterSnapshot(
 		request.Context(),
 		jobID,
 		chapterNumber,
@@ -166,8 +151,7 @@ func (s *Server) getChapterAudioFLAC(
 		return
 	}
 
-	if request.URL.Path != "" && request.PathValue("chapterNumber") != "" &&
-		len(request.URL.Path) >= 4 && request.URL.Path[len(request.URL.Path)-4:] == ".zip" {
+	if strings.HasSuffix(request.URL.Path, ".zip") {
 		writer.Header().Set("Deprecation", "true")
 		writer.Header().Set(
 			"Link",

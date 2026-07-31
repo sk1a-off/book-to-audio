@@ -60,6 +60,22 @@ curl --fail-with-body --silent --show-error -X POST \
   --output "${job_response}"
 job_id="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["job_id"])' "${job_response}")"
 
+# The catalog must be readable immediately; this request is metadata-only and
+# must not assemble a chapter or create an archive.
+curl --fail-with-body --silent --show-error \
+  "${api_url}/v1/job/${job_id}/chapters" --output "${chapters_response}"
+python3 - "${chapters_response}" <<'PY'
+import json
+import sys
+
+payload = json.load(open(sys.argv[1], encoding="utf-8"))
+assert payload["chapters"], payload
+assert payload["fragments"], payload
+assert len(payload["fragments"]) == sum(
+    chapter["fragments_count"] for chapter in payload["chapters"]
+), payload
+PY
+
 for attempt in $(seq 1 900); do
   curl --fail-with-body --silent --show-error \
     "${api_url}/v1/job/${job_id}" --output "${status_response}"

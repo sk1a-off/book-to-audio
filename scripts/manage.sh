@@ -89,6 +89,11 @@ usage() {
       Удалить только четыре явно именованных project volumes с PostgreSQL
       и моделями. Образы сохраняются. Флаг --yes обязателен.
 
+  ./scripts/manage.sh full-reset --yes
+      Полностью удалить ресурсы этого проекта: containers, network, четыре
+      project volumes, четыре project images и managed dangling images.
+      Исходники, .env и посторонние Docker-ресурсы сохраняются.
+
 Переменные:
   COMPOSE_WAIT_TIMEOUT  ожидание health в секундах, по умолчанию 900
   COMPOSE_LOGS_TAIL     число начальных строк logs, по умолчанию 200
@@ -303,9 +308,9 @@ case "${command_name}" in
       die "unknown service: $1"
     fi
     ;;
-  reset)
+  reset | full-reset)
     (($# == 1)) && [[ "$1" == "--yes" ]] ||
-      die "reset is destructive; run: ./scripts/manage.sh reset --yes"
+      die "${command_name} is destructive; run: ./scripts/manage.sh ${command_name} --yes"
     ;;
   *)
     usage >&2
@@ -365,5 +370,13 @@ case "${command_name}" in
     down_contour
     remove_project_volumes
     info "reset завершён; project images сохранены"
+    ;;
+  full-reset)
+    warn "будут удалены все Docker-ресурсы проекта: containers, network, volumes и images"
+    down_contour
+    remove_project_volumes
+    remove_project_images
+    remove_managed_dangling_images
+    info "full-reset завершён; исходники, .env и посторонние Docker-ресурсы сохранены"
     ;;
 esac
