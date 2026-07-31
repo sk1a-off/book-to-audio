@@ -12,11 +12,10 @@ import (
 )
 
 const (
-	// A mismatch is actionable only when less than roughly half of the useful
-	// lexical/character signal survives normalization. This deliberately avoids
-	// flooding a long audiobook with warnings for punctuation, word order,
-	// endings, numbers or a few missed words.
-	transcriptWarningSimilarityThreshold = 0.48
+	// A fragment is marked with transcript_mismatch only when its normalized
+	// Whisper similarity is strictly below 92 percent. Exactly 92 percent is
+	// accepted, matching the user-visible quality threshold.
+	transcriptWarningSimilarityThreshold = 0.92
 	maxTranscriptTokenDistance           = 256
 	maxTranscriptRuneDistance            = 2048
 )

@@ -1,83 +1,128 @@
 package api
 
 import (
+	"math"
 	"strings"
 	"testing"
 )
 
-func TestTranscriptMatchesIsDeliberatelyForgiving(t *testing.T) {
+func TestTranscriptMatchesUsesNinetyTwoPercentThreshold(t *testing.T) {
 	t.Parallel()
+
+	if math.Abs(transcriptWarningSimilarityThreshold-0.92) > 1e-12 {
+		t.Fatalf(
+			"transcriptWarningSimilarityThreshold = %.12f, want 0.92",
+			transcriptWarningSimilarityThreshold,
+		)
+	}
+
 	tests := []struct {
-		name     string
-		expected string
-		actual   string
-		want     bool
+		name       string
+		expected   string
+		actual     string
+		wantMatch  bool
+		scoreAbove bool
 	}{
 		{
-			name:     "punctuation case and yo",
-			expected: "Ёлка, гори! Это было в 2026 году.",
-			actual:   "елка гори это было в 2026 году",
-			want:     true,
+			name:       "punctuation case and yo are identical after normalization",
+			expected:   "Ёлка, гори! Это было в 2026 году.",
+			actual:     "елка гори это было в 2026 году",
+			wantMatch:  true,
+			scoreAbove: true,
 		},
 		{
-			name:     "several omissions remain acceptable",
-			expected: "Однажды вечером путник очень медленно вошёл в старый пустой дом возле реки.",
-			actual:   "Однажды путник вошел в старый дом возле реки",
-			want:     true,
+			name:       "one spelling error in a long phrase remains above threshold",
+			expected:   "Однажды вечером путник очень медленно вошёл в старый каменный дом возле тихой реки и осторожно закрыл тяжёлую дверь.",
+			actual:     "Однажды вечером путник очень медленно вошел в старый каменый дом возле тихой реки и осторожно закрыл тяжелую дверь.",
+			wantMatch:  true,
+			scoreAbove: true,
 		},
 		{
-			name:     "word order and numeric difference do not flood warnings",
-			expected: "В серии было пять книг и одна рукопись.",
-			actual:   "Одна рукопись и пятьсот книг были в серии",
-			want:     true,
+			name:       "one material omission below threshold creates warning",
+			expected:   "Путник медленно вошёл в старый каменный дом.",
+			actual:     "Путник медленно вошел в старый дом",
+			wantMatch:  false,
+			scoreAbove: false,
 		},
 		{
-			name:     "short inflection is acceptable",
-			expected: "Для нас обоих",
-			actual:   "Для них обоих",
-			want:     true,
+			name:       "several omissions create warning",
+			expected:   "Однажды вечером путник очень медленно вошёл в старый пустой дом возле реки.",
+			actual:     "Однажды путник вошел в старый дом возле реки",
+			wantMatch:  false,
+			scoreAbove: false,
 		},
 		{
-			name:     "unrelated text is warning",
-			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
-			actual:   "Утром поезд быстро покинул новый большой город.",
-			want:     false,
+			name:       "word order and numeric difference create warning below 92 percent",
+			expected:   "В серии было пять книг и одна рукопись.",
+			actual:     "Одна рукопись и пятьсот книг были в серии",
+			wantMatch:  false,
+			scoreAbove: false,
 		},
 		{
-			name:     "almost entirely missing is warning",
-			expected: "Это длинный фрагмент книги, который должен быть распознан хотя бы в основных словах.",
-			actual:   "фрагмент",
-			want:     false,
+			name:       "unrelated text creates warning",
+			expected:   "Однажды вечером путник медленно вошёл в старый пустой дом.",
+			actual:     "Утром поезд быстро покинул новый большой город.",
+			wantMatch:  false,
+			scoreAbove: false,
 		},
 		{
-			name:     "empty transcript is warning",
-			expected: "Непустой текст.",
-			actual:   "",
-			want:     false,
+			name:       "empty transcript creates warning",
+			expected:   "Непустой текст.",
+			actual:     "",
+			wantMatch:  false,
+			scoreAbove: false,
 		},
 	}
+
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			if got := transcriptMatches(test.expected, test.actual); got != test.want {
-				t.Fatalf("transcriptMatches() = %t, want %t; score=%.3f",
-					got, test.want, transcriptSimilarityScore(test.expected, test.actual))
+			score := transcriptSimilarityScore(test.expected, test.actual)
+			if got := transcriptMatches(test.expected, test.actual); got != test.wantMatch {
+				t.Fatalf(
+					"transcriptMatches() = %t, want %t; score=%.6f threshold=%.2f",
+					got,
+					test.wantMatch,
+					score,
+					transcriptWarningSimilarityThreshold,
+				)
+			}
+			if test.scoreAbove && score < transcriptWarningSimilarityThreshold {
+				t.Fatalf("score %.6f is below threshold %.2f", score, transcriptWarningSimilarityThreshold)
+			}
+			if !test.scoreAbove && score >= transcriptWarningSimilarityThreshold {
+				t.Fatalf("score %.6f is not below threshold %.2f", score, transcriptWarningSimilarityThreshold)
 			}
 		})
 	}
 }
 
-func TestTranscriptSimilarityRanksBetterAttemptHigher(t *testing.T) {
+func TestTranscriptSimilarityRanksBestAttemptHigher(t *testing.T) {
 	t.Parallel()
-	expected := "Путник медленно вошёл в старый дом и закрыл тяжёлую дверь."
+
+	expected := "Однажды вечером путник очень медленно вошёл в старый каменный дом возле тихой реки и осторожно закрыл тяжёлую дверь."
 	poor := transcriptSimilarityScore(expected, "Поезд покинул город утром")
-	better := transcriptSimilarityScore(expected, "Путник вошел в старый дом и закрыл дверь")
-	if better <= poor {
-		t.Fatalf("better score %.3f <= poor score %.3f", better, poor)
+	acceptable := transcriptSimilarityScore(
+		expected,
+		"Однажды вечером путник очень медленно вошел в старый каменый дом возле тихой реки и осторожно закрыл тяжелую дверь.",
+	)
+	perfect := transcriptSimilarityScore(expected, expected)
+
+	if !(perfect > acceptable && acceptable > poor) {
+		t.Fatalf(
+			"scores are not ordered: perfect=%.3f acceptable=%.3f poor=%.3f",
+			perfect,
+			acceptable,
+			poor,
+		)
 	}
-	if better < transcriptWarningSimilarityThreshold {
-		t.Fatalf("better score %.3f unexpectedly creates warning", better)
+	if acceptable < transcriptWarningSimilarityThreshold {
+		t.Fatalf(
+			"acceptable score %.3f unexpectedly creates warning at %.2f",
+			acceptable,
+			transcriptWarningSimilarityThreshold,
+		)
 	}
 }
 

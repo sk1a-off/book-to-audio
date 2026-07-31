@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#102a43">
-  <meta name="description" content="Проверка фрагментов одной главы аудиокниги">
+  <meta name="description" content="Проверка и LLM-правка фрагментов одной главы аудиокниги">
   <title>Проверка главы — Голос Книги</title>
   <link rel="stylesheet" href="/assets/chapter.css">
   <script src="/assets/chapter.js" defer></script>
@@ -41,6 +41,74 @@
         <div><dt>Ошибки</dt><dd id="metric-failed">0</dd></div>
       </dl>
       <progress id="chapter-progress" max="100" value="0">0%</progress>
+    </section>
+
+    <section id="rewrite-panel" class="rewrite-panel" aria-labelledby="rewrite-title">
+      <div class="rewrite-heading">
+        <div>
+          <p class="eyebrow">Локальная LLM</p>
+          <h2 id="rewrite-title">Переписать warning-фрагменты</h2>
+          <p>
+            Отметьте предупреждения в списке ниже. Модель исправляет текст,
+            сохраняя полную фразу; после проверки отправьте изменённый фрагмент
+            на переозвучивание. Warning создаётся только при сходстве Whisper ниже 92%.
+          </p>
+        </div>
+        <button id="rewrite-model-refresh" class="button button--quiet" type="button">
+          Обновить модели
+        </button>
+      </div>
+
+      <div class="rewrite-grid">
+        <label class="field">
+          <span>Модель</span>
+          <select id="rewrite-model-select" disabled>
+            <option value="">Загружаем модели…</option>
+          </select>
+        </label>
+        <label class="field rewrite-prompt-field">
+          <span>Инструкция модели</span>
+          <textarea id="rewrite-prompt" rows="5" disabled></textarea>
+          <small>Исходный текст, Whisper-расшифровка и код warning добавляются сервером.</small>
+        </label>
+      </div>
+
+      <details class="rewrite-advanced">
+        <summary>Расширенные параметры LLM</summary>
+        <div class="rewrite-settings-grid">
+          <label class="field"><span>Temperature</span><input id="rewrite-temperature" type="number" inputmode="decimal" disabled><small id="rewrite-temperature-hint"></small></label>
+          <label class="field"><span>Top K</span><input id="rewrite-top-k" type="number" inputmode="numeric" disabled><small id="rewrite-top-k-hint"></small></label>
+          <label class="field"><span>Top P</span><input id="rewrite-top-p" type="number" inputmode="decimal" disabled><small id="rewrite-top-p-hint"></small></label>
+          <label class="field"><span>Min P</span><input id="rewrite-min-p" type="number" inputmode="decimal" disabled><small id="rewrite-min-p-hint"></small></label>
+          <label class="field"><span>Repeat penalty</span><input id="rewrite-repeat-penalty" type="number" inputmode="decimal" disabled><small id="rewrite-repeat-penalty-hint"></small></label>
+          <label class="field"><span>Максимум токенов</span><input id="rewrite-max-tokens" type="number" inputmode="numeric" disabled><small id="rewrite-max-tokens-hint"></small></label>
+        </div>
+      </details>
+
+      <div class="rewrite-toolbar">
+        <div>
+          <p id="rewrite-model-status" class="muted" role="status" aria-live="polite">Получаем список моделей…</p>
+          <p id="rewrite-selection-summary" class="rewrite-selection-summary">Выбрано: 0</p>
+        </div>
+        <div class="rewrite-actions">
+          <button id="rewrite-selected-button" class="button button--secondary" type="button" disabled>
+            Переписать выбранные
+          </button>
+          <button id="rewrite-all-button" class="button button--primary" type="button" disabled>
+            Переписать все warning этой главы
+          </button>
+        </div>
+      </div>
+
+      <div id="rewrite-progress-region" class="rewrite-progress" role="status" aria-live="polite" hidden>
+        <div class="rewrite-progress-heading">
+          <strong id="rewrite-progress-label">Задача LLM подготавливается…</strong>
+          <span id="rewrite-progress-percent">0%</span>
+        </div>
+        <progress id="rewrite-progress-bar" max="100" value="0">0%</progress>
+        <p id="rewrite-progress-details" class="muted"></p>
+        <ul id="rewrite-failures" class="rewrite-failures" hidden></ul>
+      </div>
     </section>
 
     <section class="review-panel" aria-labelledby="review-title">

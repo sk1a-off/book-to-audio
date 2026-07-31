@@ -27,18 +27,35 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 			path: "/jobs/job-test/chapters/1", contentType: "text/html; charset=utf-8",
 			contains: []string{
 				`id="chapter-title"`, `id="fragment-list"`, `id="status-filter"`,
+				`id="rewrite-panel"`, `id="rewrite-model-select"`,
+				`id="rewrite-selected-button"`, `id="rewrite-progress-region"`,
+				`ниже 92%`,
 				`href="/assets/chapter.css"`, `src="/assets/chapter.js"`,
 			},
 		},
 		{
 			path: "/assets/chapter.css", contentType: "text/css; charset=utf-8",
-			contains: []string{".fragment-card", ".pagination", "prefers-reduced-motion"},
+			contains: []string{
+				".fragment-card", ".pagination", ".rewrite-panel",
+				".rewrite-progress", ".rewrite-fragment-selection",
+				"prefers-reduced-motion",
+			},
 		},
 		{
 			path: "/assets/chapter.js", contentType: "text/javascript; charset=utf-8",
 			contains: []string{
 				"class ChapterPage", "PAGE_SIZE = 20", "credentials: \"same-origin\"",
 				"Повторить только этот фрагмент", "transcript_score", "encodeURIComponent",
+				"rewriteModels()", "rewriteWarnings(jobID, payload)",
+				"pollRewrite(rewriteID)", "REWRITE_STORAGE_KEY",
+				"Переписать выбранные", `toFixed(1)`,
+			},
+		},
+		{
+			path: "/assets/app.js", contentType: "text/javascript; charset=utf-8",
+			contains: []string{
+				"class APIClient", "automatic_warning_retries: 1",
+				"Math.min(candidate, 1)",
 			},
 		},
 	}
@@ -87,6 +104,7 @@ func TestUIJavaScriptUsesSafeSameOriginDOMRendering(t *testing.T) {
 	}
 	for _, required := range []string{
 		"credentials: \"same-origin\"", "encodeURIComponent", "JSON.stringify", "textContent",
+		"window.localStorage", "REWRITE_TERMINAL_STATUSES",
 	} {
 		if !strings.Contains(content, required) {
 			t.Errorf("JavaScript misses guard %q", required)
