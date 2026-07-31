@@ -30,7 +30,7 @@ type ErrorResponse struct {
 	RequestID string `json:"request_id,omitempty"`
 }
 
-// Dependencies contains the replaceable worker and platform boundaries.
+// Dependencies contains replaceable worker and platform boundaries.
 type Dependencies struct {
 	TTS              TTSClient
 	STT              STTClient
@@ -44,7 +44,7 @@ type Dependencies struct {
 	RewriteQueueSize int
 }
 
-// Server owns the HTTP API and the bounded Go-side orchestration queue.
+// Server owns the HTTP API and bounded orchestration queues.
 type Server struct {
 	store           repository
 	parser          fb2.Parser
@@ -62,9 +62,7 @@ type Server struct {
 	rewriteRunner *rewriteRunner
 }
 
-// NewServer constructs an isolated API instance with a memory repository.
-// It is intended for tests; production startup uses NewServerFromEnv and
-// PostgreSQL.
+// NewServer constructs an isolated API instance backed by memory storage.
 func NewServer(dependencies Dependencies) (*Server, error) {
 	return newServerWithRepository(dependencies, newMemoryStore())
 }
@@ -82,11 +80,11 @@ func newServerWithRepository(
 	if dependencies.STT == nil {
 		return nil, errors.New("STT client is required")
 	}
+
 	rewriter := dependencies.Rewriter
 	if rewriter == nil {
 		rewriter = unavailableRewriterClient{}
 	}
-
 	logger := dependencies.Logger
 	if logger == nil {
 		logger = slog.Default()
@@ -103,13 +101,13 @@ func newServerWithRepository(
 	if workerTimeout <= 0 {
 		workerTimeout = 10 * time.Minute
 	}
-	queueSize := dependencies.QueueSize
-	if queueSize <= 0 {
-		queueSize = defaultQueueSize
-	}
 	rewriterTimeout := dependencies.RewriterTimeout
 	if rewriterTimeout <= 0 {
 		rewriterTimeout = defaultRewriterTimeout
+	}
+	queueSize := dependencies.QueueSize
+	if queueSize <= 0 {
+		queueSize = defaultQueueSize
 	}
 	rewriteQueueSize := dependencies.RewriteQueueSize
 	if rewriteQueueSize <= 0 {
@@ -117,7 +115,7 @@ func newServerWithRepository(
 	}
 
 	server := &Server{
-		store:           store,
+		store:           newRepositoryFacade(store),
 		parser:          fb2.NewParser(segment.Segmenter{}),
 		tts:             dependencies.TTS,
 		stt:             dependencies.STT,
@@ -135,35 +133,36 @@ func newServerWithRepository(
 	return server, nil
 }
 
-// NewServerFromEnv creates a server backed by the configured Python workers.
+// NewServerFromEnv creates a PostgreSQL-backed server and HTTP worker clients.
 func NewServerFromEnv(logger *slog.Logger) (*Server, error) {
-	ttsURL := envOrDefault("OMNIVOICE_URL", "http://127.0.0.1:8001")
-	sttURL := envOrDefault("STT_URL", "http://127.0.0.1:8002")
-	rewriterURL := envOrDefault("REWRITER_URL", "http://127.0.0.1:8003")
 	workerHTTPClient := &http.Client{
 		Timeout: 10 * time.Minute,
 		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
-
-	tts, err := NewOmniVoiceHTTPClient(ttsURL, workerHTTPClient)
+	tts, err := NewOmniVoiceHTTPClient(
+		envOrDefault("OMNIVOICE_URL", "http://127.0.0.1:8001"),
+		workerHTTPClient,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("configure OmniVoice client: %w", err)
 	}
-	stt, err := NewSTTHTTPClient(sttURL, workerHTTPClient)
+	stt, err := NewSTTHTTPClient(
+		envOrDefault("STT_URL", "http://127.0.0.1:8002"),
+		workerHTTPClient,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("configure STT client: %w", err)
 	}
-	rewriterHTTPClient := &http.Client{
-		Timeout: defaultRewriterTimeout,
-		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
 	rewriter, err := NewRewriterHTTPClient(
-		rewriterURL,
-		rewriterHTTPClient,
+		envOrDefault("REWRITER_URL", "http://127.0.0.1:8003"),
+		&http.Client{
+			Timeout: defaultRewriterTimeout,
+			CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("configure rewriter client: %w", err)
@@ -173,12 +172,9 @@ func NewServerFromEnv(logger *slog.Logger) (*Server, error) {
 	if databaseURL == "" {
 		return nil, errors.New("DATABASE_URL is required")
 	}
-	databaseContext, cancelDatabase := context.WithTimeout(
-		context.Background(),
-		10*time.Second,
-	)
-	defer cancelDatabase()
-	store, err := OpenPostgresStore(databaseContext, databaseURL)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	store, err := OpenPostgresStore(ctx, databaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("open PostgreSQL repository: %w", err)
 	}
@@ -193,40 +189,30 @@ func NewServerFromEnv(logger *slog.Logger) (*Server, error) {
 		store.close()
 		return nil, err
 	}
-
 	return server, nil
 }
 
-// Routes preserves the original package entry point. Applications that need
-// startup error handling should call NewServerFromEnv instead.
+// Routes preserves the package-level entry point used by the application.
 func Routes() http.Handler {
 	server, err := NewServerFromEnv(slog.Default())
-	if err != nil {
-		return requestMiddleware(
-			slog.Default(),
-			http.HandlerFunc(
-				func(writer http.ResponseWriter, request *http.Request) {
-					writeProblem(
-						writer,
-						request,
-						http.StatusServiceUnavailable,
-						"SERVICE_NOT_CONFIGURED",
-						"API dependencies are not configured",
-					)
-				},
-			),
-		)
+	if err == nil {
+		return server.Handler()
 	}
-
-	return server.Handler()
+	return requestMiddleware(slog.Default(), http.HandlerFunc(
+		func(writer http.ResponseWriter, request *http.Request) {
+			writeProblem(
+				writer,
+				request,
+				http.StatusServiceUnavailable,
+				"SERVICE_NOT_CONFIGURED",
+				"API dependencies are not configured",
+			)
+		},
+	))
 }
 
-// Handler returns the fully instrumented HTTP handler.
-func (s *Server) Handler() http.Handler {
-	return s.handler
-}
+func (s *Server) Handler() http.Handler { return s.handler }
 
-// Close stops the background queue and cancels an in-flight worker request.
 func (s *Server) Close() {
 	s.runner.close()
 	s.rewriteRunner.close()
@@ -235,11 +221,13 @@ func (s *Server) Close() {
 
 func (s *Server) routes() http.Handler {
 	mux := http.NewServeMux()
-
 	registerUIRoutes(mux)
 	mux.HandleFunc("GET /healthz", s.health)
 	mux.HandleFunc("POST /v1/book", s.uploadBook)
 	mux.HandleFunc("GET /v1/books/{bookID}", s.getBook)
+	mux.HandleFunc("POST /v1/voice", s.uploadVoice)
+	mux.HandleFunc("GET /v1/voices", s.getVoices)
+	mux.HandleFunc("GET /v1/voices/{voiceID}", s.getVoice)
 	mux.HandleFunc("GET /v1/jobs", s.listJobs)
 	mux.HandleFunc(
 		"POST /v1/generate/book/{bookID}/voice/{voiceID}",
@@ -249,8 +237,13 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /v1/job/{jobID}/warnings", s.jobWarnings)
 	mux.HandleFunc("GET /v1/job/{jobID}/chapters", s.listJobChapters)
 	mux.HandleFunc(
+		"GET /v1/job/{jobID}/chapters/{chapterNumber}/audio.flac",
+		s.getChapterAudioFLAC,
+	)
+	// Compatibility path. It now returns FLAC bytes, never a ZIP archive.
+	mux.HandleFunc(
 		"GET /v1/job/{jobID}/chapters/{chapterNumber}/audio.zip",
-		s.getChapterAudioZIP,
+		s.getChapterAudioFLAC,
 	)
 	mux.HandleFunc("PATCH /v1/fragment/{fragmentID}", s.editFragment)
 	mux.HandleFunc(
@@ -284,12 +277,8 @@ func (s *Server) routes() http.Handler {
 	)
 	mux.HandleFunc("GET /v1/rewrite/{rewriteID}", s.rewriteStatus)
 	mux.HandleFunc("GET /v1/job/{jobID}/audio.zip", s.getAudioZIP)
-	mux.HandleFunc("POST /v1/voice", s.uploadVoice)
-	mux.HandleFunc("GET /v1/voices", s.getVoices)
-	mux.HandleFunc("GET /v1/voices/{voiceID}", s.getVoice)
 
-	// Compatibility routes for the initial draft. New clients should use the
-	// unambiguous job-scoped routes above.
+	// Compatibility routes for the first public draft.
 	mux.HandleFunc("UPDATE /v1/fragmet/{fragmentID}", s.editFragment)
 	mux.HandleFunc("POST /v1/job/retry/warnings", s.retryWarningsLegacy)
 	mux.HandleFunc("GET /v1/book/{bookID}", s.getLatestBookAudioZIP)
@@ -313,7 +302,7 @@ func (s *Server) uploadBook(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer cleanup()
 
-	parsedBook, err := s.parser.Parse(file)
+	parsed, err := s.parser.Parse(file)
 	if err != nil {
 		writeProblem(
 			writer,
@@ -324,12 +313,11 @@ func (s *Server) uploadBook(writer http.ResponseWriter, request *http.Request) {
 		)
 		return
 	}
-
 	id := s.newID()
 	resource, err := s.store.createBook(
 		request.Context(),
 		id,
-		parsedBook,
+		parsed,
 		s.now().UTC(),
 	)
 	if err != nil {
@@ -359,7 +347,6 @@ func (s *Server) getBook(writer http.ResponseWriter, request *http.Request) {
 		)
 		return
 	}
-
 	writeJSON(writer, http.StatusOK, resource)
 }
 
@@ -387,7 +374,6 @@ func (s *Server) uploadVoice(writer http.ResponseWriter, request *http.Request) 
 		)
 		return
 	}
-
 	format, contentType, ok := detectVoiceFormat(audio)
 	if !ok {
 		writeProblem(
@@ -462,26 +448,16 @@ func (s *Server) uploadVoice(writer http.ResponseWriter, request *http.Request) 
 	writeJSON(writer, http.StatusCreated, resource)
 }
 
-func (s *Server) getVoices(
-	writer http.ResponseWriter,
-	request *http.Request,
-) {
+func (s *Server) getVoices(writer http.ResponseWriter, request *http.Request) {
 	voices, err := s.store.voices(request.Context())
 	if err != nil {
 		s.internalStoreError(writer, request, "list voices", err)
 		return
 	}
-	writeJSON(
-		writer,
-		http.StatusOK,
-		VoicesResponse{Voices: voices},
-	)
+	writeJSON(writer, http.StatusOK, VoicesResponse{Voices: voices})
 }
 
-func (s *Server) getVoice(
-	writer http.ResponseWriter,
-	request *http.Request,
-) {
+func (s *Server) getVoice(writer http.ResponseWriter, request *http.Request) {
 	voice, ok, err := s.store.voice(
 		request.Context(),
 		request.PathValue("voiceID"),
@@ -500,16 +476,14 @@ func (s *Server) getVoice(
 		)
 		return
 	}
-
 	writeJSON(writer, http.StatusOK, voice)
 }
 
 func (s *Server) generate(writer http.ResponseWriter, request *http.Request) {
-	settings, validSettings := decodeGenerationSettings(writer, request)
-	if !validSettings {
+	settings, valid := decodeGenerationSettings(writer, request)
+	if !valid {
 		return
 	}
-
 	bookID := request.PathValue("bookID")
 	voiceID := request.PathValue("voiceID")
 
@@ -546,11 +520,9 @@ func (s *Server) generate(writer http.ResponseWriter, request *http.Request) {
 
 	jobID := s.newID()
 	fragmentIDs := make([]string, bookResource.FragmentsCount)
+	originalRevisionIDs := make([]string, bookResource.FragmentsCount)
 	for index := range fragmentIDs {
 		fragmentIDs[index] = s.newID()
-	}
-	originalRevisionIDs := make([]string, bookResource.FragmentsCount)
-	for index := range originalRevisionIDs {
 		originalRevisionIDs[index] = s.newID()
 	}
 	job, task, err := s.store.createJob(
@@ -587,12 +559,12 @@ func (s *Server) generate(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	if !s.runner.enqueue(task) {
-		if deleteErr := s.store.deleteJob(request.Context(), jobID); deleteErr != nil {
+		if rollbackErr := s.store.deleteJob(request.Context(), jobID); rollbackErr != nil {
 			s.logger.Error(
 				"rollback unscheduled job",
 				"request_id", requestID(request.Context()),
 				"job_id", jobID,
-				"error", deleteErr,
+				"error", rollbackErr,
 			)
 		}
 		writeProblem(
@@ -633,7 +605,6 @@ func (s *Server) jobStatus(writer http.ResponseWriter, request *http.Request) {
 		)
 		return
 	}
-
 	writeJSON(writer, http.StatusOK, job)
 }
 
@@ -654,17 +625,13 @@ func (s *Server) jobWarnings(writer http.ResponseWriter, request *http.Request) 
 		)
 		return
 	}
-
 	writeJSON(writer, http.StatusOK, WarningsResponse{
 		JobID:     jobID,
 		Fragments: fragments,
 	})
 }
 
-func (s *Server) editFragment(
-	writer http.ResponseWriter,
-	request *http.Request,
-) {
+func (s *Server) editFragment(writer http.ResponseWriter, request *http.Request) {
 	var input EditFragmentRequest
 	if !decodeJSON(writer, request, &input, false) {
 		return
@@ -691,12 +658,13 @@ func (s *Server) editFragment(
 		return
 	}
 
+	now := s.now().UTC()
 	fragment, err := s.store.editFragment(
 		request.Context(),
 		request.PathValue("fragmentID"),
 		input.NewText,
 		s.newID(),
-		s.now().UTC(),
+		now,
 	)
 	switch {
 	case errors.Is(err, errNotFound):
@@ -716,22 +684,31 @@ func (s *Server) editFragment(
 			err.Error(),
 		)
 	case err != nil:
-		writeProblem(
-			writer,
-			request,
-			http.StatusInternalServerError,
-			"INTERNAL_ERROR",
-			"could not update fragment",
-		)
+		s.internalStoreError(writer, request, "update fragment", err)
 	default:
+		updated, queued, queueErr := s.queueEditedFragment(
+			request.Context(),
+			fragment,
+			now,
+		)
+		if queueErr != nil {
+			s.logger.Warn(
+				"edited fragment was saved but not queued",
+				"request_id", requestID(request.Context()),
+				"job_id", fragment.JobID,
+				"fragment_id", fragment.ID,
+				"error", queueErr,
+			)
+		}
+		if queued {
+			writer.Header().Set("X-Fragment-Regeneration-Queued", "true")
+			fragment = updated
+		}
 		writeJSON(writer, http.StatusOK, fragment)
 	}
 }
 
-func (s *Server) retryWarnings(
-	writer http.ResponseWriter,
-	request *http.Request,
-) {
+func (s *Server) retryWarnings(writer http.ResponseWriter, request *http.Request) {
 	s.retryWarningsForJob(writer, request, request.PathValue("jobID"))
 }
 
@@ -753,7 +730,6 @@ func (s *Server) retryWarningsLegacy(
 		)
 		return
 	}
-
 	s.scheduleRetry(writer, request, input.JobID, input.FragmentIDs)
 }
 
@@ -810,13 +786,7 @@ func (s *Server) scheduleRetry(
 		)
 		return
 	case err != nil:
-		writeProblem(
-			writer,
-			request,
-			http.StatusInternalServerError,
-			"INTERNAL_ERROR",
-			"could not schedule retry",
-		)
+		s.internalStoreError(writer, request, "prepare retry", err)
 		return
 	}
 
@@ -842,7 +812,6 @@ func (s *Server) scheduleRetry(
 		)
 		return
 	}
-
 	writeJSON(writer, http.StatusAccepted, RetryResponse{
 		JobID:           jobID,
 		Status:          JobStatusQueued,
@@ -850,10 +819,7 @@ func (s *Server) scheduleRetry(
 	})
 }
 
-func (s *Server) getAudioZIP(
-	writer http.ResponseWriter,
-	request *http.Request,
-) {
+func (s *Server) getAudioZIP(writer http.ResponseWriter, request *http.Request) {
 	s.writeJobArchive(writer, request, request.PathValue("jobID"))
 }
 
@@ -908,13 +874,7 @@ func (s *Server) writeJobArchive(
 		)
 		return
 	case err != nil:
-		writeProblem(
-			writer,
-			request,
-			http.StatusInternalServerError,
-			"ARCHIVE_ERROR",
-			"could not prepare the audio archive",
-		)
+		s.internalStoreError(writer, request, "prepare audio archive", err)
 		return
 	}
 
@@ -935,7 +895,6 @@ func (s *Server) writeJobArchive(
 		)
 		return
 	}
-
 	writer.Header().Set("Content-Type", "application/zip")
 	writer.Header().Set(
 		"Content-Disposition",
@@ -954,17 +913,9 @@ func multipartFile(
 	request *http.Request,
 	limit int64,
 	fields ...string,
-) (
-	multipart.File,
-	*multipart.FileHeader,
-	func(),
-	bool,
-) {
+) (multipart.File, *multipart.FileHeader, func(), bool) {
 	contentType := request.Header.Get("Content-Type")
-	if !strings.HasPrefix(
-		strings.ToLower(contentType),
-		"multipart/form-data",
-	) {
+	if !strings.HasPrefix(strings.ToLower(contentType), "multipart/form-data") {
 		writeProblem(
 			writer,
 			request,
@@ -994,7 +945,6 @@ func multipartFile(
 			_ = request.MultipartForm.RemoveAll()
 		}
 	}
-
 	for _, field := range fields {
 		file, header, err := request.FormFile(field)
 		if err == nil {
@@ -1015,9 +965,8 @@ func multipartFile(
 			return nil, nil, func() {}, false
 		}
 	}
-
+	cleanup()
 	if len(fields) == 0 {
-		cleanup()
 		writeProblem(
 			writer,
 			request,
@@ -1027,8 +976,6 @@ func multipartFile(
 		)
 		return nil, nil, func() {}, false
 	}
-
-	cleanup()
 	writeProblem(
 		writer,
 		request,
@@ -1050,7 +997,6 @@ func readBounded(reader multipart.File, limit int64) ([]byte, error) {
 	if int64(len(data)) > limit {
 		return nil, errTooLarge
 	}
-
 	return data, nil
 }
 
@@ -1071,7 +1017,6 @@ func envOrDefault(name, fallback string) string {
 	if value := strings.TrimSpace(os.Getenv(name)); value != "" {
 		return value
 	}
-
 	return fallback
 }
 

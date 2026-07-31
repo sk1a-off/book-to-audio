@@ -7,47 +7,73 @@ import (
 	"unicode"
 )
 
-// DefaultMaxWords is the default upper bound for a single segment.
+// DefaultMaxWords is the preferred upper bound for a single segment.
 const DefaultMaxWords = 60
 
 const sceneBreak = "* * *"
 
-// Segmenter splits text while guaranteeing that no segment exceeds MaxWords.
+// Warning describes a source phrase that cannot fit into the preferred limit
+// without destroying its sentence boundary.
+type Warning struct {
+	Phrase string
+	Words  int
+	Limit  int
+}
+
+func (w Warning) Error() string {
+	return fmt.Sprintf(
+		"phrase contains %d words and cannot fit the %d-word limit",
+		w.Words,
+		w.Limit,
+	)
+}
+
+// Result contains ordered segments and non-fatal segmentation diagnostics.
+type Result struct {
+	Segments []string
+	Warnings []Warning
+}
+
+// Segmenter splits text at semantic boundaries. The zero value is ready to use.
 type Segmenter struct {
 	maxWords int
 }
 
-// New creates a Segmenter with the requested word limit.
+// New creates a Segmenter with the requested preferred word limit.
 func New(maxWords int) (Segmenter, error) {
 	if maxWords <= 0 {
 		return Segmenter{}, fmt.Errorf("max words must be positive, got %d", maxWords)
 	}
-
 	return Segmenter{maxWords: maxWords}, nil
 }
 
-// MaxWords returns the effective word limit.
-//
-// The zero value is ready to use and applies DefaultMaxWords.
+// MaxWords returns the effective preferred word limit.
 func (s Segmenter) MaxWords() int {
 	if s.maxWords == 0 {
 		return DefaultMaxWords
 	}
-
 	return s.maxWords
 }
 
-// Split divides text at sentence boundaries and packs phrases up to MaxWords.
-// A phrase longer than the limit is split by words as a safe fallback.
-// The scene-break marker "* * *" is removed and forces a segment boundary.
+// Split is the compatibility entry point used by the FB2 parser.
 func (s Segmenter) Split(text string) []string {
+	return s.SplitDetailed(text).Segments
+}
+
+// SplitDetailed packs complete phrases up to MaxWords. A single phrase longer
+// than the limit is kept intact and reported as a warning instead of being cut
+// at an arbitrary word, which produces unnatural TTS and false STT warnings.
+func (s Segmenter) SplitDetailed(text string) Result {
 	units := splitIntoUnits(text)
 	if len(units) == 0 {
-		return nil
+		return Result{}
 	}
 
 	limit := s.MaxWords()
-	segments := make([]string, 0, len(units))
+	result := Result{
+		Segments: make([]string, 0, len(units)),
+		Warnings: make([]Warning, 0),
+	}
 	currentPhrases := make([]string, 0)
 	currentWords := 0
 
@@ -55,8 +81,7 @@ func (s Segmenter) Split(text string) []string {
 		if len(currentPhrases) == 0 {
 			return
 		}
-
-		segments = append(segments, strings.Join(currentPhrases, " "))
+		result.Segments = append(result.Segments, strings.Join(currentPhrases, " "))
 		currentPhrases = currentPhrases[:0]
 		currentWords = 0
 	}
@@ -67,38 +92,25 @@ func (s Segmenter) Split(text string) []string {
 			continue
 		}
 
-		for _, part := range splitByWordLimit(unit.text, limit) {
-			wordCount := countWords(part)
-			if currentWords > 0 && currentWords+wordCount > limit {
-				flush()
-			}
-
-			currentPhrases = append(currentPhrases, part)
-			currentWords += wordCount
+		wordCount := countWords(unit.text)
+		if wordCount > limit {
+			flush()
+			result.Segments = append(result.Segments, unit.text)
+			result.Warnings = append(result.Warnings, Warning{
+				Phrase: unit.text,
+				Words:  wordCount,
+				Limit:  limit,
+			})
+			continue
 		}
+		if currentWords > 0 && currentWords+wordCount > limit {
+			flush()
+		}
+		currentPhrases = append(currentPhrases, unit.text)
+		currentWords += wordCount
 	}
-
 	flush()
-
-	return segments
-}
-
-func splitByWordLimit(text string, limit int) []string {
-	words := strings.Fields(text)
-	if len(words) == 0 {
-		return nil
-	}
-	if len(words) <= limit {
-		return []string{strings.Join(words, " ")}
-	}
-
-	parts := make([]string, 0, (len(words)+limit-1)/limit)
-	for start := 0; start < len(words); start += limit {
-		end := min(start+limit, len(words))
-		parts = append(parts, strings.Join(words[start:end], " "))
-	}
-
-	return parts
+	return result
 }
 
 func countWords(text string) int {
@@ -112,25 +124,21 @@ type textUnit struct {
 
 func splitIntoUnits(text string) []textUnit {
 	var units []textUnit
-
-	for line := range strings.Lines(text) {
+	for _, line := range strings.Split(text, "\n") {
 		line = normalizeSpace(line)
 		if line == "" {
 			continue
 		}
-
 		for {
 			before, after, found := strings.Cut(line, sceneBreak)
 			units = appendPhrases(units, before)
 			if !found {
 				break
 			}
-
 			units = append(units, textUnit{forceBoundary: true})
 			line = after
 		}
 	}
-
 	return units
 }
 
@@ -139,11 +147,9 @@ func appendPhrases(units []textUnit, text string) []textUnit {
 	if text == "" {
 		return units
 	}
-
 	for _, phrase := range splitLine(text) {
 		units = append(units, textUnit{text: phrase})
 	}
-
 	return units
 }
 
@@ -151,12 +157,10 @@ func splitLine(line string) []string {
 	runes := []rune(line)
 	var phrases []string
 	start := 0
-
 	for index := 0; index < len(runes); index++ {
 		if !isSentenceEnd(runes[index]) || isDecimalPoint(runes, index) {
 			continue
 		}
-
 		end := index + 1
 		for end < len(runes) && isSentenceEnd(runes[end]) {
 			end++
@@ -164,36 +168,27 @@ func splitLine(line string) []string {
 		for end < len(runes) && isClosingRune(runes[end]) {
 			end++
 		}
-
 		if end < len(runes) && !unicode.IsSpace(runes[end]) {
 			continue
 		}
-
 		if phrase := strings.TrimSpace(string(runes[start:end])); phrase != "" {
 			phrases = append(phrases, phrase)
 		}
-
 		for end < len(runes) && unicode.IsSpace(runes[end]) {
 			end++
 		}
-
 		start = end
 		index = end - 1
 	}
-
 	if tail := strings.TrimSpace(string(runes[start:])); tail != "" {
 		phrases = append(phrases, tail)
 	}
-
 	return phrases
 }
 
 func isDecimalPoint(runes []rune, index int) bool {
-	return runes[index] == '.' &&
-		index > 0 &&
-		index+1 < len(runes) &&
-		unicode.IsDigit(runes[index-1]) &&
-		unicode.IsDigit(runes[index+1])
+	return runes[index] == '.' && index > 0 && index+1 < len(runes) &&
+		unicode.IsDigit(runes[index-1]) && unicode.IsDigit(runes[index+1])
 }
 
 func normalizeSpace(text string) string {

@@ -10,22 +10,36 @@ import (
 	"strconv"
 )
 
-// ChapterArchiveResource describes one independently downloadable chapter.
-type ChapterArchiveResource struct {
-	ChapterNumber  int    `json:"chapter_number"`
-	Title          string `json:"title"`
-	FragmentsCount int    `json:"fragments_count"`
-	DurationMS     int64  `json:"duration_ms"`
-	AudioFilename  string `json:"audio_filename"`
-	AudioZIPURL    string `json:"audio_zip_url"`
+// ChapterAudioResource describes chapter progress without assembling audio.
+// AudioURL is populated only when all fragments in the chapter are ready.
+type ChapterAudioResource struct {
+	ChapterNumber    int    `json:"chapter_number"`
+	Title            string `json:"title"`
+	FragmentsCount   int    `json:"fragments_count"`
+	FragmentsReady   int    `json:"fragments_ready"`
+	FragmentsPending int    `json:"fragments_pending"`
+	FragmentsWarning int    `json:"fragments_warning"`
+	FragmentsFailed  int    `json:"fragments_failed"`
+	DurationMS       int64  `json:"duration_ms"`
+	AudioFilename    string `json:"audio_filename"`
+	AudioURL         string `json:"audio_url,omitempty"`
+	AudioZIPURL      string `json:"audio_zip_url,omitempty"`
+	Ready            bool   `json:"ready"`
 }
 
-// JobChaptersResponse contains all chapter downloads available for a job.
+// ChapterArchiveResource keeps source compatibility for API clients compiled
+// against the first chapter-export DTO. AudioZIPURL is now a deprecated alias
+// whose endpoint returns direct FLAC bytes.
+type ChapterArchiveResource = ChapterAudioResource
+
+// JobChaptersResponse is the UI read model. It is intentionally metadata-only:
+// no chapter is concatenated or encoded while this endpoint is polled.
 type JobChaptersResponse struct {
-	JobID       string                   `json:"job_id"`
-	BookID      string                   `json:"book_id"`
-	AudioZIPURL string                   `json:"audio_zip_url"`
-	Chapters    []ChapterArchiveResource `json:"chapters"`
+	JobID       string                 `json:"job_id"`
+	BookID      string                 `json:"book_id"`
+	AudioZIPURL string                 `json:"audio_zip_url,omitempty"`
+	Chapters    []ChapterAudioResource `json:"chapters"`
+	Fragments   []FragmentViewResource `json:"fragments"`
 }
 
 // listJobChapters handles GET /v1/job/{jobID}/chapters.
@@ -34,9 +48,23 @@ func (s *Server) listJobChapters(
 	request *http.Request,
 ) {
 	jobID := request.PathValue("jobID")
-	catalog, err := s.store.jobChapterCatalog(request.Context(), jobID)
+	reader, ok := s.store.(jobFragmentReader)
+	if !ok {
+		s.internalStoreError(
+			writer,
+			request,
+			"list job fragments",
+			errors.New("repository does not expose fragment read model"),
+		)
+		return
+	}
+
+	snapshot, found, err := reader.jobFragments(request.Context(), jobID)
 	switch {
-	case errors.Is(err, errNotFound):
+	case err != nil:
+		s.internalStoreError(writer, request, "list job fragments", err)
+		return
+	case !found:
 		writeProblem(
 			writer,
 			request,
@@ -45,60 +73,41 @@ func (s *Server) listJobChapters(
 			"job not found",
 		)
 		return
-	case errors.Is(err, errConflict):
-		writeProblem(
-			writer,
-			request,
-			http.StatusConflict,
-			"JOB_NOT_READY",
-			err.Error(),
-		)
-		return
-	case err != nil:
-		s.logArchiveError(request, jobID, 0, err)
-		writeProblem(
-			writer,
-			request,
-			http.StatusInternalServerError,
-			"ARCHIVE_ERROR",
-			"could not prepare chapter downloads",
-		)
-		return
 	}
 
-	chapters, err := chapterArchiveResources(catalog.Chapters)
+	chapters, err := chapterAudioResources(jobID, snapshot.Fragments)
 	if err != nil {
 		s.logArchiveError(request, jobID, 0, err)
 		writeProblem(
 			writer,
 			request,
 			http.StatusInternalServerError,
-			"ARCHIVE_ERROR",
-			"could not prepare chapter downloads",
+			"CHAPTER_CATALOG_ERROR",
+			"could not prepare chapter metadata",
 		)
 		return
 	}
 
-	escapedJobID := url.PathEscape(jobID)
-	for index := range chapters {
-		chapters[index].AudioZIPURL = fmt.Sprintf(
-			"/v1/job/%s/chapters/%d/audio.zip",
-			escapedJobID,
-			chapters[index].ChapterNumber,
-		)
+	job, exists, err := s.store.job(request.Context(), jobID)
+	if err != nil {
+		s.internalStoreError(writer, request, "get job for chapter catalog", err)
+		return
 	}
-
-	writeJSON(writer, http.StatusOK, JobChaptersResponse{
-		JobID:       jobID,
-		BookID:      catalog.BookID,
-		AudioZIPURL: "/v1/job/" + escapedJobID + "/audio.zip",
-		Chapters:    chapters,
-	})
+	response := JobChaptersResponse{
+		JobID:     jobID,
+		BookID:    snapshot.BookID,
+		Chapters:  chapters,
+		Fragments: snapshot.Fragments,
+	}
+	if exists && job.Status == JobStatusCompleted {
+		response.AudioZIPURL = "/v1/job/" + url.PathEscape(jobID) + "/audio.zip"
+	}
+	writeJSON(writer, http.StatusOK, response)
 }
 
-// getChapterAudioZIP handles
-// GET /v1/job/{jobID}/chapters/{chapterNumber}/audio.zip.
-func (s *Server) getChapterAudioZIP(
+// getChapterAudioFLAC handles both the canonical .flac route and the legacy
+// .zip route. The response is always one direct FLAC file; no archive is made.
+func (s *Server) getChapterAudioFLAC(
 	writer http.ResponseWriter,
 	request *http.Request,
 ) {
@@ -124,31 +133,13 @@ func (s *Server) getChapterAudioZIP(
 	)
 	switch {
 	case errors.Is(err, errNotFound):
-		writeProblem(
-			writer,
-			request,
-			http.StatusNotFound,
-			"JOB_NOT_FOUND",
-			"job not found",
-		)
+		writeProblem(writer, request, http.StatusNotFound, "JOB_NOT_FOUND", "job not found")
 		return
 	case errors.Is(err, errChapterNotFound):
-		writeProblem(
-			writer,
-			request,
-			http.StatusNotFound,
-			"CHAPTER_NOT_FOUND",
-			"chapter not found",
-		)
+		writeProblem(writer, request, http.StatusNotFound, "CHAPTER_NOT_FOUND", "chapter not found")
 		return
 	case errors.Is(err, errConflict):
-		writeProblem(
-			writer,
-			request,
-			http.StatusConflict,
-			"JOB_NOT_READY",
-			err.Error(),
-		)
+		writeProblem(writer, request, http.StatusConflict, "CHAPTER_NOT_READY", err.Error())
 		return
 	case err != nil:
 		s.logArchiveError(request, jobID, chapterNumber, err)
@@ -156,77 +147,140 @@ func (s *Server) getChapterAudioZIP(
 			writer,
 			request,
 			http.StatusInternalServerError,
-			"ARCHIVE_ERROR",
-			"could not prepare the chapter audio archive",
+			"CHAPTER_AUDIO_ERROR",
+			"could not prepare chapter audio",
 		)
 		return
 	}
 
-	archive, err := buildChapterAudioZIP(snapshot)
+	audio, filename, err := buildChapterAudioFLAC(snapshot)
 	if err != nil {
 		s.logArchiveError(request, jobID, chapterNumber, err)
 		writeProblem(
 			writer,
 			request,
 			http.StatusInternalServerError,
-			"ARCHIVE_ERROR",
-			"could not prepare the chapter audio archive",
+			"CHAPTER_AUDIO_ERROR",
+			"could not prepare chapter audio",
 		)
 		return
 	}
 
-	writer.Header().Set("Content-Type", "application/zip")
+	if request.URL.Path != "" && request.PathValue("chapterNumber") != "" &&
+		len(request.URL.Path) >= 4 && request.URL.Path[len(request.URL.Path)-4:] == ".zip" {
+		writer.Header().Set("Deprecation", "true")
+		writer.Header().Set(
+			"Link",
+			fmt.Sprintf(
+				`</v1/job/%s/chapters/%d/audio.flac>; rel="successor-version"`,
+				url.PathEscape(jobID),
+				chapterNumber,
+			),
+		)
+	}
+	fallback := fmt.Sprintf("chapter-%04d.flac", chapterNumber)
+	writer.Header().Set("Content-Type", "audio/flac")
 	writer.Header().Set(
 		"Content-Disposition",
 		fmt.Sprintf(
-			`attachment; filename="ready-chapter-flac-%04d.zip"`,
-			chapterNumber,
+			`attachment; filename=%q; filename*=UTF-8''%s`,
+			fallback,
+			url.PathEscape(filename),
 		),
 	)
-	writer.Header().Set("Content-Length", strconv.Itoa(len(archive)))
+	writer.Header().Set("Content-Length", strconv.Itoa(len(audio)))
 	writer.WriteHeader(http.StatusOK)
-	_, _ = writer.Write(archive)
+	_, _ = writer.Write(audio)
 }
 
-func chapterArchiveResources(
-	summaries []chapterSummary,
-) ([]ChapterArchiveResource, error) {
-	summaries = slices.Clone(summaries)
-	slices.SortFunc(summaries, func(left, right chapterSummary) int {
-		return cmp.Compare(left.Number, right.Number)
-	})
+func buildChapterAudioFLAC(snapshot archiveSnapshot) ([]byte, string, error) {
+	chapters, _, err := encodeArchiveChapters(snapshot.Fragments)
+	if err != nil {
+		return nil, "", err
+	}
+	if len(chapters) != 1 {
+		return nil, "", errors.New("chapter download contains multiple chapters")
+	}
+	return chapters[0].audioFLAC, chapters[0].manifest.Path, nil
+}
 
-	chapters := make([]ChapterArchiveResource, 0, len(summaries))
-	previousNumber := 0
-	for _, summary := range summaries {
-		if summary.Number <= 0 ||
-			summary.FragmentsCount <= 0 ||
-			summary.DurationMS < 0 {
-			return nil, fmt.Errorf(
-				"chapter %d has invalid catalog metadata",
-				summary.Number,
-			)
-		}
-		if summary.Number == previousNumber {
-			return nil, fmt.Errorf(
-				"chapter %d appears more than once in the catalog",
-				summary.Number,
-			)
-		}
-		chapters = append(chapters, ChapterArchiveResource{
-			ChapterNumber:  summary.Number,
-			Title:          summary.Title,
-			FragmentsCount: summary.FragmentsCount,
-			DurationMS:     summary.DurationMS,
-			AudioFilename: chapterAudioFilename(
-				summary.Number,
-				summary.Title,
-			),
-		})
-		previousNumber = summary.Number
+func chapterAudioResources(
+	jobID string,
+	fragments []FragmentViewResource,
+) ([]ChapterAudioResource, error) {
+	if len(fragments) == 0 {
+		return make([]ChapterAudioResource, 0), nil
 	}
 
-	return chapters, nil
+	fragments = slices.Clone(fragments)
+	slices.SortFunc(fragments, func(left, right FragmentViewResource) int {
+		if byChapter := cmp.Compare(left.ChapterNumber, right.ChapterNumber); byChapter != 0 {
+			return byChapter
+		}
+		return cmp.Compare(left.Ordinal, right.Ordinal)
+	})
+
+	byNumber := make(map[int]*ChapterAudioResource)
+	for _, fragment := range fragments {
+		if fragment.ChapterNumber <= 0 || fragment.Ordinal <= 0 {
+			return nil, errors.New("fragment catalog contains invalid ordering metadata")
+		}
+		chapter := byNumber[fragment.ChapterNumber]
+		if chapter == nil {
+			chapter = &ChapterAudioResource{
+				ChapterNumber: fragment.ChapterNumber,
+				Title:         fragment.ChapterTitle,
+				AudioFilename: chapterAudioFilename(
+					fragment.ChapterNumber,
+					fragment.ChapterTitle,
+				),
+			}
+			byNumber[fragment.ChapterNumber] = chapter
+		} else if chapter.Title != fragment.ChapterTitle {
+			return nil, errors.New("fragment catalog contains inconsistent chapter titles")
+		}
+
+		chapter.FragmentsCount++
+		chapter.DurationMS += int64(fragment.DurationMS)
+		switch fragment.Status {
+		case FragmentStatusReady:
+			if fragment.AudioAvailable {
+				chapter.FragmentsReady++
+			} else {
+				chapter.FragmentsPending++
+			}
+		case FragmentStatusWarning:
+			chapter.FragmentsWarning++
+		case FragmentStatusFailed:
+			chapter.FragmentsFailed++
+		default:
+			chapter.FragmentsPending++
+		}
+	}
+
+	result := make([]ChapterAudioResource, 0, len(byNumber))
+	for _, chapter := range byNumber {
+		chapter.Ready = chapter.FragmentsCount > 0 &&
+			chapter.FragmentsReady == chapter.FragmentsCount
+		if chapter.Ready {
+			escapedJobID := url.PathEscape(jobID)
+			chapter.AudioURL = fmt.Sprintf(
+				"/v1/job/%s/chapters/%d/audio.flac",
+				escapedJobID,
+				chapter.ChapterNumber,
+			)
+			chapter.AudioZIPURL = fmt.Sprintf(
+				"/v1/job/%s/chapters/%d/audio.zip",
+				escapedJobID,
+				chapter.ChapterNumber,
+			)
+		}
+		result = append(result, *chapter)
+	}
+	slices.SortFunc(result, func(left, right ChapterAudioResource) int {
+		return cmp.Compare(left.ChapterNumber, right.ChapterNumber)
+	})
+	return result, nil
 }
 
 func positiveChapterNumber(value string) (int, error) {
@@ -242,7 +296,6 @@ func positiveChapterNumber(value string) (int, error) {
 	if err != nil || number <= 0 {
 		return 0, errors.New("chapter number is not positive")
 	}
-
 	return number, nil
 }
 
@@ -260,5 +313,5 @@ func (s *Server) logArchiveError(
 	if chapterNumber > 0 {
 		attributes = append(attributes, "chapter_number", chapterNumber)
 	}
-	s.logger.Error("prepare chapter archive", attributes...)
+	s.logger.Error("prepare chapter audio", attributes...)
 }

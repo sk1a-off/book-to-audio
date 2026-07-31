@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -37,13 +38,10 @@ func newJobRunner(server *Server, queueSize int) *jobRunner {
 	}
 	runner.wg.Add(1)
 	go runner.loop()
-
 	return runner
 }
 
-func (r *jobRunner) context() context.Context {
-	return r.ctx
-}
+func (r *jobRunner) context() context.Context { return r.ctx }
 
 func (r *jobRunner) enqueue(task jobTask) bool {
 	r.mu.Lock()
@@ -51,7 +49,6 @@ func (r *jobRunner) enqueue(task jobTask) bool {
 	if r.closed {
 		return false
 	}
-
 	select {
 	case r.queue <- task:
 		return true
@@ -83,8 +80,11 @@ func (r *jobRunner) loop() {
 }
 
 func (r *jobRunner) process(task jobTask) {
-	now := r.server.now().UTC()
-	if err := r.server.store.startTask(r.ctx, task, now); err != nil {
+	if err := r.server.store.startTask(
+		r.ctx,
+		task,
+		r.server.now().UTC(),
+	); err != nil {
 		r.server.logger.Error(
 			"start generation task",
 			"job_id", task.JobID,
@@ -120,10 +120,7 @@ func (r *jobRunner) process(task jobTask) {
 	}
 }
 
-func (r *jobRunner) processFragment(
-	task jobTask,
-	fragmentID string,
-) error {
+func (r *jobRunner) processFragment(task jobTask, fragmentID string) error {
 	retriesRemaining := task.Settings.AutomaticWarningRetries
 	usedSeeds := make(map[uint32]struct{}, retriesRemaining+1)
 
@@ -136,8 +133,7 @@ func (r *jobRunner) processFragment(
 		if err != nil {
 			return err
 		}
-		if !automaticRetryWarningCode(warningCode) ||
-			retriesRemaining == 0 {
+		if !automaticRetryWarningCode(warningCode) || retriesRemaining == 0 {
 			return nil
 		}
 		if err := r.server.store.prepareAutomaticWarningRetry(
@@ -145,12 +141,8 @@ func (r *jobRunner) processFragment(
 			fragmentID,
 			r.server.now().UTC(),
 		); err != nil {
-			return fmt.Errorf(
-				"prepare automatic warning retry: %w",
-				err,
-			)
+			return fmt.Errorf("prepare automatic warning retry: %w", err)
 		}
-
 		retriesRemaining--
 		usedSeeds[seed] = struct{}{}
 	}
@@ -183,9 +175,8 @@ func (r *jobRunner) processFragmentAttempt(
 	}
 
 	ttsContext, cancelTTS := r.server.workerContext()
-	ttsRequestID := r.server.newID()
 	ttsResult, err := r.server.tts.Generate(ttsContext, TTSRequest{
-		RequestID:            ttsRequestID,
+		RequestID:            r.server.newID(),
 		JobID:                task.JobID,
 		FragmentID:           fragmentID,
 		Text:                 item.Resource.Text,
@@ -226,9 +217,8 @@ func (r *jobRunner) processFragmentAttempt(
 	}
 
 	sttContext, cancelSTT := r.server.workerContext()
-	sttRequestID := r.server.newID()
 	sttResult, err := r.server.stt.Transcribe(sttContext, STTRequest{
-		RequestID:        sttRequestID,
+		RequestID:        r.server.newID(),
 		JobID:            task.JobID,
 		FragmentID:       fragmentID,
 		AudioPCM:         ttsResult.AudioPCM,
@@ -255,8 +245,7 @@ func (r *jobRunner) processFragmentAttempt(
 	}
 
 	warningCode := ""
-	if normalizeValidationText(item.Resource.Text) !=
-		normalizeValidationText(sttResult.Text) {
+	if !transcriptMatches(item.Resource.Text, sttResult.Text) {
 		warningCode = "transcript_mismatch"
 	} else if len(ttsResult.Warnings) > 0 {
 		warningCode = "audio_warning"
@@ -281,7 +270,6 @@ func (r *jobRunner) processFragmentAttempt(
 	if err != nil {
 		return "", seed, fmt.Errorf("save fragment result: %w", err)
 	}
-
 	return warningCode, seed, nil
 }
 
@@ -308,13 +296,65 @@ func (r *jobRunner) failFragment(
 	}
 }
 
+// transcriptMatches intentionally tolerates small, typical STT deviations but
+// still rejects missing phrases, reordered content and material substitutions.
+// Punctuation, case, accents and е/ё differences are ignored before scoring.
+func transcriptMatches(expected, actual string) bool {
+	expectedNormalized := normalizeValidationText(expected)
+	actualNormalized := normalizeValidationText(actual)
+	if expectedNormalized == actualNormalized {
+		return expectedNormalized != ""
+	}
+	if expectedNormalized == "" || actualNormalized == "" {
+		return false
+	}
+
+	expectedTokens := canonicalValidationTokens(expectedNormalized)
+	actualTokens := canonicalValidationTokens(actualNormalized)
+	if len(expectedTokens) <= 2 || len(actualTokens) <= 2 {
+		return false
+	}
+
+	maxTokenDistance := max(1, int(math.Ceil(float64(len(expectedTokens))*0.08)))
+	if len(expectedTokens) <= 7 {
+		maxTokenDistance = 1
+	}
+	if absInt(len(expectedTokens)-len(actualTokens)) > maxTokenDistance {
+		return false
+	}
+	if tokenEditDistance(expectedTokens, actualTokens) > maxTokenDistance {
+		return false
+	}
+
+	expectedRunes := []rune(strings.Join(expectedTokens, ""))
+	actualRunes := []rune(strings.Join(actualTokens, ""))
+	longer := max(len(expectedRunes), len(actualRunes))
+	if longer == 0 {
+		return false
+	}
+	characterSimilarity := 1 - float64(
+		runeEditDistance(expectedRunes, actualRunes),
+	)/float64(longer)
+	minimumSimilarity := 0.88
+	if len(expectedTokens) <= 7 {
+		minimumSimilarity = 0.92
+	}
+	return characterSimilarity >= minimumSimilarity
+}
+
 func normalizeValidationText(value string) string {
-	value = cases.Fold().String(norm.NFKC.String(value))
+	value = cases.Fold().String(norm.NFKD.String(value))
 	var builder strings.Builder
 	builder.Grow(len(value))
 	previousSpace := true
 
 	for _, character := range value {
+		if unicode.Is(unicode.Mn, character) {
+			continue
+		}
+		if character == 'ё' {
+			character = 'е'
+		}
 		if unicode.IsLetter(character) || unicode.IsNumber(character) {
 			builder.WriteRune(character)
 			previousSpace = false
@@ -325,8 +365,113 @@ func normalizeValidationText(value string) string {
 			previousSpace = true
 		}
 	}
-
 	return strings.TrimSpace(builder.String())
+}
+
+var validationNumberWords = map[string]struct{}{
+	"ноль": {}, "нуль": {}, "один": {}, "одна": {}, "одно": {},
+	"два": {}, "две": {}, "три": {}, "четыре": {}, "пять": {},
+	"шесть": {}, "семь": {}, "восемь": {}, "девять": {}, "десять": {},
+	"одиннадцать": {}, "двенадцать": {}, "тринадцать": {},
+	"четырнадцать": {}, "пятнадцать": {}, "шестнадцать": {},
+	"семнадцать": {}, "восемнадцать": {}, "девятнадцать": {},
+	"двадцать": {}, "тридцать": {}, "сорок": {}, "пятьдесят": {},
+	"шестьдесят": {}, "семьдесят": {}, "восемьдесят": {}, "девяносто": {},
+	"сто": {}, "двести": {}, "триста": {}, "четыреста": {},
+	"пятьсот": {}, "шестьсот": {}, "семьсот": {}, "восемьсот": {},
+	"девятьсот": {}, "тысяча": {}, "тысячи": {}, "тысяч": {},
+	"миллион": {}, "миллиона": {}, "миллионов": {},
+	"миллиард": {}, "миллиарда": {}, "миллиардов": {},
+	"первый": {}, "первая": {}, "первое": {}, "первого": {},
+	"второй": {}, "вторая": {}, "второе": {}, "второго": {},
+	"третий": {}, "третья": {}, "третье": {}, "третьего": {},
+}
+
+func canonicalValidationTokens(normalized string) []string {
+	raw := strings.Fields(normalized)
+	result := make([]string, 0, len(raw))
+	for _, token := range raw {
+		canonical := token
+		if isValidationNumberToken(token) {
+			canonical = "<number>"
+		}
+		if canonical == "<number>" && len(result) > 0 &&
+			result[len(result)-1] == canonical {
+			continue
+		}
+		result = append(result, canonical)
+	}
+	return result
+}
+
+func isValidationNumberToken(token string) bool {
+	if _, ok := validationNumberWords[token]; ok {
+		return true
+	}
+	hasDigit := false
+	for _, character := range token {
+		if unicode.IsDigit(character) {
+			hasDigit = true
+			continue
+		}
+		return false
+	}
+	return hasDigit
+}
+
+func tokenEditDistance(left, right []string) int {
+	previous := make([]int, len(right)+1)
+	current := make([]int, len(right)+1)
+	for index := range previous {
+		previous[index] = index
+	}
+	for leftIndex, leftToken := range left {
+		current[0] = leftIndex + 1
+		for rightIndex, rightToken := range right {
+			cost := 1
+			if leftToken == rightToken {
+				cost = 0
+			}
+			current[rightIndex+1] = min(
+				previous[rightIndex+1]+1,
+				current[rightIndex]+1,
+				previous[rightIndex]+cost,
+			)
+		}
+		previous, current = current, previous
+	}
+	return previous[len(right)]
+}
+
+func runeEditDistance(left, right []rune) int {
+	previous := make([]int, len(right)+1)
+	current := make([]int, len(right)+1)
+	for index := range previous {
+		previous[index] = index
+	}
+	for leftIndex, leftRune := range left {
+		current[0] = leftIndex + 1
+		for rightIndex, rightRune := range right {
+			cost := 1
+			if leftRune == rightRune {
+				cost = 0
+			}
+			current[rightIndex+1] = min(
+				previous[rightIndex+1]+1,
+				current[rightIndex]+1,
+				previous[rightIndex]+cost,
+			)
+		}
+		previous, current = current, previous
+	}
+	return previous[len(right)]
+}
+
+func absInt(value int) int {
+	if value < 0 {
+		return -value
+	}
+	return value
 }
 
 func logJobState(logger *slog.Logger, job JobResource) {
