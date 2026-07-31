@@ -13,10 +13,11 @@ var errGenerationQueueFull = errors.New("generation queue is full")
 // deliberately excluded so the catalog can be polled while generation runs.
 type FragmentViewResource struct {
 	FragmentResource
-	ChapterTitle   string `json:"chapter_title"`
-	DurationMS     int    `json:"duration_ms"`
-	AudioAvailable bool   `json:"audio_available"`
-	Editable       bool   `json:"editable"`
+	ChapterTitle    string  `json:"chapter_title"`
+	DurationMS      int     `json:"duration_ms"`
+	AudioAvailable  bool    `json:"audio_available"`
+	Editable        bool    `json:"editable"`
+	TranscriptScore float64 `json:"transcript_score"`
 }
 
 type jobFragmentSnapshot struct {
@@ -127,6 +128,7 @@ func fragmentView(
 		DurationMS:       durationMS,
 		AudioAvailable:   audioAvailable,
 		Editable:         isEditableFragmentStatus(resource.Status),
+		TranscriptScore:  transcriptSimilarityScore(resource.Text, resource.STTText),
 	}
 }
 

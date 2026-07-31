@@ -115,7 +115,7 @@ func (r *jobRunner) process(task jobTask) {
 }
 
 func (r *jobRunner) processFragment(task jobTask, fragmentID string) error {
-	retriesRemaining := task.Settings.AutomaticWarningRetries
+	retriesRemaining := min(task.Settings.AutomaticWarningRetries, 1)
 	usedSeeds := make(map[uint32]struct{}, retriesRemaining+1)
 
 	for {

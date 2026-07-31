@@ -379,8 +379,7 @@ func (s *PostgresStore) downloadableChapterSnapshot(
 			rows.Close()
 			return archiveSnapshot{}, fmt.Errorf("scan chapter fragment: %w", err)
 		}
-		if fragment.Resource.Status != FragmentStatusReady ||
-			len(fragment.AudioPCM) == 0 {
+		if len(fragment.AudioPCM) == 0 {
 			rows.Close()
 			return archiveSnapshot{}, fmt.Errorf(
 				"%w: chapter %d still contains unfinished fragments",

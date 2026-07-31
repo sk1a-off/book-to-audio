@@ -174,8 +174,7 @@ func (s *memoryStore) downloadableChapterSnapshot(
 		if fragment.Resource.ChapterNumber != chapterNumber {
 			continue
 		}
-		if fragment.Resource.Status != FragmentStatusReady ||
-			len(fragment.AudioPCM) == 0 {
+		if len(fragment.AudioPCM) == 0 {
 			return archiveSnapshot{}, fmt.Errorf(
 				"%w: chapter %d still contains unfinished fragments",
 				errConflict,

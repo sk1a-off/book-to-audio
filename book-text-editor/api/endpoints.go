@@ -244,6 +244,10 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /v1/job/{jobID}/warnings", s.jobWarnings)
 	mux.HandleFunc("GET /v1/job/{jobID}/chapters", s.listJobChapters)
 	mux.HandleFunc(
+		"GET /v1/job/{jobID}/chapters/{chapterNumber}",
+		s.getJobChapter,
+	)
+	mux.HandleFunc(
 		"GET /v1/job/{jobID}/chapters/{chapterNumber}/audio.flac",
 		s.getChapterAudioFLAC,
 	)
@@ -298,7 +302,7 @@ func (s *Server) health(writer http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) uploadBook(writer http.ResponseWriter, request *http.Request) {
-	file, _, cleanup, ok := multipartFile(
+	file, header, cleanup, ok := multipartFile(
 		writer,
 		request,
 		maxUploadSize,
@@ -309,15 +313,10 @@ func (s *Server) uploadBook(writer http.ResponseWriter, request *http.Request) {
 	}
 	defer cleanup()
 
-	parsed, err := s.parser.Parse(file)
+	parsed, err := parseBookUpload(file, header.Filename, s.parser, maxUploadSize)
 	if err != nil {
-		writeProblem(
-			writer,
-			request,
-			http.StatusUnprocessableEntity,
-			"INVALID_FB2",
-			"uploaded file is not a readable FB2 document",
-		)
+		status, code, message := bookUploadProblem(err)
+		writeProblem(writer, request, status, code, message)
 		return
 	}
 	id := s.newID()

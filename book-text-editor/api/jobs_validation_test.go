@@ -5,9 +5,8 @@ import (
 	"testing"
 )
 
-func TestTranscriptMatches(t *testing.T) {
+func TestTranscriptMatchesIsDeliberatelyForgiving(t *testing.T) {
 	t.Parallel()
-
 	tests := []struct {
 		name     string
 		expected string
@@ -21,89 +20,79 @@ func TestTranscriptMatches(t *testing.T) {
 			want:     true,
 		},
 		{
-			name:     "one token omission in long phrase",
-			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
-			actual:   "Однажды вечером путник вошел в старый пустой дом",
+			name:     "several omissions remain acceptable",
+			expected: "Однажды вечером путник очень медленно вошёл в старый пустой дом возле реки.",
+			actual:   "Однажды путник вошел в старый дом возле реки",
 			want:     true,
 		},
 		{
-			name:     "digits and spoken russian number",
-			expected: "В 2026 году вышло 25 новых изданий этой большой серии.",
-			actual:   "В две тысячи двадцать шестом году вышло двадцать пять новых изданий этой большой серии",
-			want:     true,
-		},
-		{
-			name:     "different numeric value",
+			name:     "word order and numeric difference do not flood warnings",
 			expected: "В серии было пять книг и одна рукопись.",
-			actual:   "В серии было пятьсот книг и одна рукопись.",
-			want:     false,
+			actual:   "Одна рукопись и пятьсот книг были в серии",
+			want:     true,
 		},
 		{
-			name:     "single semantic token replacement",
-			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
-			actual:   "Однажды вечером путник медленно вошёл в новый пустой дом.",
-			want:     false,
+			name:     "short inflection is acceptable",
+			expected: "Для нас обоих",
+			actual:   "Для них обоих",
+			want:     true,
 		},
 		{
-			name:     "negation omission",
-			expected: "Путник никогда не открывал эту старую тяжёлую дверь.",
-			actual:   "Путник никогда открывал эту старую тяжёлую дверь.",
-			want:     false,
-		},
-		{
-			name:     "material replacement",
+			name:     "unrelated text is warning",
 			expected: "Однажды вечером путник медленно вошёл в старый пустой дом.",
 			actual:   "Утром поезд быстро покинул новый большой город.",
 			want:     false,
 		},
 		{
-			name:     "short phrase remains strict",
-			expected: "Для нас обоих",
-			actual:   "Для них обоих",
+			name:     "almost entirely missing is warning",
+			expected: "Это длинный фрагмент книги, который должен быть распознан хотя бы в основных словах.",
+			actual:   "фрагмент",
 			want:     false,
 		},
 		{
-			name:     "reordered phrase",
-			expected: "Красный поезд медленно подошёл к дальней платформе.",
-			actual:   "К дальней платформе медленно подошёл красный поезд.",
-			want:     false,
-		},
-		{
-			name:     "empty transcript",
+			name:     "empty transcript is warning",
 			expected: "Непустой текст.",
 			actual:   "",
 			want:     false,
 		},
 	}
-
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			if got := transcriptMatches(test.expected, test.actual); got != test.want {
-				t.Fatalf("transcriptMatches() = %t, want %t", got, test.want)
+				t.Fatalf("transcriptMatches() = %t, want %t; score=%.3f",
+					got, test.want, transcriptSimilarityScore(test.expected, test.actual))
 			}
 		})
 	}
 }
 
-func TestTranscriptMatchesLongInputIsBounded(t *testing.T) {
+func TestTranscriptSimilarityRanksBetterAttemptHigher(t *testing.T) {
 	t.Parallel()
-
-	expected := strings.Repeat("длинный проверяемый фрагмент ", 700)
-	actual := strings.Repeat("совершенно другой материал ", 700)
-	if transcriptMatches(expected, actual) {
-		t.Fatal("transcriptMatches() accepted a material long-input suffix")
+	expected := "Путник медленно вошёл в старый дом и закрыл тяжёлую дверь."
+	poor := transcriptSimilarityScore(expected, "Поезд покинул город утром")
+	better := transcriptSimilarityScore(expected, "Путник вошел в старый дом и закрыл дверь")
+	if better <= poor {
+		t.Fatalf("better score %.3f <= poor score %.3f", better, poor)
+	}
+	if better < transcriptWarningSimilarityThreshold {
+		t.Fatalf("better score %.3f unexpectedly creates warning", better)
 	}
 }
 
-func TestCanonicalValidationTokensPreserveNumericMeaning(t *testing.T) {
+func TestTranscriptSimilarityLongInputIsLinearAndBounded(t *testing.T) {
 	t.Parallel()
+	expected := strings.Repeat("длинный проверяемый фрагмент ", 700)
+	actual := strings.Repeat("совершенно другой материал ", 700)
+	if transcriptMatches(expected, actual) {
+		t.Fatal("unrelated long input was accepted")
+	}
+}
 
-	for _, test := range []struct {
-		input string
-		want  string
-	}{
+func TestCanonicalValidationTokensStillNormalizeNumbers(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct{ input, want string }{
 		{input: "двадцать пять", want: "#25"},
 		{input: "0025", want: "#25"},
 		{input: "две тысячи двадцать шестом", want: "#2026"},

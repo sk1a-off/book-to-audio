@@ -909,25 +909,55 @@ func (s *memoryStore) completeFragment(
 		return fmt.Errorf("%w: fragment is not generating", errConflict)
 	}
 
-	fragment.Resource.STTText = result.STTText
-	fragment.Resource.WarningCode = result.WarningCode
+	candidate := cloneFragmentResult(result)
+	candidate.WarningCode = effectiveFragmentWarning(fragment.Resource.Text, candidate)
+	candidateResource := fragment.Resource
+	candidateResource.STTText = candidate.STTText
+	candidateResource.Status = fragmentStatusForResult(candidate)
+	candidateResource.WarningCode = candidate.WarningCode
+	candidateResource.Error = ""
+	candidateResource.UpdatedAt = now
+	fragment.History = append(fragment.History, fragmentAttempt{
+		Attempt:     candidateResource.Attempt,
+		Text:        candidateResource.Text,
+		STTText:     candidateResource.STTText,
+		Status:      candidateResource.Status,
+		WarningCode: candidateResource.WarningCode,
+		AudioPCM:    slices.Clone(candidate.AudioPCM),
+		SampleRate:  candidate.SampleRate,
+		Channels:    candidate.Channels,
+		SampleWidth: candidate.SampleWidth,
+		DurationMS:  candidate.DurationMS,
+		STTLanguage: candidate.STTLanguage,
+		WorkerNotes: slices.Clone(candidate.WorkerNotes),
+		CompletedAt: now,
+	})
+
+	current := fragmentResultFromStored(
+		fragment.Resource,
+		fragment.AudioPCM,
+		fragment.SampleRate,
+		fragment.Channels,
+		fragment.SampleWidth,
+		fragment.DurationMS,
+		fragment.STTLanguage,
+		fragment.WorkerNotes,
+	)
+	selected, _ := chooseBestFragmentResult(fragment.Resource.Text, current, candidate)
+	selected.WarningCode = effectiveFragmentWarning(fragment.Resource.Text, selected)
+	fragment.Resource.STTText = selected.STTText
+	fragment.Resource.WarningCode = selected.WarningCode
+	fragment.Resource.Status = fragmentStatusForResult(selected)
 	fragment.Resource.Error = ""
 	fragment.Resource.UpdatedAt = now
-	if result.WarningCode == "" {
-		fragment.Resource.Status = FragmentStatusReady
-	} else {
-		fragment.Resource.Status = FragmentStatusWarning
-	}
-	fragment.AudioPCM = slices.Clone(result.AudioPCM)
-	fragment.SampleRate = result.SampleRate
-	fragment.Channels = result.Channels
-	fragment.SampleWidth = result.SampleWidth
-	fragment.DurationMS = result.DurationMS
-	fragment.STTLanguage = result.STTLanguage
-	fragment.WorkerNotes = slices.Clone(result.WorkerNotes)
-	fragment.History = append(fragment.History, snapshotAttempt(fragment, now))
+	fragment.AudioPCM = slices.Clone(selected.AudioPCM)
+	fragment.SampleRate = selected.SampleRate
+	fragment.Channels = selected.Channels
+	fragment.SampleWidth = selected.SampleWidth
+	fragment.DurationMS = selected.DurationMS
+	fragment.STTLanguage = selected.STTLanguage
+	fragment.WorkerNotes = slices.Clone(selected.WorkerNotes)
 	recomputeJob(s.jobs[fragment.Resource.JobID], s.fragments, now)
-
 	return nil
 }
 
@@ -1022,51 +1052,36 @@ func (s *memoryStore) jobChapterCatalog(
 	if !ok {
 		return chapterCatalog{}, fmt.Errorf("%w: job not found", errNotFound)
 	}
-	if jobEntry.Resource.Status != JobStatusCompleted {
+	if jobEntry.Resource.Status != JobStatusCompleted &&
+		jobEntry.Resource.Status != JobStatusCompletedWithWarnings {
 		return chapterCatalog{}, fmt.Errorf(
-			"%w: all fragments must be ready before export",
+			"%w: generation must finish before full-book export",
 			errConflict,
 		)
 	}
 	if len(jobEntry.FragmentIDs) != jobEntry.Resource.FragmentsCount {
-		return chapterCatalog{}, errors.New(
-			"chapter catalog fragment count does not match job",
-		)
+		return chapterCatalog{}, errors.New("chapter catalog fragment count does not match job")
 	}
-
 	byNumber := make(map[int]*chapterSummary)
 	for _, id := range jobEntry.FragmentIDs {
 		fragment := s.fragments[id]
-		if fragment == nil ||
-			fragment.Resource.Status != FragmentStatusReady {
-			return chapterCatalog{}, fmt.Errorf(
-				"%w: fragment metadata is not ready",
-				errConflict,
-			)
+		if fragment == nil || len(fragment.AudioPCM) == 0 {
+			return chapterCatalog{}, fmt.Errorf("%w: fragment audio is not available", errConflict)
 		}
 		number := fragment.Resource.ChapterNumber
 		if number <= 0 || fragment.DurationMS < 0 {
-			return chapterCatalog{}, errors.New(
-				"chapter catalog contains invalid fragment metadata",
-			)
+			return chapterCatalog{}, errors.New("chapter catalog contains invalid fragment metadata")
 		}
-
 		summary := byNumber[number]
 		if summary == nil {
-			summary = &chapterSummary{
-				Number: number,
-				Title:  fragment.ChapterTitle,
-			}
+			summary = &chapterSummary{Number: number, Title: fragment.ChapterTitle}
 			byNumber[number] = summary
 		} else if summary.Title != fragment.ChapterTitle {
-			return chapterCatalog{}, errors.New(
-				"chapter catalog contains inconsistent titles",
-			)
+			return chapterCatalog{}, errors.New("chapter catalog contains inconsistent titles")
 		}
 		summary.FragmentsCount++
 		summary.DurationMS += int64(fragment.DurationMS)
 	}
-
 	chapters := make([]chapterSummary, 0, len(byNumber))
 	for _, summary := range byNumber {
 		chapters = append(chapters, *summary)
@@ -1074,11 +1089,7 @@ func (s *memoryStore) jobChapterCatalog(
 	sort.Slice(chapters, func(left, right int) bool {
 		return chapters[left].Number < chapters[right].Number
 	})
-
-	return chapterCatalog{
-		BookID:   jobEntry.Resource.BookID,
-		Chapters: chapters,
-	}, nil
+	return chapterCatalog{BookID: jobEntry.Resource.BookID, Chapters: chapters}, nil
 }
 
 func (s *memoryStore) archiveSnapshotLocked(
@@ -1089,9 +1100,10 @@ func (s *memoryStore) archiveSnapshotLocked(
 	if !ok {
 		return archiveSnapshot{}, fmt.Errorf("%w: job not found", errNotFound)
 	}
-	if jobEntry.Resource.Status != JobStatusCompleted {
+	if jobEntry.Resource.Status != JobStatusCompleted &&
+		jobEntry.Resource.Status != JobStatusCompletedWithWarnings {
 		return archiveSnapshot{}, fmt.Errorf(
-			"%w: all fragments must be ready before export",
+			"%w: generation must finish before legacy archive export",
 			errConflict,
 		)
 	}
@@ -1114,20 +1126,13 @@ func (s *memoryStore) archiveSnapshotLocked(
 	for _, id := range jobEntry.FragmentIDs {
 		fragment := s.fragments[id]
 		if fragment == nil {
-			return archiveSnapshot{}, errors.New(
-				"archive references a missing fragment",
-			)
+			return archiveSnapshot{}, errors.New("archive references a missing fragment")
 		}
-		if chapterNumber > 0 &&
-			fragment.Resource.ChapterNumber != chapterNumber {
+		if chapterNumber > 0 && fragment.Resource.ChapterNumber != chapterNumber {
 			continue
 		}
-		if fragment.Resource.Status != FragmentStatusReady ||
-			len(fragment.AudioPCM) == 0 {
-			return archiveSnapshot{}, fmt.Errorf(
-				"%w: fragment audio is not ready",
-				errConflict,
-			)
+		if len(fragment.AudioPCM) == 0 {
+			return archiveSnapshot{}, fmt.Errorf("%w: fragment audio is not available", errConflict)
 		}
 		snapshot.Fragments = append(snapshot.Fragments, archiveFragment{
 			Resource:     fragment.Resource,
@@ -1141,19 +1146,11 @@ func (s *memoryStore) archiveSnapshotLocked(
 		})
 	}
 	if chapterNumber > 0 && len(snapshot.Fragments) == 0 {
-		return archiveSnapshot{}, fmt.Errorf(
-			"%w: chapter %d has no generated fragments",
-			errChapterNotFound,
-			chapterNumber,
-		)
+		return archiveSnapshot{}, fmt.Errorf("%w: chapter %d has no generated fragments", errChapterNotFound, chapterNumber)
 	}
-	if chapterNumber == 0 &&
-		len(snapshot.Fragments) != len(jobEntry.FragmentIDs) {
-		return archiveSnapshot{}, errors.New(
-			"archive fragment count does not match job",
-		)
+	if chapterNumber == 0 && len(snapshot.Fragments) != len(jobEntry.FragmentIDs) {
+		return archiveSnapshot{}, errors.New("archive fragment count does not match job")
 	}
-
 	return snapshot, nil
 }
 

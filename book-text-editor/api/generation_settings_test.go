@@ -367,11 +367,11 @@ func TestAutomaticWarningRetriesExhaustConfiguredBudget(t *testing.T) {
 		&retryTestSTT{mismatchesBefore: 100},
 	)
 
-	if len(result.tts.requests) != 6 ||
-		len(result.stt.requests) != 6 ||
-		len(result.history) != 6 {
+	if len(result.tts.requests) != 2 ||
+		len(result.stt.requests) != 2 ||
+		len(result.history) != 2 {
 		t.Fatalf(
-			"attempts = TTS:%d STT:%d history:%d, want 6 each",
+			"attempts = TTS:%d STT:%d history:%d, want 2 each",
 			len(result.tts.requests),
 			len(result.stt.requests),
 			len(result.history),
@@ -381,16 +381,12 @@ func TestAutomaticWarningRetriesExhaustConfiguredBudget(t *testing.T) {
 		result.job.GenerationSettings != settings ||
 		result.fragment.Status != FragmentStatusWarning ||
 		result.fragment.WarningCode != "transcript_mismatch" ||
-		result.fragment.Attempt != 6 {
-		t.Fatalf(
-			"final state = job:%+v fragment:%+v",
-			result.job,
-			result.fragment,
-		)
+		result.fragment.Attempt != 2 {
+		t.Fatalf("final state = job:%+v fragment:%+v", result.job, result.fragment)
 	}
 
-	requestIDs := make(map[string]struct{}, 12)
-	seeds := make(map[uint32]struct{}, 6)
+	requestIDs := make(map[string]struct{}, 4)
+	seeds := make(map[uint32]struct{}, 2)
 	for index, request := range result.tts.requests {
 		if request.Seed == nil {
 			t.Fatalf("TTS request %d has no seed", index)
@@ -406,8 +402,8 @@ func TestAutomaticWarningRetriesExhaustConfiguredBudget(t *testing.T) {
 		requestIDs[request.RequestID] = struct{}{}
 		assertRetryTestSTTSettings(t, request, settings)
 	}
-	if len(requestIDs) != 12 {
-		t.Fatalf("unique worker request IDs = %d, want 12", len(requestIDs))
+	if len(requestIDs) != 4 {
+		t.Fatalf("unique worker request IDs = %d, want 4", len(requestIDs))
 	}
 }
 
@@ -417,15 +413,15 @@ func TestAutomaticWarningRetriesStopAfterEarlySuccess(t *testing.T) {
 	result := runRetryTest(
 		t,
 		defaultGenerationSettings(),
-		&retryTestTTS{warningsBefore: 2},
-		&retryTestSTT{},
+		&retryTestTTS{},
+		&retryTestSTT{mismatchesBefore: 1},
 	)
 
-	if len(result.tts.requests) != 3 ||
-		len(result.stt.requests) != 3 ||
-		len(result.history) != 3 {
+	if len(result.tts.requests) != 2 ||
+		len(result.stt.requests) != 2 ||
+		len(result.history) != 2 {
 		t.Fatalf(
-			"attempts = TTS:%d STT:%d history:%d, want 3 each",
+			"attempts = TTS:%d STT:%d history:%d, want 2 each",
 			len(result.tts.requests),
 			len(result.stt.requests),
 			len(result.history),
@@ -434,12 +430,8 @@ func TestAutomaticWarningRetriesStopAfterEarlySuccess(t *testing.T) {
 	if result.job.Status != JobStatusCompleted ||
 		result.fragment.Status != FragmentStatusReady ||
 		result.fragment.WarningCode != "" ||
-		result.fragment.Attempt != 3 {
-		t.Fatalf(
-			"final state = job:%+v fragment:%+v",
-			result.job,
-			result.fragment,
-		)
+		result.fragment.Attempt != 2 {
+		t.Fatalf("final state = job:%+v fragment:%+v", result.job, result.fragment)
 	}
 }
 

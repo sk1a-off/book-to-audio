@@ -12,88 +12,140 @@ import (
 )
 
 const (
-	maxTranscriptTokenDistance = 12
-	maxTranscriptRuneDistance  = 512
+	// A mismatch is actionable only when less than roughly half of the useful
+	// lexical/character signal survives normalization. This deliberately avoids
+	// flooding a long audiobook with warnings for punctuation, word order,
+	// endings, numbers or a few missed words.
+	transcriptWarningSimilarityThreshold = 0.48
+	maxTranscriptTokenDistance           = 256
+	maxTranscriptRuneDistance            = 2048
 )
 
-// transcriptMatches accepts harmless STT differences while keeping changes in
-// wording, order and numeric values visible to the reviewer. Both edit-distance
-// calculations are banded, so a malformed 20k-character fragment cannot cause
-// quadratic work in the API process.
+// transcriptMatches is intentionally forgiving. Whisper is used as a coarse
+// quality signal, not as an exact proof-reader. Review is requested only when
+// the recognized text is substantially different from the source.
 func transcriptMatches(expected, actual string) bool {
+	return transcriptSimilarityScore(expected, actual) >=
+		transcriptWarningSimilarityThreshold
+}
+
+// transcriptSimilarityScore returns a stable score in [0, 1]. It combines a
+// multiset token Dice score, character-bigram Dice score and length ratio. The
+// algorithm is linear in input size and remains safe for the 20k-rune fragment
+// limit. Word order and isolated numeric differences have intentionally small
+// influence, while empty or unrelated transcripts score close to zero.
+func transcriptSimilarityScore(expected, actual string) float64 {
 	expectedNormalized := normalizeValidationText(expected)
 	actualNormalized := normalizeValidationText(actual)
-	if expectedNormalized == actualNormalized {
-		return expectedNormalized != ""
-	}
 	if expectedNormalized == "" || actualNormalized == "" {
-		return false
+		return 0
+	}
+	if expectedNormalized == actualNormalized {
+		return 1
 	}
 
 	expectedTokens := canonicalValidationTokens(expectedNormalized)
 	actualTokens := canonicalValidationTokens(actualNormalized)
-	if len(expectedTokens) <= 2 || len(actualTokens) <= 2 {
-		return false
-	}
-
-	if !equalValidationTokenSequences(
-		criticalValidationTokens(expectedTokens),
-		criticalValidationTokens(actualTokens),
-	) {
-		return false
-	}
-
-	tokenBudget := transcriptTokenBudget(len(expectedTokens))
-	if absInt(len(expectedTokens)-len(actualTokens)) > tokenBudget {
-		return false
-	}
-	tokenStats := boundedTokenEditStats(
-		expectedTokens,
-		actualTokens,
-		tokenBudget,
+	tokenScore := validationTokenDice(expectedTokens, actualTokens)
+	characterScore := validationBigramDice(
+		[]rune(expectedNormalized),
+		[]rune(actualNormalized),
 	)
-	if tokenStats.Distance > tokenBudget ||
-		(tokenStats.Insertions > 0 && tokenStats.Deletions > 0) {
-		return false
-	}
-
-	expectedRunes := []rune(strings.Join(expectedTokens, " "))
-	actualRunes := []rune(strings.Join(actualTokens, " "))
-	runeBudget := min(
-		maxTranscriptRuneDistance,
-		transcriptRuneBudget(max(len(expectedRunes), len(actualRunes)))+
-			tokenStats.IndelRunes,
+	lengthScore := validationLengthRatio(
+		utf8.RuneCountInString(expectedNormalized),
+		utf8.RuneCountInString(actualNormalized),
 	)
-	return boundedRuneEditDistance(expectedRunes, actualRunes, runeBudget) <= runeBudget
+
+	// Character similarity matters a little more for very short phrases, where
+	// one inflected word would otherwise dominate the token score.
+	if max(len(expectedTokens), len(actualTokens)) <= 3 {
+		return clampUnit(0.45*tokenScore + 0.45*characterScore + 0.10*lengthScore)
+	}
+	return clampUnit(0.65*tokenScore + 0.25*characterScore + 0.10*lengthScore)
+}
+
+func validationTokenDice(left, right []string) float64 {
+	if len(left) == 0 || len(right) == 0 {
+		return 0
+	}
+	counts := make(map[string]int, len(left))
+	for _, token := range left {
+		counts[token]++
+	}
+	common := 0
+	for _, token := range right {
+		if counts[token] <= 0 {
+			continue
+		}
+		counts[token]--
+		common++
+	}
+	return float64(2*common) / float64(len(left)+len(right))
+}
+
+func validationBigramDice(left, right []rune) float64 {
+	if len(left) == 0 || len(right) == 0 {
+		return 0
+	}
+	if len(left) == 1 || len(right) == 1 {
+		if string(left) == string(right) {
+			return 1
+		}
+		return 0
+	}
+	encode := func(first, second rune) string {
+		return string([]rune{first, second})
+	}
+	counts := make(map[string]int, len(left)-1)
+	for index := 0; index+1 < len(left); index++ {
+		counts[encode(left[index], left[index+1])]++
+	}
+	common := 0
+	for index := 0; index+1 < len(right); index++ {
+		key := encode(right[index], right[index+1])
+		if counts[key] <= 0 {
+			continue
+		}
+		counts[key]--
+		common++
+	}
+	return float64(2*common) / float64((len(left)-1)+(len(right)-1))
+}
+
+func validationLengthRatio(left, right int) float64 {
+	if left <= 0 || right <= 0 {
+		return 0
+	}
+	return float64(min(left, right)) / float64(max(left, right))
+}
+
+func clampUnit(value float64) float64 {
+	if value < 0 {
+		return 0
+	}
+	if value > 1 {
+		return 1
+	}
+	return value
 }
 
 func transcriptTokenBudget(tokenCount int) int {
-	budget := int(math.Ceil(float64(tokenCount) * 0.08))
+	budget := int(math.Ceil(float64(tokenCount) * 0.45))
 	if budget < 1 {
 		budget = 1
 	}
-	if budget > maxTranscriptTokenDistance {
-		budget = maxTranscriptTokenDistance
-	}
-	return budget
+	return min(budget, maxTranscriptTokenDistance)
 }
 
 func transcriptRuneBudget(runeCount int) int {
 	if runeCount <= 0 {
 		return 0
 	}
-	ratio := 0.07
-	if runeCount >= 160 {
-		ratio = 0.10
-	}
-	budget := int(math.Ceil(float64(runeCount) * ratio))
+	budget := int(math.Ceil(float64(runeCount) * 0.52))
 	if budget < 1 {
 		budget = 1
 	}
-	if budget > maxTranscriptRuneDistance {
-		budget = maxTranscriptRuneDistance
-	}
-	return budget
+	return min(budget, maxTranscriptRuneDistance)
 }
 
 func normalizeValidationText(value string) string {
@@ -101,7 +153,6 @@ func normalizeValidationText(value string) string {
 	var builder strings.Builder
 	builder.Grow(len(value))
 	previousSpace := true
-
 	for _, character := range value {
 		if unicode.Is(unicode.Mn, character) {
 			continue
@@ -210,10 +261,7 @@ func parseRussianNumber(tokens []string) (value int64, consumed int, ok bool) {
 		}
 		break
 	}
-	if !ok {
-		return 0, 0, false
-	}
-	if total > math.MaxInt64-current {
+	if !ok || total > math.MaxInt64-current {
 		return 0, 0, false
 	}
 	return total + current, consumed, true
@@ -223,11 +271,6 @@ func criticalValidationTokens(tokens []string) []string {
 	result := make([]string, 0)
 	for _, token := range tokens {
 		if strings.HasPrefix(token, "#") {
-			result = append(result, token)
-			continue
-		}
-		switch token {
-		case "не", "ни", "нет", "без":
 			result = append(result, token)
 		}
 	}
@@ -253,148 +296,24 @@ type tokenEditStats struct {
 	IndelRunes int
 }
 
-func boundedTokenEditStats(
-	left, right []string,
-	limit int,
-) tokenEditStats {
-	invalid := tokenEditStats{Distance: limit + 1}
-	if limit < 0 || absInt(len(left)-len(right)) > limit {
-		return invalid
-	}
-
-	previous := make([]tokenEditStats, len(right)+1)
-	current := make([]tokenEditStats, len(right)+1)
-	for index := range previous {
-		previous[index] = invalid
-		current[index] = invalid
-	}
-	previous[0] = tokenEditStats{}
-	for rightIndex := 1; rightIndex <= min(len(right), limit); rightIndex++ {
-		previous[rightIndex] = advanceTokenEditStats(
-			previous[rightIndex-1],
-			1,
-			1,
-			0,
-			tokenRuneCost(right[rightIndex-1]),
-			limit,
-		)
-	}
-
-	for leftIndex := 1; leftIndex <= len(left); leftIndex++ {
-		for index := range current {
-			current[index] = invalid
-		}
-		if leftIndex <= limit {
-			current[0] = advanceTokenEditStats(
-				previous[0],
-				1,
-				0,
-				1,
-				tokenRuneCost(left[leftIndex-1]),
-				limit,
-			)
-		}
-
-		start := max(1, leftIndex-limit)
-		end := min(len(right), leftIndex+limit)
-		rowMinimum := limit + 1
-		for rightIndex := start; rightIndex <= end; rightIndex++ {
-			best := invalid
-			best = betterTokenEditStats(
-				best,
-				advanceTokenEditStats(
-					previous[rightIndex],
-					1,
-					0,
-					1,
-					tokenRuneCost(left[leftIndex-1]),
-					limit,
-				),
-			)
-			best = betterTokenEditStats(
-				best,
-				advanceTokenEditStats(
-					current[rightIndex-1],
-					1,
-					1,
-					0,
-					tokenRuneCost(right[rightIndex-1]),
-					limit,
-				),
-			)
-
-			leftToken := left[leftIndex-1]
-			rightToken := right[rightIndex-1]
-			switch {
-			case leftToken == rightToken:
-				best = betterTokenEditStats(best, previous[rightIndex-1])
-			case validationTokensSimilar(leftToken, rightToken):
-				best = betterTokenEditStats(
-					best,
-					advanceTokenEditStats(
-						previous[rightIndex-1],
-						1,
-						0,
-						0,
-						0,
-						limit,
-					),
-				)
-			}
-			current[rightIndex] = best
-			rowMinimum = min(rowMinimum, best.Distance)
-		}
-		if rowMinimum > limit {
-			return invalid
-		}
-		previous, current = current, previous
-	}
-
-	if previous[len(right)].Distance > limit {
-		return invalid
-	}
-	return previous[len(right)]
-}
-
-func advanceTokenEditStats(
-	stats tokenEditStats,
-	distance, insertions, deletions, indelRunes, limit int,
-) tokenEditStats {
-	if stats.Distance > limit {
+func boundedTokenEditStats(left, right []string, limit int) tokenEditStats {
+	distance := boundedTokenEditDistance(left, right, limit)
+	if distance > limit {
 		return tokenEditStats{Distance: limit + 1}
 	}
-	stats.Distance += distance
-	stats.Insertions += insertions
-	stats.Deletions += deletions
-	stats.IndelRunes += indelRunes
-	if stats.Distance > limit {
-		return tokenEditStats{Distance: limit + 1}
+	insertions := max(0, len(right)-len(left))
+	deletions := max(0, len(left)-len(right))
+	return tokenEditStats{
+		Distance:   distance,
+		Insertions: insertions,
+		Deletions:  deletions,
 	}
-	return stats
-}
-
-func betterTokenEditStats(current, candidate tokenEditStats) tokenEditStats {
-	if candidate.Distance != current.Distance {
-		if candidate.Distance < current.Distance {
-			return candidate
-		}
-		return current
-	}
-	candidateIndels := candidate.Insertions + candidate.Deletions
-	currentIndels := current.Insertions + current.Deletions
-	if candidateIndels != currentIndels {
-		if candidateIndels < currentIndels {
-			return candidate
-		}
-		return current
-	}
-	if candidate.IndelRunes < current.IndelRunes {
-		return candidate
-	}
-	return current
 }
 
 func validationTokensSimilar(left, right string) bool {
+	if left == right {
+		return true
+	}
 	if strings.HasPrefix(left, "#") || strings.HasPrefix(right, "#") {
 		return false
 	}
@@ -404,20 +323,20 @@ func validationTokensSimilar(left, right string) bool {
 	if longest < 5 {
 		return false
 	}
-	budget := max(1, longest/5)
+	budget := max(1, longest/4)
 	return boundedRuneEditDistance(leftRunes, rightRunes, budget) <= budget
 }
 
-func tokenRuneCost(token string) int {
-	return utf8.RuneCountInString(token) + 1
-}
+func tokenRuneCost(token string) int { return utf8.RuneCountInString(token) }
 
 func boundedTokenEditDistance(left, right []string, limit int) int {
 	return boundedEditDistance(
 		len(left),
 		len(right),
 		limit,
-		func(i, j int) bool { return left[i] == right[j] },
+		func(i, j int) bool {
+			return left[i] == right[j] || validationTokensSimilar(left[i], right[j])
+		},
 	)
 }
 
@@ -443,7 +362,6 @@ func boundedEditDistance(
 	if rightLength == 0 {
 		return leftLength
 	}
-
 	infinity := limit + 1
 	previous := make([]int, rightLength+1)
 	current := make([]int, rightLength+1)
@@ -454,7 +372,6 @@ func boundedEditDistance(
 			previous[index] = infinity
 		}
 	}
-
 	for leftIndex := 1; leftIndex <= leftLength; leftIndex++ {
 		for index := range current {
 			current[index] = infinity

@@ -33,7 +33,7 @@
       vad_filter: false,
       word_timestamps: true,
     }),
-    automatic_warning_retries: 5,
+    automatic_warning_retries: 1,
   });
 
   const TERMINAL_JOB_STATUSES = new Set([
@@ -60,7 +60,7 @@
   });
 
   const WARNING_LABELS = Object.freeze({
-    transcript_mismatch: "Текст распознавания отличается",
+    transcript_mismatch: "Распознанный текст сильно отличается",
     audio_warning: "Аудио требует проверки",
     text_edited: "Текст отредактирован",
     text_rewritten: "Текст переписан локальной моделью",
@@ -275,9 +275,10 @@
       return this.request(`/v1/rewrite/${encodeURIComponent(rewriteID)}`);
     }
 
-    listChapters(jobID) {
+    listChapters(jobID, includeFragments = false) {
+      const suffix = includeFragments ? "" : "?include_fragments=0";
       return this.request(
-        `/v1/job/${encodeURIComponent(jobID)}/chapters`,
+        `/v1/job/${encodeURIComponent(jobID)}/chapters${suffix}`,
       );
     }
   }
@@ -627,7 +628,7 @@
     async uploadBook() {
       const file = this.nodes.bookFile.files && this.nodes.bookFile.files[0];
       if (!file) {
-        this.notify("Выберите FB2-файл.", "error");
+        this.notify("Выберите FB2- или FB2.ZIP-файл.", "error");
         return;
       }
 
@@ -639,7 +640,7 @@
           this.upsertBook(book);
           this.renderBooks(book.id);
           this.nodes.bookForm.reset();
-          this.nodes.bookFileLabel.textContent = "До 50 МБ, без ZIP-сжатия";
+          this.nodes.bookFileLabel.textContent = "До 50 МБ · .fb2, .zip или .fb2.zip";
           this.notify(
             `Книга «${book.title || "Без названия"}» готова к генерации.`,
             "success",
@@ -888,7 +889,11 @@
             ? settings[field.section]
             : settings;
         const fallback = defaults[field.key];
-        const candidate = source && source[field.key];
+        let candidate = source && source[field.key];
+        if (field.key === "automatic_warning_retries" &&
+            typeof candidate === "number") {
+          candidate = Math.min(candidate, 1);
+        }
         if (field.boolean) {
           field.input.checked =
             typeof candidate === "boolean" ? candidate : fallback;
@@ -1065,7 +1070,7 @@
         if (token === this.pollToken) {
           const delay = consecutiveErrors > 0
             ? Math.min(1600 * (2 ** consecutiveErrors), 10000)
-            : 1600;
+            : 5000;
           window.setTimeout(poll, delay);
         }
       };
@@ -1075,31 +1080,33 @@
 
     async loadFragmentCatalog(jobID, announceError = false) {
       try {
-        const response = await this.api.listChapters(jobID);
-        if (jobID !== this.currentJobID) {
-          return;
-        }
-        const chapters = Array.isArray(response.chapters)
-          ? response.chapters
-          : [];
-        const fragments = Array.isArray(response.fragments)
-          ? response.fragments
-          : [];
+        const response = await this.api.listChapters(jobID, false);
+        if (jobID !== this.currentJobID) return;
+        const chapters = Array.isArray(response.chapters) ? response.chapters : [];
         this.nodes.chapterDownloads.hidden = false;
         this.renderChapterDownloads(
           this.currentJob || { id: jobID, status: "running" },
           chapters,
         );
-        this.renderFragments(fragments);
-        if (this.warningFragments.some((fragment) => fragment.status === "warning")) {
-          this.loadRewriteModels();
+        this.warningFragments = [];
+        this.selectedWarningIDs.clear();
+        this.nodes.warningsList.replaceChildren();
+        this.nodes.warningsSection.hidden = true;
+        this.nodes.warningsSummary.textContent = "";
+        this.updateRetrySelectedButton();
+
+        if (response.audio_zip_url) {
+          this.nodes.downloadLink.href = response.audio_zip_url;
+          this.nodes.downloadLink.download =
+            `book-${(this.currentJob && this.currentJob.book_id) || "audio"}-chapters-flac.zip`;
+          this.nodes.downloadLink.classList.remove("is-disabled");
+          this.nodes.downloadLink.setAttribute("aria-disabled", "false");
+          this.nodes.downloadLink.setAttribute("tabindex", "0");
         }
       } catch (error) {
         this.nodes.chapterDownloadsStatus.textContent =
-          "Не удалось обновить прогресс фрагментов. Повторим автоматически.";
-        if (announceError) {
-          this.notifyError(error, "Не удалось загрузить фрагменты задачи");
-        }
+          "Не удалось обновить прогресс глав. Повторим автоматически.";
+        if (announceError) this.notifyError(error, "Не удалось загрузить главы задачи");
       }
     }
 
@@ -2204,7 +2211,8 @@
         ? JSON.stringify(snapshot, null, 2)
         : "Для этой задачи снимок настроек недоступен.";
 
-      const canDownload = job.status === "completed";
+      const canDownload = job.status === "completed" ||
+        job.status === "completed_with_warnings";
       if (canDownload) {
         this.nodes.downloadLink.href =
           `/v1/job/${encodeURIComponent(job.id)}/audio.zip`;
@@ -2282,73 +2290,64 @@
         .map((chapter) => {
           const rawNumber = chapter.chapter_number ?? chapter.number;
           const number = Number(rawNumber);
-          if (!Number.isInteger(number) || number <= 0) {
-            return null;
-          }
+          if (!Number.isInteger(number) || number <= 0) return null;
           return { ...chapter, chapter_number: number };
         })
         .filter(Boolean)
         .sort((left, right) => left.chapter_number - right.chapter_number);
-
       if (normalized.length === 0) {
-        this.nodes.chapterDownloadsStatus.textContent =
-          "Метаданные глав ещё не появились.";
+        this.nodes.chapterDownloadsStatus.textContent = "Метаданные глав ещё не появились.";
         return;
       }
-
-      const readyCount = normalized.filter((chapter) => chapter.ready).length;
+      const audioComplete = normalized.filter((chapter) => chapter.audio_complete || chapter.ready).length;
+      const reviewRequired = normalized.reduce(
+        (sum, chapter) => sum + this.number(chapter.review_required),
+        0,
+      );
       this.nodes.chapterDownloadsStatus.textContent =
-        `Готово к скачиванию: ${readyCount} из ${normalized.length}. ` +
-        "FLAC собирается только после нажатия на готовую главу.";
-      for (const chapter of normalized) {
-        const flacFilename = this.chapterFLACFilename(chapter);
-        const ready = Boolean(chapter.ready && chapter.audio_url);
-        const item = this.createNode(
-          ready ? "a" : "div",
-          ready
-            ? "chapter-download-link"
-            : "chapter-download-link chapter-download-link--pending",
-        );
-        if (ready) {
-          item.href = chapter.audio_url;
-          item.download = flacFilename;
-          item.setAttribute(
-            "aria-label",
-            `Скачать главу ${chapter.chapter_number} как ${flacFilename}`,
-          );
-          item.title = "При клике Go соберёт и вернёт один прямой FLAC-файл";
-        } else {
-          item.setAttribute("aria-disabled", "true");
-        }
+        `Полностью озвучено: ${audioComplete} из ${normalized.length}. ` +
+        (reviewRequired > 0
+          ? `Замечаний для проверки: ${reviewRequired}. Они не блокируют скачивание готового аудио.`
+          : "Замечаний для проверки нет.");
 
+      for (const chapter of normalized) {
+        const item = this.createNode("article", "chapter-download-link chapter-overview-card");
         const number = this.createNode(
-          "span",
-          "chapter-number",
-          String(chapter.chapter_number).padStart(2, "0"),
+          "span", "chapter-number", String(chapter.chapter_number).padStart(2, "0"),
         );
         number.setAttribute("aria-hidden", "true");
         const copy = this.createNode("span", "chapter-download-copy");
         const title = this.createNode(
-          "strong",
-          "",
-          chapter.title || `Глава ${chapter.chapter_number}`,
+          "strong", "", chapter.title || `Глава ${chapter.chapter_number}`,
         );
-        const detail = this.createNode(
-          "small",
-          "",
-          ready
-            ? `${flacFilename} · прямой FLAC, без ZIP`
-            : `готово ${this.number(chapter.fragments_ready)} из ` +
-              `${this.number(chapter.fragments_count)} фрагментов`,
+        const voiced = this.number(chapter.fragments_voiced ?? chapter.fragments_ready);
+        const total = this.number(chapter.fragments_count);
+        const review = this.number(chapter.review_required);
+        copy.append(
+          title,
+          this.createNode(
+            "small", "",
+            `озвучено ${voiced} из ${total}` +
+              (review > 0 ? ` · проверить ${review}` : " · без замечаний"),
+          ),
         );
-        copy.append(title, detail);
-        const arrow = this.createNode(
-          "span",
-          "chapter-download-arrow",
-          ready ? "↓" : "…",
-        );
-        arrow.setAttribute("aria-hidden", "true");
-        item.append(number, copy, arrow);
+        const actions = this.createNode("span", "chapter-card-actions");
+        const reviewLink = this.createNode("a", "chapter-review-link", "Открыть главу");
+        reviewLink.href = chapter.review_url ||
+          `/jobs/${encodeURIComponent(job.id)}/chapters/${chapter.chapter_number}`;
+        reviewLink.setAttribute("aria-label", `Открыть проверку главы ${chapter.chapter_number}`);
+        actions.append(reviewLink);
+        const ready = Boolean((chapter.audio_complete || chapter.ready) && chapter.audio_url);
+        if (ready) {
+          const download = this.createNode("a", "chapter-flac-link", "Скачать FLAC");
+          download.href = chapter.audio_url;
+          download.download = chapter.audio_filename || this.chapterFLACFilename(chapter);
+          download.setAttribute("aria-label", `Скачать главу ${chapter.chapter_number} как FLAC`);
+          actions.append(download);
+        } else {
+          actions.append(this.createNode("span", "chapter-pending-label", "Аудио ещё создаётся"));
+        }
+        item.append(number, copy, actions);
         this.nodes.chapterDownloadsList.append(item);
       }
     }
@@ -2374,48 +2373,15 @@
       this.renderFragments(fragments);
     }
 
-    renderFragments(fragments) {
-      const ordered = [...fragments].sort(
-        (left, right) => this.number(left.ordinal) - this.number(right.ordinal),
-      );
-      this.warningFragments = ordered.filter(
-        (fragment) => fragment.status === "warning" || fragment.status === "failed",
-      );
-      const issueIDs = new Set(this.warningFragments.map((fragment) => fragment.id));
-      this.selectedWarningIDs = new Set(
-        Array.from(this.selectedWarningIDs).filter((id) => issueIDs.has(id)),
-      );
+    renderFragments(_fragments) {
+      // Fragment cards intentionally live on the dedicated per-chapter page.
+      // Keeping this method as a no-op preserves existing internal call sites
+      // without putting hundreds of textareas/audio elements on the dashboard.
+      this.warningFragments = [];
+      this.selectedWarningIDs.clear();
       this.nodes.warningsList.replaceChildren();
-
-      if (ordered.length === 0) {
-        this.nodes.warningsSection.hidden = true;
-        this.nodes.warningsSummary.textContent = "";
-        this.updateRetrySelectedButton();
-        return;
-      }
-      this.nodes.warningsSection.hidden = false;
-      const ready = ordered.filter((fragment) => fragment.status === "ready").length;
-      const active = ordered.filter(
-        (fragment) => fragment.status === "pending" || fragment.status === "generating",
-      ).length;
-      this.nodes.warningsSummary.textContent =
-        `Фрагментов: ${ordered.length} · готово: ${ready} · ` +
-        `в работе: ${active} · требуют внимания: ${this.warningFragments.length}.`;
-
-      for (const fragment of ordered) {
-        const card = fragment.status === "warning" || fragment.status === "failed"
-          ? this.createWarningCard(fragment)
-          : this.createProgressFragmentCard(fragment);
-        this.nodes.warningsList.append(card);
-        if (this.expandedRevisionIDs.has(fragment.id)) {
-          const details = card.querySelector(".revision-history");
-          const container = card.querySelector(".revision-history-content");
-          if (details && container) {
-            details.open = true;
-            this.loadRevisionHistory(fragment, container);
-          }
-        }
-      }
+      this.nodes.warningsSection.hidden = true;
+      this.nodes.warningsSummary.textContent = "";
       this.updateRetrySelectedButton();
     }
 

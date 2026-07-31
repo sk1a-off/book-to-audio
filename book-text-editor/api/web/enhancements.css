@@ -466,3 +466,42 @@ audio:focus-visible {
     transition: none;
   }
 }
+
+/* Lightweight chapter overview: fragment editors moved to a separate page. */
+.chapter-overview-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+}
+.chapter-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+.chapter-review-link,
+.chapter-flac-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.7rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.chapter-review-link {
+  border: 1px solid currentColor;
+}
+.chapter-flac-link {
+  background: var(--accent, #0f766e);
+  color: #fff;
+}
+.chapter-pending-label {
+  color: var(--muted, #52606d);
+  font-size: 0.86rem;
+}
+@media (max-width: 720px) {
+  .chapter-overview-card { grid-template-columns: auto minmax(0, 1fr); }
+  .chapter-card-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}

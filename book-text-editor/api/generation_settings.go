@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	defaultAutomaticWarningRetries = 5
+	defaultAutomaticWarningRetries = 1
 	defaultWhisperBeamSize         = 5
 	defaultWhisperPatience         = 1.0
 	defaultWhisperTemperature      = 0.0

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a43">
+  <meta name="description" content="Проверка фрагментов одной главы аудиокниги">
+  <title>Проверка главы — Голос Книги</title>
+  <link rel="stylesheet" href="/assets/chapter.css">
+  <script src="/assets/chapter.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#chapter-workspace">К фрагментам главы</a>
+  <header class="chapter-header">
+    <a class="back-link" href="/">← Обзор задачи</a>
+    <div class="chapter-identity">
+      <p class="eyebrow">Проверка отдельной главы</p>
+      <h1 id="chapter-title">Загружаем главу…</h1>
+      <p id="chapter-subtitle">Состояние и аудио будут показаны после ответа API.</p>
+    </div>
+    <div id="chapter-status" class="status-pill" role="status" aria-live="polite">Загрузка</div>
+  </header>
+
+  <main id="chapter-workspace" tabindex="-1">
+    <section class="chapter-summary" aria-labelledby="summary-title">
+      <div>
+        <p class="eyebrow">Сводка</p>
+        <h2 id="summary-title">Озвучивание и проверка</h2>
+        <p id="summary-message">Получаем данные главы…</p>
+      </div>
+      <div class="summary-actions">
+        <a id="download-link" class="button button--primary is-disabled" aria-disabled="true">Скачать FLAC</a>
+        <button id="refresh-button" class="button button--secondary" type="button">Обновить</button>
+      </div>
+      <dl class="metric-grid">
+        <div><dt>Всего</dt><dd id="metric-total">0</dd></div>
+        <div><dt>Озвучено</dt><dd id="metric-voiced">0</dd></div>
+        <div><dt>Без замечаний</dt><dd id="metric-ready">0</dd></div>
+        <div><dt>Проверить</dt><dd id="metric-warning">0</dd></div>
+        <div><dt>В работе</dt><dd id="metric-pending">0</dd></div>
+        <div><dt>Ошибки</dt><dd id="metric-failed">0</dd></div>
+      </dl>
+      <progress id="chapter-progress" max="100" value="0">0%</progress>
+    </section>
+
+    <section class="review-panel" aria-labelledby="review-title">
+      <div class="review-heading">
+        <div>
+          <p class="eyebrow">Фрагменты</p>
+          <h2 id="review-title">Работа с предупреждениями</h2>
+          <p id="refresh-state" class="muted" aria-live="polite"></p>
+        </div>
+        <div class="review-controls">
+          <label>
+            <span>Показывать</span>
+            <select id="status-filter">
+              <option value="issues">Требуют внимания</option>
+              <option value="all">Все фрагменты</option>
+              <option value="ready">Без замечаний</option>
+              <option value="in_progress">В работе</option>
+            </select>
+          </label>
+          <label>
+            <span>Поиск</span>
+            <input id="fragment-search" type="search" placeholder="Текст или номер">
+          </label>
+        </div>
+      </div>
+
+      <div id="fragment-list" class="fragment-list" aria-live="polite"></div>
+      <p id="empty-state" class="empty-state" hidden>По выбранному фильтру фрагментов нет.</p>
+      <nav class="pagination" aria-label="Страницы фрагментов">
+        <button id="page-prev" class="button button--quiet" type="button">← Назад</button>
+        <span id="page-label">Страница 1 из 1</span>
+        <button id="page-next" class="button button--quiet" type="button">Далее →</button>
+      </nav>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

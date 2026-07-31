@@ -7,109 +7,49 @@ import (
 	"testing"
 )
 
-func TestUIServesEmbeddedApplicationAndAssets(t *testing.T) {
+func TestUIServesDashboardAndChapterPages(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
 	handler := fixture.server.Handler()
-
 	tests := []struct {
 		path        string
 		contentType string
 		contains    []string
 	}{
 		{
-			path:        "/",
-			contentType: "text/html; charset=utf-8",
+			path: "/", contentType: "text/html; charset=utf-8",
 			contains: []string{
-				`<html lang="ru">`,
-				`id="book-upload-form"`,
-				`id="voice-upload-form"`,
-				`id="generate-button"`,
-				`id="job-dashboard"`,
-				`id="chapter-downloads"`,
-				`id="fragment-studio"`,
-				`id="fragment-studio-list"`,
-				`id="warnings-list"`,
-				`href="/assets/app.css"`,
-				`href="/assets/enhancements.css"`,
-				`src="/assets/app.js"`,
-				`src="/assets/fragments.js"`,
+				`<html lang="ru">`, `id="book-upload-form"`, `id="job-dashboard"`,
+				`id="chapter-downloads"`, `src="/assets/app.js"`,
+				`.fb2.zip`,
 			},
 		},
 		{
-			path:        "/assets/app.css",
-			contentType: "text/css; charset=utf-8",
+			path: "/jobs/job-test/chapters/1", contentType: "text/html; charset=utf-8",
 			contains: []string{
-				":root",
-				".warning-card",
-				".chapter-downloads",
-				"prefers-reduced-motion",
+				`id="chapter-title"`, `id="fragment-list"`, `id="status-filter"`,
+				`href="/assets/chapter.css"`, `src="/assets/chapter.js"`,
 			},
 		},
 		{
-			path:        "/assets/enhancements.css",
-			contentType: "text/css; charset=utf-8",
-			contains: []string{
-				".fragment-studio",
-				".fragment-counter-grid",
-				".fragment-card-body",
-				".fragment-status[data-status=\"warning\"]",
-				"prefers-reduced-motion",
-			},
+			path: "/assets/chapter.css", contentType: "text/css; charset=utf-8",
+			contains: []string{".fragment-card", ".pagination", "prefers-reduced-motion"},
 		},
 		{
-			path:        "/assets/app.js",
-			contentType: "text/javascript; charset=utf-8",
+			path: "/assets/chapter.js", contentType: "text/javascript; charset=utf-8",
 			contains: []string{
-				"class APIClient",
-				"uploadBook(file)",
-				"DEFAULT_GENERATION_SETTINGS",
-				"getFragmentRevisions(fragmentID)",
-				"restoreFragmentRevision(fragmentID, revisionID, reason)",
-				"rewriteWarnings(jobID, payload)",
-				"resumeStoredRewrite()",
-				"renderRewriteTask(task)",
-				"audio.preload = \"none\"",
-				"window.localStorage",
-			},
-		},
-		{
-			path:        "/assets/fragments.js",
-			contentType: "text/javascript; charset=utf-8",
-			contains: []string{
-				"class FragmentStudio",
-				"catalog(jobID)",
-				"edit(fragmentID, newText)",
-				"Сохранить и переозвучить",
-				"fragment.audio_available",
-				"audio.preload = \"none\"",
-				"/audio.flac",
-				"FRAGMENT_SAVED_QUEUE_FULL",
-				"MutationObserver",
-				"encodeURIComponent",
-				"JSON.stringify",
+				"class ChapterPage", "PAGE_SIZE = 20", "credentials: \"same-origin\"",
+				"Повторить только этот фрагмент", "transcript_score", "encodeURIComponent",
 			},
 		},
 	}
-
 	for _, test := range tests {
-		test := test
 		t.Run(test.path, func(t *testing.T) {
-			response := endpointTestRequest(
-				t,
-				handler,
-				http.MethodGet,
-				test.path,
-				nil,
-				"",
-			)
+			response := endpointTestRequest(t, handler, http.MethodGet, test.path, nil, "")
 			if response.Code != http.StatusOK {
-				t.Fatalf("GET %s status = %d, body = %s", test.path, response.Code, response.Body)
+				t.Fatalf("GET %s status=%d body=%s", test.path, response.Code, response.Body)
 			}
 			if got := response.Header().Get("Content-Type"); got != test.contentType {
-				t.Errorf("GET %s Content-Type = %q", test.path, got)
-			}
-			if got := response.Header().Get("Cache-Control"); got != "no-cache" {
-				t.Errorf("GET %s Cache-Control = %q", test.path, got)
+				t.Errorf("GET %s Content-Type=%q", test.path, got)
 			}
 			if response.Header().Get("ETag") == "" {
 				t.Errorf("GET %s has no ETag", test.path)
@@ -118,72 +58,55 @@ func TestUIServesEmbeddedApplicationAndAssets(t *testing.T) {
 			body := response.Body.String()
 			for _, expected := range test.contains {
 				if !strings.Contains(body, expected) {
-					t.Errorf("GET %s body does not contain %q", test.path, expected)
+					t.Errorf("GET %s body misses %q", test.path, expected)
 				}
 			}
 		})
 	}
 }
 
-func TestUIUsesSafeSameOriginDOMRendering(t *testing.T) {
+func TestUIJavaScriptUsesSafeSameOriginDOMRendering(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
 	handler := fixture.server.Handler()
 	var javascript strings.Builder
-	for _, path := range []string{"/assets/app.js", "/assets/fragments.js"} {
-		response := endpointTestRequest(
-			t,
-			handler,
-			http.MethodGet,
-			path,
-			nil,
-			"",
-		)
+	for _, path := range []string{"/assets/app.js", "/assets/chapter.js"} {
+		response := endpointTestRequest(t, handler, http.MethodGet, path, nil, "")
 		if response.Code != http.StatusOK {
-			t.Fatalf("GET %s status = %d", path, response.Code)
+			t.Fatalf("GET %s status=%d", path, response.Code)
 		}
 		javascript.WriteString(response.Body.String())
 		javascript.WriteByte('\n')
 	}
 	content := javascript.String()
 	for _, forbidden := range []string{
-		"innerHTML",
-		"outerHTML",
-		".style.",
-		"http://",
-		"https://",
-		"localhost:",
-		"127.0.0.1:",
+		"innerHTML", "outerHTML", ".style.", "http://", "https://", "localhost:", "127.0.0.1:",
 	} {
 		if strings.Contains(content, forbidden) {
 			t.Errorf("JavaScript contains unsafe/direct reference %q", forbidden)
 		}
 	}
 	for _, required := range []string{
-		"credentials: \"same-origin\"",
-		"encodeURIComponent",
-		"JSON.stringify",
-		"busyOperations.has",
-		"TERMINAL_JOB_STATUSES",
-		"textContent",
+		"credentials: \"same-origin\"", "encodeURIComponent", "JSON.stringify", "textContent",
 	} {
 		if !strings.Contains(content, required) {
-			t.Errorf("JavaScript misses lifecycle guard %q", required)
+			t.Errorf("JavaScript misses guard %q", required)
 		}
 	}
 }
 
-func TestUIRouteIsExactAndDoesNotShadowAPI(t *testing.T) {
+func TestUIRoutesDoNotShadowAPI(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
 	handler := fixture.server.Handler()
-
 	health := endpointTestRequest(t, handler, http.MethodGet, "/healthz", nil, "")
 	if health.Code != http.StatusOK || strings.Contains(health.Body.String(), "<!doctype html>") {
-		t.Fatalf("GET /healthz was shadowed: status=%d body=%q", health.Code, health.Body.String())
+		t.Fatalf("GET /healthz shadowed: status=%d body=%q", health.Code, health.Body.String())
 	}
-	for _, path := range []string{"/missing", "/v1/missing", "/assets/missing.js"} {
+	for _, path := range []string{
+		"/missing", "/v1/missing", "/assets/missing.js", "/jobs/job/chapters/not-a-number",
+	} {
 		response := endpointTestRequest(t, handler, http.MethodGet, path, nil, "")
 		if response.Code != http.StatusNotFound {
-			t.Errorf("GET %s status = %d, want 404", path, response.Code)
+			t.Errorf("GET %s status=%d, want 404", path, response.Code)
 		}
 	}
 }
@@ -191,9 +114,9 @@ func TestUIRouteIsExactAndDoesNotShadowAPI(t *testing.T) {
 func TestUIConditionalAndHeadRequests(t *testing.T) {
 	fixture := newEndpointTestFixture(t)
 	handler := fixture.server.Handler()
-	initial := endpointTestRequest(t, handler, http.MethodGet, "/assets/fragments.js", nil, "")
+	initial := endpointTestRequest(t, handler, http.MethodGet, "/assets/chapter.js", nil, "")
 	etag := initial.Header().Get("ETag")
-	request := httptest.NewRequest(http.MethodGet, "/assets/fragments.js", nil)
+	request := httptest.NewRequest(http.MethodGet, "/assets/chapter.js", nil)
 	request.Header.Set("If-None-Match", etag)
 	conditional := endpointTestDo(t, handler, request)
 	if conditional.Code != http.StatusNotModified || conditional.Body.Len() != 0 {
@@ -205,26 +128,19 @@ func TestUIConditionalAndHeadRequests(t *testing.T) {
 	}
 }
 
-func endpointTestAssertUISecurityHeaders(
-	t *testing.T,
-	response *httptest.ResponseRecorder,
-) {
+func endpointTestAssertUISecurityHeaders(t *testing.T, response *httptest.ResponseRecorder) {
 	t.Helper()
 	csp := response.Header().Get("Content-Security-Policy")
 	for _, directive := range []string{
-		"default-src 'self'",
-		"script-src 'self'",
-		"style-src 'self'",
-		"media-src 'self'",
-		"connect-src 'self'",
-		"frame-ancestors 'none'",
+		"default-src 'self'", "script-src 'self'", "style-src 'self'",
+		"media-src 'self'", "connect-src 'self'", "frame-ancestors 'none'",
 	} {
 		if !strings.Contains(csp, directive) {
-			t.Errorf("Content-Security-Policy %q misses %q", csp, directive)
+			t.Errorf("CSP %q misses %q", csp, directive)
 		}
 	}
 	if strings.Contains(csp, "'unsafe-inline'") {
-		t.Errorf("Content-Security-Policy permits inline content: %q", csp)
+		t.Errorf("CSP permits inline content: %q", csp)
 	}
 	for name, want := range map[string]string{
 		"Cross-Origin-Opener-Policy":   "same-origin",
@@ -234,7 +150,7 @@ func endpointTestAssertUISecurityHeaders(
 		"X-Content-Type-Options":       "nosniff",
 	} {
 		if got := response.Header().Get(name); got != want {
-			t.Errorf("%s = %q, want %q", name, got, want)
+			t.Errorf("%s=%q, want %q", name, got, want)
 		}
 	}
 }

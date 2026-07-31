@@ -1070,10 +1070,7 @@ func (s *PostgresStore) completeFragment(
 	if err := lockJob(ctx, tx, jobID); err != nil {
 		return err
 	}
-
-	resource, err := scanFragment(
-		tx.QueryRow(ctx, fragmentSelect+` WHERE id = $1 FOR UPDATE`, fragmentID),
-	)
+	resource, currentAudio, metadata, err := lockFragmentSnapshot(ctx, tx, fragmentID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return fmt.Errorf("%w: fragment not found", errNotFound)
 	}
@@ -1084,17 +1081,35 @@ func (s *PostgresStore) completeFragment(
 		return fmt.Errorf("%w: fragment is not generating", errConflict)
 	}
 
-	resource.STTText = result.STTText
-	resource.WarningCode = result.WarningCode
+	candidate := cloneFragmentResult(result)
+	candidate.WarningCode = effectiveFragmentWarning(resource.Text, candidate)
+	candidateResource := resource
+	candidateResource.STTText = candidate.STTText
+	candidateResource.Status = fragmentStatusForResult(candidate)
+	candidateResource.WarningCode = candidate.WarningCode
+	candidateResource.Error = ""
+	candidateResource.UpdatedAt = now
+	if err := insertAttempt(
+		ctx, tx, candidateResource, nonNilBytes(candidate.AudioPCM),
+		candidate.SampleRate, candidate.Channels, candidate.SampleWidth,
+		candidate.DurationMS, candidate.STTLanguage,
+		nonNilStrings(candidate.WorkerNotes), now,
+	); err != nil {
+		return err
+	}
+
+	current := fragmentResultFromStored(
+		resource, currentAudio, metadata.sampleRate, metadata.channels,
+		metadata.sampleWidth, metadata.durationMS, metadata.sttLanguage,
+		metadata.workerNotes,
+	)
+	selected, _ := chooseBestFragmentResult(resource.Text, current, candidate)
+	selected.WarningCode = effectiveFragmentWarning(resource.Text, selected)
+	resource.STTText = selected.STTText
+	resource.Status = fragmentStatusForResult(selected)
+	resource.WarningCode = selected.WarningCode
 	resource.Error = ""
 	resource.UpdatedAt = now
-	if result.WarningCode == "" {
-		resource.Status = FragmentStatusReady
-	} else {
-		resource.Status = FragmentStatusWarning
-	}
-	audio := nonNilBytes(result.AudioPCM)
-	workerNotes := nonNilStrings(result.WorkerNotes)
 	_, err = tx.Exec(
 		ctx,
 		`UPDATE job_fragments
@@ -1103,41 +1118,17 @@ func (s *PostgresStore) completeFragment(
 		     channels = $7, sample_width = $8, duration_ms = $9,
 		     stt_language = $10, worker_notes = $11, updated_at = $12
 		 WHERE id = $1`,
-		fragmentID,
-		resource.STTText,
-		resource.Status,
-		resource.WarningCode,
-		audio,
-		result.SampleRate,
-		result.Channels,
-		result.SampleWidth,
-		result.DurationMS,
-		result.STTLanguage,
-		workerNotes,
-		resource.UpdatedAt,
+		fragmentID, resource.STTText, resource.Status, resource.WarningCode,
+		nonNilBytes(selected.AudioPCM), selected.SampleRate, selected.Channels,
+		selected.SampleWidth, selected.DurationMS, selected.STTLanguage,
+		nonNilStrings(selected.WorkerNotes), resource.UpdatedAt,
 	)
 	if err != nil {
 		return mapPostgresWriteError("complete fragment", err)
 	}
-	if err := insertAttempt(
-		ctx,
-		tx,
-		resource,
-		audio,
-		result.SampleRate,
-		result.Channels,
-		result.SampleWidth,
-		result.DurationMS,
-		result.STTLanguage,
-		workerNotes,
-		now,
-	); err != nil {
-		return err
-	}
 	if err := recomputePostgresJob(ctx, tx, jobID, now); err != nil {
 		return err
 	}
-
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("commit complete fragment transaction: %w", err)
 	}
@@ -1299,7 +1290,7 @@ func (s *PostgresStore) jobChapterCatalog(
 			COUNT(*)::BIGINT,
 			COALESCE(SUM(duration_ms), 0)::BIGINT,
 			COUNT(DISTINCT chapter_title)::BIGINT,
-			BOOL_AND(status = 'ready')
+			BOOL_AND(COALESCE(octet_length(audio_pcm), 0) > 0)
 		 FROM job_fragments
 		 WHERE job_id = $1
 		 GROUP BY chapter_number
@@ -1493,8 +1484,7 @@ func (s *PostgresStore) loadArchiveSnapshot(
 				err,
 			)
 		}
-		if fragment.Resource.Status != FragmentStatusReady ||
-			len(fragment.AudioPCM) == 0 {
+		if len(fragment.AudioPCM) == 0 {
 			rows.Close()
 			return archiveSnapshot{}, fmt.Errorf(
 				"%w: fragment audio is not ready",
@@ -1554,13 +1544,15 @@ func loadCompletedArchiveJob(
 	if err != nil {
 		return JobResource{}, fmt.Errorf("query archive job: %w", err)
 	}
-	if jobResource.Status != JobStatusCompleted {
+	if jobResource.Status != JobStatusCompleted &&
+		jobResource.Status != JobStatusCompletedWithWarnings {
 		return JobResource{}, fmt.Errorf(
-			"%w: all fragments must be ready before export",
+			"%w: generation must finish before full-book export",
 			errConflict,
 		)
 	}
-
+	// Warnings do not block export once generation is terminal and every
+	// fragment has selected audio.
 	return jobResource, nil
 }
 
