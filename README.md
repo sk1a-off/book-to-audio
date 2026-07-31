@@ -1,6 +1,6 @@
 # TTS microservice MVP
 
-Реализация следует
+Реализация следует тут
 [`tts_audiobook_api_architecture_report_ru.md`](./tts_audiobook_api_architecture_report_ru.md).
 Текущий slice уже включает публичный Go API, PostgreSQL и три изолированных
 Python ML-worker с временным HTTP transport.
