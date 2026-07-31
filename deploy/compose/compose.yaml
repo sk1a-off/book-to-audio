@@ -1,0 +1,216 @@
+name: tts-microservice-mvp
+
+services:
+  postgres:
+    image: postgres:18.4-trixie@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-audiobook}
+      POSTGRES_USER: ${POSTGRES_USER:-audiobook}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-audiobook-dev}
+      PGDATA: /var/lib/postgresql/18/docker
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+
+  migrate:
+    image: tts-microservice-mvp/audiobook-api:local
+    build:
+      context: ../../book-text-editor
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: audiobook-api
+    entrypoint:
+      - /usr/local/bin/migrate
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-audiobook}:${POSTGRES_PASSWORD:-audiobook-dev}@postgres:5432/${POSTGRES_DB:-audiobook}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  audiobook-api:
+    image: tts-microservice-mvp/audiobook-api:local
+    build:
+      context: ../../book-text-editor
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: audiobook-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${API_HTTP_PORT:-8080}:8080"
+    environment:
+      HTTP_ADDR: 0.0.0.0:8080
+      DATABASE_URL: postgres://${POSTGRES_USER:-audiobook}:${POSTGRES_PASSWORD:-audiobook-dev}@postgres:5432/${POSTGRES_DB:-audiobook}?sslmode=disable
+      OMNIVOICE_URL: http://omnivoice-worker:8000
+      STT_URL: http://stt-worker:8000
+      REWRITER_URL: http://rewriter-worker:8000
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      omnivoice-worker:
+        condition: service_healthy
+      stt-worker:
+        condition: service_healthy
+      rewriter-worker:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+
+  omnivoice-worker:
+    image: tts-microservice-mvp/omnivoice-worker:local
+    build:
+      context: ../../workers/omnivoice
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: omnivoice-worker
+    init: true
+    restart: unless-stopped
+    environment:
+      OMNIVOICE_API_VERSION: v1
+      OMNIVOICE_MODEL_ID: ${OMNIVOICE_MODEL_ID:-k2-fsa/OmniVoice}
+      OMNIVOICE_MODEL_REVISION: ${OMNIVOICE_MODEL_REVISION:-c5fdb5ccb189668d56333f77ba2629f4cd7535f4}
+      OMNIVOICE_DEVICE: ${OMNIVOICE_DEVICE:-cuda:0}
+      OMNIVOICE_DTYPE: ${OMNIVOICE_DTYPE:-float16}
+      OMNIVOICE_BACKGROUND_LOAD: ${OMNIVOICE_BACKGROUND_LOAD:-true}
+      OMNIVOICE_WARMUP_ENABLED: ${OMNIVOICE_WARMUP_ENABLED:-true}
+      HF_HOME: /models/huggingface
+    volumes:
+      - omnivoice-models:/models
+    gpus: all
+    shm_size: 2gb
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)
+      interval: 15s
+      timeout: 5s
+      start_period: 180s
+      retries: 3
+
+  stt-worker:
+    image: tts-microservice-mvp/stt-worker:local
+    build:
+      context: ../../workers/stt
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: stt-worker
+    init: true
+    restart: unless-stopped
+    environment:
+      STT_API_VERSION: v1
+      STT_MODEL_ID: ${STT_MODEL_ID:-small}
+      STT_MODEL_REVISION: ${STT_MODEL_REVISION:-536b0662742c02347bc0e980a01041f333bce120}
+      STT_DEVICE: ${STT_DEVICE:-cuda}
+      STT_COMPUTE_TYPE: ${STT_COMPUTE_TYPE:-float16}
+      STT_DOWNLOAD_ROOT: /models/faster-whisper
+      STT_BACKGROUND_LOAD: ${STT_BACKGROUND_LOAD:-true}
+      STT_WARMUP_ENABLED: ${STT_WARMUP_ENABLED:-true}
+      HF_HOME: /models/huggingface
+    volumes:
+      - stt-models:/models
+    gpus: all
+    shm_size: 1gb
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)
+      interval: 15s
+      timeout: 5s
+      start_period: 180s
+      retries: 3
+
+  rewriter-worker:
+    image: tts-microservice-mvp/rewriter-worker:local
+    build:
+      context: ../../workers/rewriter
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: rewriter-worker
+    init: true
+    restart: unless-stopped
+    environment:
+      REWRITER_API_VERSION: v1
+      REWRITER_MODELS_DIR: /models/rewriter
+      REWRITER_DEFAULT_MODEL_ID: ${REWRITER_DEFAULT_MODEL_ID:-qwen3-4b-q4-k-m}
+      REWRITER_PRELOAD_MODEL_ID: ${REWRITER_PRELOAD_MODEL_ID:-}
+      REWRITER_N_THREADS: ${REWRITER_N_THREADS:-8}
+      REWRITER_N_CTX: ${REWRITER_N_CTX:-8192}
+      REWRITER_N_BATCH: ${REWRITER_N_BATCH:-128}
+      REWRITER_IDLE_UNLOAD_SECONDS: ${REWRITER_IDLE_UNLOAD_SECONDS:-300}
+      REWRITER_TEMPERATURE: ${REWRITER_TEMPERATURE:-0.1}
+      REWRITER_TOP_K: ${REWRITER_TOP_K:-20}
+      REWRITER_TOP_P: ${REWRITER_TOP_P:-0.8}
+      REWRITER_MIN_P: ${REWRITER_MIN_P:-0.0}
+      REWRITER_REPEAT_PENALTY: ${REWRITER_REPEAT_PENALTY:-1.05}
+      REWRITER_MAX_TOKENS: ${REWRITER_MAX_TOKENS:-1024}
+      HF_HOME: /models/huggingface
+    volumes:
+      - rewriter-models:/models
+    cpus: "8.0"
+    mem_limit: 8g
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)
+      interval: 15s
+      timeout: 5s
+      start_period: 180s
+      retries: 3
+
+volumes:
+  postgres-data:
+    name: tts-microservice-mvp_postgres-data
+    labels:
+      com.tts-microservice-mvp.managed: "true"
+      com.tts-microservice-mvp.kind: data
+  omnivoice-models:
+    name: tts-microservice-mvp_omnivoice-models
+    labels:
+      com.tts-microservice-mvp.managed: "true"
+      com.tts-microservice-mvp.kind: model
+  stt-models:
+    name: tts-microservice-mvp_stt-models
+    labels:
+      com.tts-microservice-mvp.managed: "true"
+      com.tts-microservice-mvp.kind: model
+  rewriter-models:
+    name: tts-microservice-mvp_rewriter-models
+    labels:
+      com.tts-microservice-mvp.managed: "true"
+      com.tts-microservice-mvp.kind: model

@@ -1,0 +1,7 @@
+.cache
+.git
+.idea
+.parent-stage
+coverage.out
+*.test
+*.fb2

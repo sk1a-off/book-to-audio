@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a43">
+  <meta
+    name="description"
+    content="Локальная студия подготовки и генерации аудиокниг"
+  >
+  <title>Голос Книги — студия аудиокниг</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Перейти к рабочей области</a>
+  <noscript>
+    <div class="noscript-message">
+      Для работы студии нужен JavaScript. Включите его и обновите страницу.
+    </div>
+  </noscript>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Голос Книги, главная">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+        <span>
+          <strong>Голос Книги</strong>
+          <small>локальная студия аудиокниг</small>
+        </span>
+      </a>
+
+      <div
+        id="health-indicator"
+        class="health-indicator health-indicator--checking"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="health-dot" aria-hidden="true"></span>
+        <span id="health-label">Проверяем API</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="workspace" tabindex="-1">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">От FB2 до готового архива</p>
+        <h1 id="hero-title">
+          Соберите аудиокнигу
+          <span>в одном спокойном рабочем потоке</span>
+        </h1>
+        <p class="hero-description">
+          Загрузите текст и голосовой референс, запустите генерацию,
+          проверьте спорные фрагменты и скачайте готовые главы FLAC.
+          Все состояние контролирует Go-сервис.
+        </p>
+      </div>
+
+      <ol class="workflow" aria-label="Этапы подготовки аудиокниги">
+        <li>
+          <span>01</span>
+          <div><strong>Материалы</strong><small>книга и голос</small></div>
+        </li>
+        <li>
+          <span>02</span>
+          <div><strong>Генерация</strong><small>TTS и проверка речи</small></div>
+        </li>
+        <li>
+          <span>03</span>
+          <div><strong>Контроль</strong><small>правки и повтор</small></div>
+        </li>
+        <li>
+          <span>04</span>
+          <div><strong>Экспорт</strong><small>ZIP с главами FLAC</small></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section-heading" aria-labelledby="materials-title">
+      <div>
+        <p class="eyebrow">Шаг 1</p>
+        <h2 id="materials-title">Подготовьте материалы</h2>
+      </div>
+      <p>
+        Книга и голос сохраняются через публичный API. Браузер запоминает
+        только метаданные ранее загруженных книг.
+      </p>
+    </section>
+
+    <div class="materials-grid">
+      <section class="panel" aria-labelledby="book-panel-title">
+        <div class="panel-heading">
+          <span class="panel-icon panel-icon--book" aria-hidden="true">Б</span>
+          <div>
+            <p class="eyebrow">Текст</p>
+            <h3 id="book-panel-title">Книга в формате FB2</h3>
+          </div>
+        </div>
+
+        <form id="book-upload-form" class="stack-form">
+          <label class="file-picker" for="book-file">
+            <span class="file-picker-icon" aria-hidden="true">↥</span>
+            <span>
+              <strong>Выберите FB2-файл</strong>
+              <small id="book-file-label">До 50 МБ, без ZIP-сжатия</small>
+            </span>
+            <input
+              id="book-file"
+              name="file"
+              type="file"
+              accept=".fb2,application/xml,text/xml"
+              aria-describedby="book-file-label"
+              required
+            >
+          </label>
+          <button id="book-upload-button" class="button button--primary" type="submit">
+            <span>Загрузить и разобрать</span>
+          </button>
+        </form>
+
+        <div class="field-group field-group--separated">
+          <label for="book-select">Книга для генерации</label>
+          <select id="book-select">
+            <option value="">Сначала загрузите книгу</option>
+          </select>
+          <p id="book-summary" class="field-hint">
+            Здесь появятся название, автор и количество фрагментов.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="voice-panel-title">
+        <div class="panel-heading">
+          <span class="panel-icon panel-icon--voice" aria-hidden="true">Г</span>
+          <div>
+            <p class="eyebrow">Голос</p>
+            <h3 id="voice-panel-title">Референс диктора</h3>
+          </div>
+          <button
+            id="refresh-voices-button"
+            class="icon-button"
+            type="button"
+            title="Обновить список голосов"
+            aria-label="Обновить список голосов"
+          >↻</button>
+        </div>
+
+        <form id="voice-upload-form" class="stack-form">
+          <div class="field-group">
+            <label for="voice-name">Название голоса</label>
+            <input
+              id="voice-name"
+              name="name"
+              type="text"
+              maxlength="200"
+              placeholder="Например, спокойный рассказчик"
+              autocomplete="off"
+            >
+          </div>
+
+          <label class="file-picker file-picker--compact" for="voice-file">
+            <span class="file-picker-icon" aria-hidden="true">♫</span>
+            <span>
+              <strong>FLAC или PCM WAV</strong>
+              <small id="voice-file-label">До 5 МБ</small>
+            </span>
+            <input
+              id="voice-file"
+              name="reference_audio"
+              type="file"
+              accept=".flac,.wav,audio/flac,audio/wav"
+              aria-describedby="voice-file-label"
+              required
+            >
+          </label>
+
+          <div class="field-group">
+            <div class="label-row">
+              <label for="reference-text">Точная расшифровка референса</label>
+              <span id="reference-count-hint">
+                <span id="reference-count">0</span> / 4000
+              </span>
+            </div>
+            <textarea
+              id="reference-text"
+              name="reference_text"
+              rows="3"
+              maxlength="4000"
+              aria-describedby="reference-count-hint"
+              placeholder="Введите ровно те слова, которые звучат в аудио…"
+              required
+            ></textarea>
+          </div>
+
+          <button id="voice-upload-button" class="button button--secondary" type="submit">
+            <span>Создать голос</span>
+          </button>
+        </form>
+
+        <div class="field-group field-group--separated">
+          <label for="voice-select">Голос для генерации</label>
+          <select id="voice-select">
+            <option value="">Загружаем список голосов…</option>
+          </select>
+        </div>
+
+        <div id="voice-list" class="voice-list" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <section class="generation-shell" aria-labelledby="generation-title">
+      <div class="generation-copy">
+        <p class="eyebrow eyebrow--light">Шаг 2</p>
+        <h2 id="generation-title">Запустите озвучивание</h2>
+        <p>
+          Go поставит фрагменты в очередь, передаст задания inference-сервисам
+          и проверит распознанный текст. Эту страницу можно безопасно обновить:
+          идентификатор последней задачи сохранится в браузере.
+        </p>
+      </div>
+
+      <div class="generation-action">
+        <dl class="selection-summary">
+          <div>
+            <dt>Книга</dt>
+            <dd id="selected-book-label">не выбрана</dd>
+          </div>
+          <div>
+            <dt>Голос</dt>
+            <dd id="selected-voice-label">не выбран</dd>
+          </div>
+        </dl>
+        <button
+          id="generate-button"
+          class="button button--accent"
+          type="button"
+          disabled
+        >
+          <span class="button-symbol" aria-hidden="true">▶</span>
+          <span>Начать генерацию</span>
+        </button>
+      </div>
+
+      <details id="generation-settings" class="generation-settings">
+        <summary>
+          <span>
+            <strong>Параметры генерации и проверки</strong>
+            <small>настройки сохраняются в браузере и в снимке задачи</small>
+          </span>
+          <span aria-hidden="true">⌄</span>
+        </summary>
+
+        <div class="generation-settings-body">
+          <fieldset>
+            <legend>OmniVoice · основные</legend>
+            <div class="settings-grid">
+              <label>
+                <span>Шаги диффузии</span>
+                <input id="tts-num-steps" type="number" min="1" max="100" step="1" value="32" required>
+                <small>Не эпохи обучения. Больше — медленнее, обычно качественнее.</small>
+              </label>
+              <label>
+                <span>Guidance scale</span>
+                <input id="tts-guidance-scale" type="number" min="0" max="10" step="0.1" value="2" required>
+                <small>Сила classifier-free guidance.</small>
+              </label>
+              <label>
+                <span>Скорость речи</span>
+                <input id="tts-speed" type="number" min="0.5" max="2" step="0.05" value="1" required>
+                <small>Больше 1 — быстрее; меньше 1 — медленнее.</small>
+              </label>
+              <label class="settings-check">
+                <input id="tts-normalize-text" type="checkbox" checked>
+                <span>Нормализовать числа</span>
+                <small>OmniVoice + num2words; исходный текст не меняется.</small>
+              </label>
+              <label class="settings-check">
+                <input id="tts-denoise" type="checkbox" checked>
+                <span>Denoise-токен</span>
+                <small>Подсказка модели для чистой речи.</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <details class="advanced-settings">
+            <summary>Расширенные параметры OmniVoice 0.2.1</summary>
+            <div class="settings-grid">
+              <label>
+                <span>T-shift</span>
+                <input id="tts-t-shift" type="number" min="0.001" max="10" step="0.001" value="0.1" required>
+              </label>
+              <label>
+                <span>Layer penalty</span>
+                <input id="tts-layer-penalty" type="number" min="0" max="20" step="0.1" value="5" required>
+              </label>
+              <label>
+                <span>Position temperature</span>
+                <input id="tts-position-temperature" type="number" min="0" max="20" step="0.1" value="5" required>
+              </label>
+              <label>
+                <span>Class temperature</span>
+                <input id="tts-class-temperature" type="number" min="0" max="10" step="0.05" value="0" required>
+              </label>
+              <label>
+                <span>Длина chunk, сек.</span>
+                <input id="tts-chunk-duration" type="number" min="1" max="120" step="0.5" value="15" required>
+              </label>
+              <label>
+                <span>Порог chunking, сек.</span>
+                <input id="tts-chunk-threshold" type="number" min="1" max="600" step="0.5" value="30" required>
+              </label>
+              <label>
+                <span>Padding, сек.</span>
+                <input id="tts-pad-duration" type="number" min="0" max="5" step="0.01" value="0.1" required>
+              </label>
+              <label>
+                <span>Fade, сек.</span>
+                <input id="tts-fade-duration" type="number" min="0" max="5" step="0.01" value="0.1" required>
+              </label>
+              <label class="settings-check">
+                <input id="tts-preprocess-prompt" type="checkbox" checked>
+                <span>Обрабатывать voice prompt</span>
+                <small>Убирает длинные паузы в референсе.</small>
+              </label>
+              <label class="settings-check">
+                <input id="tts-postprocess-output" type="checkbox" checked>
+                <span>Обрабатывать результат</span>
+                <small>Убирает длинные паузы перед padding/fade.</small>
+              </label>
+            </div>
+          </details>
+
+          <fieldset>
+            <legend>Whisper · проверка произношения</legend>
+            <div class="settings-grid">
+              <label>
+                <span>Beam size</span>
+                <input id="stt-beam-size" type="number" min="1" max="10" step="1" value="5" required>
+              </label>
+              <label>
+                <span>Patience</span>
+                <input id="stt-patience" type="number" min="0.1" max="2" step="0.1" value="1" required>
+              </label>
+              <label>
+                <span>Температура</span>
+                <input id="stt-temperature" type="number" min="0" max="1" step="0.05" value="0" required>
+              </label>
+              <label>
+                <span>Повторов warning</span>
+                <input id="warning-retries" type="number" min="0" max="10" step="1" value="5" required>
+                <small>Пять повторов после первой попытки — значение по умолчанию.</small>
+              </label>
+              <label class="settings-check">
+                <input id="stt-vad-filter" type="checkbox">
+                <span>VAD filter</span>
+                <small>Фильтрация участков без речи.</small>
+              </label>
+              <label class="settings-check">
+                <input id="stt-word-timestamps" type="checkbox" checked>
+                <span>Таймкоды слов</span>
+                <small>Полезны для диагностики расхождений.</small>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="settings-footer">
+            <p>
+              Модель, GPU/CPU, dtype, число потоков, каталоги и лимиты памяти
+              меняются в <code>deploy/compose/.env</code> и требуют перезапуска.
+            </p>
+            <button id="generation-settings-reset" class="button button--quiet" type="button">
+              Вернуть рекомендуемые
+            </button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="jobs-monitor" aria-labelledby="jobs-monitor-title">
+      <div class="jobs-monitor-heading">
+        <div>
+          <p class="eyebrow">Монитор очереди</p>
+          <h2 id="jobs-monitor-title">Все задачи</h2>
+          <p class="jobs-monitor-description">
+            Следите за текущей очередью и возвращайтесь к завершённым задачам.
+            Список обновляется автоматически.
+          </p>
+        </div>
+
+        <div class="jobs-monitor-controls">
+          <div class="jobs-filter">
+            <label for="jobs-status-filter">Показывать</label>
+            <select id="jobs-status-filter" aria-controls="jobs-list">
+              <option value="active" selected>Активные</option>
+              <option value="all">Все задачи</option>
+              <option value="queued">В очереди</option>
+              <option value="running">В работе</option>
+              <option value="completed">Готовые</option>
+              <option value="completed_with_warnings">С предупреждениями</option>
+              <option value="failed">С ошибками</option>
+            </select>
+          </div>
+          <button
+            id="jobs-refresh-button"
+            class="button button--quiet"
+            type="button"
+            aria-controls="jobs-list"
+          >
+            <span aria-hidden="true">↻</span>
+            <span>Обновить</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="jobs-monitor-meta">
+        <p id="jobs-monitor-summary" role="status" aria-live="polite">
+          Загружаем активные задачи…
+        </p>
+        <p id="jobs-refreshed-at">Ожидаем первое обновление</p>
+      </div>
+
+      <div
+        id="jobs-list"
+        class="jobs-list"
+        role="list"
+        aria-busy="true"
+      ></div>
+
+      <nav class="jobs-pagination" aria-label="Страницы списка задач">
+        <button
+          id="jobs-prev-button"
+          class="button button--quiet"
+          type="button"
+          disabled
+        >← Назад</button>
+        <span id="jobs-page-label">Страница 1 из 1</span>
+        <button
+          id="jobs-next-button"
+          class="button button--quiet"
+          type="button"
+          disabled
+        >Вперёд →</button>
+      </nav>
+    </section>
+
+    <section class="job-section" aria-labelledby="job-title">
+      <div class="section-heading section-heading--job">
+        <div>
+          <p class="eyebrow">Шаг 3</p>
+          <h2 id="job-title">Ход выполнения</h2>
+        </div>
+
+        <form id="job-resume-form" class="resume-form">
+          <label for="job-id-input">Открыть задачу по ID</label>
+          <div>
+            <input
+              id="job-id-input"
+              type="text"
+              placeholder="UUID задачи"
+              autocomplete="off"
+            >
+            <button class="button button--quiet" type="submit">Открыть</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="job-empty" class="empty-state">
+        <span aria-hidden="true">◌</span>
+        <h3>Задача ещё не запущена</h3>
+        <p>Выберите книгу и голос, затем начните генерацию.</p>
+      </div>
+
+      <div id="job-dashboard" class="job-dashboard" hidden>
+        <div class="job-topline">
+          <div>
+            <span
+              id="job-status-badge"
+              class="status-badge"
+              role="status"
+              aria-live="polite"
+            >В очереди</span>
+            <p>
+              Задача <code id="job-id-label"></code>
+              <button
+                id="copy-job-id-button"
+                class="copy-button"
+                type="button"
+                aria-label="Скопировать ID задачи"
+              >копировать</button>
+            </p>
+          </div>
+          <a
+            id="download-link"
+            class="button button--download is-disabled"
+            aria-disabled="true"
+            tabindex="-1"
+          >
+            <span aria-hidden="true">↓</span>
+            Вся книга · главы FLAC, ZIP
+          </a>
+        </div>
+
+        <progress
+          id="job-progress-bar"
+          class="progress-track"
+          aria-label="Прогресс генерации"
+          aria-valuetext="Выполнено 0 процентов"
+          max="100"
+          value="0"
+        >0%</progress>
+        <div class="progress-caption">
+          <strong id="job-progress-label">0%</strong>
+          <span id="job-updated-label">Ожидаем обновление…</span>
+        </div>
+
+        <dl class="counter-grid">
+          <div class="counter-card counter-card--all">
+            <dt>Всего</dt>
+            <dd id="counter-total">0</dd>
+          </div>
+          <div class="counter-card counter-card--pending">
+            <dt>В работе</dt>
+            <dd id="counter-pending">0</dd>
+          </div>
+          <div class="counter-card counter-card--ready">
+            <dt>Готово</dt>
+            <dd id="counter-ready">0</dd>
+          </div>
+          <div class="counter-card counter-card--warning">
+            <dt>Проверить</dt>
+            <dd id="counter-warnings">0</dd>
+          </div>
+          <div class="counter-card counter-card--failed">
+            <dt>Ошибки</dt>
+            <dd id="counter-failed">0</dd>
+          </div>
+        </dl>
+
+        <details class="job-settings-snapshot">
+          <summary>Настройки этого запуска</summary>
+          <pre id="job-settings-snapshot">Снимок настроек ещё не получен.</pre>
+        </details>
+
+        <section
+          id="chapter-downloads"
+          class="chapter-downloads"
+          aria-labelledby="chapter-downloads-title"
+          hidden
+        >
+          <div>
+            <p class="eyebrow">Готовые материалы</p>
+            <h3 id="chapter-downloads-title">Готовые главы FLAC</h3>
+            <p id="chapter-downloads-status" role="status" aria-live="polite">
+              Загружаем готовые главы FLAC…
+            </p>
+          </div>
+          <div id="chapter-downloads-list" class="chapter-downloads-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="warnings-section" class="warnings-section" aria-labelledby="warnings-title" hidden>
+      <div class="warnings-heading">
+        <div>
+          <p class="eyebrow">Контроль качества</p>
+          <h2 id="warnings-title">Фрагменты для проверки</h2>
+          <p id="warnings-description">
+            Прослушайте аудио и сравните исходный текст с результатом
+            распознавания. Фрагмент можно исправить, подтвердить вручную или
+            отправить на повторную генерацию.
+          </p>
+          <p id="warnings-summary" class="warnings-summary" aria-live="polite"></p>
+        </div>
+        <div class="warnings-actions">
+          <button
+            id="retry-selected-button"
+            class="button button--secondary"
+            type="button"
+            disabled
+          >Повторить выбранные</button>
+          <button
+            id="retry-all-button"
+            class="button button--quiet"
+            type="button"
+          >Повторить все</button>
+        </div>
+      </div>
+
+      <section
+        id="rewrite-panel"
+        class="rewrite-panel"
+        aria-labelledby="rewrite-title"
+      >
+        <div class="rewrite-panel-heading">
+          <div>
+            <p class="eyebrow">Локальная правка текста</p>
+            <h3 id="rewrite-title">Переписать предупреждения с AI</h3>
+            <p class="rewrite-intro">
+              Модель работает через Go API локально на CPU. При первом запуске
+              сервер может скачать GGUF-файл размером в несколько гигабайт —
+              это займёт несколько минут. Вкладку можно оставить открытой.
+            </p>
+          </div>
+          <button
+            id="rewrite-model-refresh-button"
+            class="button button--quiet"
+            type="button"
+          >Обновить модели</button>
+        </div>
+
+        <div class="rewrite-settings-grid">
+          <label class="field">
+            <span>Модель</span>
+            <select
+              id="rewrite-model-select"
+              aria-describedby="rewrite-model-status"
+              disabled
+            >
+              <option value="">Загружаем список моделей…</option>
+            </select>
+          </label>
+
+          <label class="field rewrite-prompt-field">
+            <span>Инструкция модели</span>
+            <textarea
+              id="rewrite-prompt"
+              rows="5"
+              aria-describedby="rewrite-prompt-hint"
+              disabled
+            ></textarea>
+            <small id="rewrite-prompt-hint">
+              Исходный текст и расшифровка добавляются сервером автоматически.
+            </small>
+          </label>
+
+          <label class="field">
+            <span>Температура</span>
+            <input
+              id="rewrite-temperature"
+              type="number"
+              inputmode="decimal"
+              aria-describedby="rewrite-temperature-range"
+              disabled
+            >
+            <small id="rewrite-temperature-range">Диапазон задаёт API.</small>
+          </label>
+
+          <label class="field">
+            <span>Top K</span>
+            <input
+              id="rewrite-top-k"
+              type="number"
+              inputmode="numeric"
+              aria-describedby="rewrite-top-k-range"
+              disabled
+            >
+            <small id="rewrite-top-k-range">Диапазон задаёт API.</small>
+          </label>
+
+          <label class="field">
+            <span>Top P</span>
+            <input
+              id="rewrite-top-p"
+              type="number"
+              inputmode="decimal"
+              aria-describedby="rewrite-top-p-range"
+              disabled
+            >
+            <small id="rewrite-top-p-range">Диапазон задаёт API.</small>
+          </label>
+
+          <label class="field">
+            <span>Min P</span>
+            <input
+              id="rewrite-min-p"
+              type="number"
+              inputmode="decimal"
+              aria-describedby="rewrite-min-p-range"
+              disabled
+            >
+            <small id="rewrite-min-p-range">Диапазон задаёт API.</small>
+          </label>
+
+          <label class="field">
+            <span>Repeat penalty</span>
+            <input
+              id="rewrite-repeat-penalty"
+              type="number"
+              inputmode="decimal"
+              aria-describedby="rewrite-repeat-penalty-range"
+              disabled
+            >
+            <small id="rewrite-repeat-penalty-range">Диапазон задаёт API.</small>
+          </label>
+
+          <label class="field">
+            <span>Максимум токенов</span>
+            <input
+              id="rewrite-max-tokens"
+              type="number"
+              inputmode="numeric"
+              aria-describedby="rewrite-max-tokens-range"
+              disabled
+            >
+            <small id="rewrite-max-tokens-range">Диапазон задаёт API.</small>
+          </label>
+        </div>
+
+        <div class="rewrite-toolbar">
+          <p
+            id="rewrite-model-status"
+            class="rewrite-model-status"
+            role="status"
+            aria-live="polite"
+          >Получаем доступные модели…</p>
+          <div class="rewrite-actions">
+            <button
+              id="rewrite-prompt-reset-button"
+              class="button button--quiet"
+              type="button"
+              disabled
+            >Вернуть инструкцию</button>
+            <button
+              id="rewrite-selected-button"
+              class="button button--secondary"
+              type="button"
+              disabled
+            >Переписать выбранные</button>
+            <button
+              id="rewrite-all-button"
+              class="button button--primary"
+              type="button"
+              disabled
+            >Переписать все</button>
+          </div>
+        </div>
+
+        <div
+          id="rewrite-progress-region"
+          class="rewrite-progress"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          hidden
+        >
+          <div class="rewrite-progress-heading">
+            <strong id="rewrite-progress-label">Подготавливаем задачу…</strong>
+            <span id="rewrite-progress-percent">0%</span>
+          </div>
+          <progress
+            id="rewrite-progress-bar"
+            class="progress-track"
+            max="100"
+            value="0"
+          >0%</progress>
+          <p id="rewrite-progress-details">
+            Сервер поставит выбранные фрагменты в очередь.
+          </p>
+          <ul id="rewrite-failures" class="rewrite-failures" hidden></ul>
+        </div>
+      </section>
+
+      <div id="warnings-list" class="warnings-list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Голос Книги</p>
+    <p>Интерфейс работает через Go API и не обращается к inference-сервисам напрямую.</p>
+  </footer>
+
+  <div
+    id="toast-region"
+    class="toast-region"
+    aria-live="polite"
+    aria-atomic="false"
+  ></div>
+</body>
+</html>

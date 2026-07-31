@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0">
+  <description>
+    <title-info>
+      <book-title> Тестовая   книга </book-title>
+      <author>
+        <first-name>Иван</first-name>
+        <middle-name>И.</middle-name>
+        <last-name>Иванов</last-name>
+      </author>
+    </title-info>
+  </description>
+  <body>
+    <title><p>Запасное название</p></title>
+    <epigraph>
+      <p>Эпиграф.</p>
+      <text-author>Автор эпиграфа</text-author>
+    </epigraph>
+    <section>
+      <title><p>Часть I</p></title>
+      <section>
+        <title><p>Глава 1</p></title>
+        <p>Первый <emphasis>абзац</emphasis>.</p>
+        <poem>
+          <title><p>Название стиха</p></title>
+          <stanza><v>Строка.</v></stanza>
+          <text-author>Поэт</text-author>
+        </poem>
+        <table>
+          <tr><td>Ячейка</td></tr>
+        </table>
+      </section>
+      <section>
+        <p>Без заголовка.</p>
+      </section>
+    </section>
+  </body>
+  <body name="notes">
+    <section>
+      <title><p>Примечания</p></title>
+      <p>Этот текст не входит в основной поток.</p>
+    </section>
+  </body>
+</FictionBook>

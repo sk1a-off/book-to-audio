@@ -1,0 +1,10 @@
+.env
+.pytest_cache/
+.ruff_cache/
+.venv/
+__pycache__/
+*.py[cod]
+*.pcm
+*.wav
+/book-text-editor/.agents/
+/book-text-editor/.codex/

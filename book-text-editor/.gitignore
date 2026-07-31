@@ -1,0 +1,7 @@
+.cache/
+.idea/
+bin/
+coverage.out
+*.test
+/book-text-editor
+/*.fb2

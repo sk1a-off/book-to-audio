@@ -1,0 +1,343 @@
+package api
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"strings"
+	"sync"
+	"time"
+	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/unicode/norm"
+)
+
+type jobRunner struct {
+	server *Server
+	queue  chan jobTask
+
+	ctx    context.Context
+	cancel context.CancelFunc
+
+	mu     sync.Mutex
+	closed bool
+	once   sync.Once
+	wg     sync.WaitGroup
+}
+
+func newJobRunner(server *Server, queueSize int) *jobRunner {
+	ctx, cancel := context.WithCancel(context.Background())
+	runner := &jobRunner{
+		server: server,
+		queue:  make(chan jobTask, queueSize),
+		ctx:    ctx,
+		cancel: cancel,
+	}
+	runner.wg.Add(1)
+	go runner.loop()
+
+	return runner
+}
+
+func (r *jobRunner) context() context.Context {
+	return r.ctx
+}
+
+func (r *jobRunner) enqueue(task jobTask) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.closed {
+		return false
+	}
+
+	select {
+	case r.queue <- task:
+		return true
+	default:
+		return false
+	}
+}
+
+func (r *jobRunner) close() {
+	r.once.Do(func() {
+		r.mu.Lock()
+		r.closed = true
+		r.cancel()
+		r.mu.Unlock()
+		r.wg.Wait()
+	})
+}
+
+func (r *jobRunner) loop() {
+	defer r.wg.Done()
+	for {
+		select {
+		case <-r.ctx.Done():
+			return
+		case task := <-r.queue:
+			r.process(task)
+		}
+	}
+}
+
+func (r *jobRunner) process(task jobTask) {
+	now := r.server.now().UTC()
+	if err := r.server.store.startTask(r.ctx, task, now); err != nil {
+		r.server.logger.Error(
+			"start generation task",
+			"job_id", task.JobID,
+			"error", err,
+		)
+		return
+	}
+
+	for _, fragmentID := range task.FragmentIDs {
+		if r.ctx.Err() != nil {
+			return
+		}
+		if err := r.processFragment(task, fragmentID); err != nil {
+			r.server.logger.Error(
+				"process generation fragment",
+				"job_id", task.JobID,
+				"fragment_id", fragmentID,
+				"error", err,
+			)
+		}
+	}
+
+	if err := r.server.store.finishTask(
+		r.ctx,
+		task.JobID,
+		r.server.now().UTC(),
+	); err != nil {
+		r.server.logger.Error(
+			"finish generation task",
+			"job_id", task.JobID,
+			"error", err,
+		)
+	}
+}
+
+func (r *jobRunner) processFragment(
+	task jobTask,
+	fragmentID string,
+) error {
+	retriesRemaining := task.Settings.AutomaticWarningRetries
+	usedSeeds := make(map[uint32]struct{}, retriesRemaining+1)
+
+	for {
+		warningCode, seed, err := r.processFragmentAttempt(
+			task,
+			fragmentID,
+			usedSeeds,
+		)
+		if err != nil {
+			return err
+		}
+		if !automaticRetryWarningCode(warningCode) ||
+			retriesRemaining == 0 {
+			return nil
+		}
+		if err := r.server.store.prepareAutomaticWarningRetry(
+			r.ctx,
+			fragmentID,
+			r.server.now().UTC(),
+		); err != nil {
+			return fmt.Errorf(
+				"prepare automatic warning retry: %w",
+				err,
+			)
+		}
+
+		retriesRemaining--
+		usedSeeds[seed] = struct{}{}
+	}
+}
+
+func (r *jobRunner) processFragmentAttempt(
+	task jobTask,
+	fragmentID string,
+	usedSeeds map[uint32]struct{},
+) (string, uint32, error) {
+	started, err := r.server.store.startFragment(
+		r.ctx,
+		fragmentID,
+		r.server.now().UTC(),
+	)
+	if err != nil {
+		return "", 0, fmt.Errorf("mark fragment as generating: %w", err)
+	}
+	item, err := r.server.store.workItem(r.ctx, fragmentID)
+	if err != nil {
+		r.failFragment(fragmentID, "fragment dependencies are unavailable", err)
+		return "", 0, err
+	}
+	item.Resource = started
+
+	seed, err := randomWorkerSeed(usedSeeds)
+	if err != nil {
+		r.failFragment(fragmentID, "generation seed is unavailable", err)
+		return "", 0, fmt.Errorf("generate worker seed: %w", err)
+	}
+
+	ttsContext, cancelTTS := r.server.workerContext()
+	ttsRequestID := r.server.newID()
+	ttsResult, err := r.server.tts.Generate(ttsContext, TTSRequest{
+		RequestID:            ttsRequestID,
+		JobID:                task.JobID,
+		FragmentID:           fragmentID,
+		Text:                 item.Resource.Text,
+		ReferenceAudio:       item.Voice.Audio,
+		ReferenceContentType: item.Voice.Resource.ContentType,
+		ReferenceText:        item.Voice.ReferenceText,
+		NumSteps:             task.Settings.OmniVoice.NumSteps,
+		GuidanceScale:        task.Settings.OmniVoice.GuidanceScale,
+		Speed:                task.Settings.OmniVoice.Speed,
+		NormalizeText:        task.Settings.OmniVoice.NormalizeText,
+		Denoise:              task.Settings.OmniVoice.Denoise,
+		TShift:               task.Settings.OmniVoice.TShift,
+		LayerPenaltyFactor:   task.Settings.OmniVoice.LayerPenaltyFactor,
+		PositionTemperature:  task.Settings.OmniVoice.PositionTemperature,
+		ClassTemperature:     task.Settings.OmniVoice.ClassTemperature,
+		PreprocessPrompt:     task.Settings.OmniVoice.PreprocessPrompt,
+		PostprocessOutput:    task.Settings.OmniVoice.PostprocessOutput,
+		AudioChunkDuration:   task.Settings.OmniVoice.AudioChunkDuration,
+		AudioChunkThreshold:  task.Settings.OmniVoice.AudioChunkThreshold,
+		PadDuration:          task.Settings.OmniVoice.PadDuration,
+		FadeDuration:         task.Settings.OmniVoice.FadeDuration,
+		Seed:                 &seed,
+		SettingsResolved:     true,
+	})
+	cancelTTS()
+	if err != nil {
+		if errors.Is(err, context.Canceled) && r.ctx.Err() != nil {
+			r.failFragment(fragmentID, "generation interrupted", err)
+			return "", seed, err
+		}
+		r.failFragment(fragmentID, "OmniVoice generation failed", err)
+		return "", seed, fmt.Errorf("call OmniVoice: %w", err)
+	}
+	if len(ttsResult.AudioPCM) == 0 {
+		err = errors.New("OmniVoice returned empty PCM")
+		r.failFragment(fragmentID, "OmniVoice returned invalid audio", err)
+		return "", seed, err
+	}
+
+	sttContext, cancelSTT := r.server.workerContext()
+	sttRequestID := r.server.newID()
+	sttResult, err := r.server.stt.Transcribe(sttContext, STTRequest{
+		RequestID:        sttRequestID,
+		JobID:            task.JobID,
+		FragmentID:       fragmentID,
+		AudioPCM:         ttsResult.AudioPCM,
+		SampleRate:       ttsResult.SampleRate,
+		Channels:         ttsResult.Channels,
+		SampleWidth:      ttsResult.SampleWidth,
+		Language:         "ru",
+		ExpectedText:     item.Resource.Text,
+		BeamSize:         task.Settings.Whisper.BeamSize,
+		Patience:         task.Settings.Whisper.Patience,
+		Temperature:      task.Settings.Whisper.Temperature,
+		VADFilter:        task.Settings.Whisper.VADFilter,
+		WordTimestamps:   task.Settings.Whisper.WordTimestamps,
+		SettingsResolved: true,
+	})
+	cancelSTT()
+	if err != nil {
+		if errors.Is(err, context.Canceled) && r.ctx.Err() != nil {
+			r.failFragment(fragmentID, "validation interrupted", err)
+			return "", seed, err
+		}
+		r.failFragment(fragmentID, "speech validation failed", err)
+		return "", seed, fmt.Errorf("call STT: %w", err)
+	}
+
+	warningCode := ""
+	if normalizeValidationText(item.Resource.Text) !=
+		normalizeValidationText(sttResult.Text) {
+		warningCode = "transcript_mismatch"
+	} else if len(ttsResult.Warnings) > 0 {
+		warningCode = "audio_warning"
+	}
+
+	err = r.server.store.completeFragment(
+		r.ctx,
+		fragmentID,
+		fragmentResult{
+			AudioPCM:    ttsResult.AudioPCM,
+			SampleRate:  ttsResult.SampleRate,
+			Channels:    ttsResult.Channels,
+			SampleWidth: ttsResult.SampleWidth,
+			DurationMS:  ttsResult.DurationMS,
+			STTText:     sttResult.Text,
+			STTLanguage: sttResult.Language,
+			WarningCode: warningCode,
+			WorkerNotes: append([]string(nil), ttsResult.Warnings...),
+		},
+		r.server.now().UTC(),
+	)
+	if err != nil {
+		return "", seed, fmt.Errorf("save fragment result: %w", err)
+	}
+
+	return warningCode, seed, nil
+}
+
+func (r *jobRunner) failFragment(
+	fragmentID, publicMessage string,
+	cause error,
+) {
+	r.server.logger.Error(
+		"worker task failed",
+		"fragment_id", fragmentID,
+		"error", cause,
+	)
+	if err := r.server.store.failFragment(
+		context.Background(),
+		fragmentID,
+		publicMessage,
+		r.server.now().UTC(),
+	); err != nil {
+		r.server.logger.Error(
+			"persist fragment failure",
+			"fragment_id", fragmentID,
+			"error", err,
+		)
+	}
+}
+
+func normalizeValidationText(value string) string {
+	value = cases.Fold().String(norm.NFKC.String(value))
+	var builder strings.Builder
+	builder.Grow(len(value))
+	previousSpace := true
+
+	for _, character := range value {
+		if unicode.IsLetter(character) || unicode.IsNumber(character) {
+			builder.WriteRune(character)
+			previousSpace = false
+			continue
+		}
+		if !previousSpace {
+			builder.WriteByte(' ')
+			previousSpace = true
+		}
+	}
+
+	return strings.TrimSpace(builder.String())
+}
+
+func logJobState(logger *slog.Logger, job JobResource) {
+	logger.Debug(
+		"job state",
+		"job_id", job.ID,
+		"status", job.Status,
+		"pending", job.FragmentsPending,
+		"ready", job.FragmentsReady,
+		"warnings", job.FragmentsWarnings,
+		"failed", job.FragmentsFailed,
+		"updated_at", job.UpdatedAt.Format(time.RFC3339Nano),
+	)
+}
