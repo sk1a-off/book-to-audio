@@ -235,12 +235,14 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("POST /v1/voice", s.uploadVoice)
 	mux.HandleFunc("GET /v1/voices", s.getVoices)
 	mux.HandleFunc("GET /v1/voices/{voiceID}", s.getVoice)
+	mux.HandleFunc("DELETE /v1/voices/{voiceID}", s.deleteVoiceEndpoint)
 	mux.HandleFunc("GET /v1/jobs", s.listJobs)
 	mux.HandleFunc(
 		"POST /v1/generate/book/{bookID}/voice/{voiceID}",
 		s.generate,
 	)
 	mux.HandleFunc("GET /v1/job/{jobID}", s.jobStatus)
+	mux.HandleFunc("DELETE /v1/job/{jobID}", s.deleteJobEndpoint)
 	mux.HandleFunc("GET /v1/job/{jobID}/warnings", s.jobWarnings)
 	mux.HandleFunc("GET /v1/job/{jobID}/chapters", s.listJobChapters)
 	mux.HandleFunc(

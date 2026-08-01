@@ -56,6 +56,8 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 			contains: []string{
 				"class APIClient", "automatic_warning_retries: 1",
 				"Math.min(candidate, 1)",
+				"deleteVoice(voiceID)", "deleteJob(jobID)",
+				"Удалить задачу", "Удалить голос", "window.confirm",
 			},
 		},
 	}

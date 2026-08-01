@@ -174,6 +174,13 @@
       return this.request("/v1/voices");
     }
 
+    deleteVoice(voiceID) {
+      return this.request(
+        `/v1/voices/${encodeURIComponent(voiceID)}`,
+        { method: "DELETE" },
+      );
+    }
+
     generate(bookID, voiceID, settings) {
       return this.request(
         `/v1/generate/book/${encodeURIComponent(bookID)}` +
@@ -188,6 +195,13 @@
 
     getJob(jobID) {
       return this.request(`/v1/job/${encodeURIComponent(jobID)}`);
+    }
+
+    deleteJob(jobID) {
+      return this.request(
+        `/v1/job/${encodeURIComponent(jobID)}`,
+        { method: "DELETE" },
+      );
     }
 
     listJobs({ status, limit, offset }) {
@@ -709,6 +723,39 @@
           this.renderVoices(preferredVoiceID);
         },
       );
+    }
+
+    async deleteVoice(voice, button) {
+      const voiceID = String(voice && voice.id || "").trim();
+      if (!voiceID) {
+        return;
+      }
+      const title = String(voice.name || "Без названия");
+      const confirmed = window.confirm(
+        `Удалить голос «${title}» из базы данных?\n\n` +
+          "Голос можно удалить только после удаления всех задач, " +
+          "в которых он использовался. Действие необратимо.",
+      );
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.withBusy(
+          `delete-voice-${voiceID}`,
+          button,
+          async () => {
+            await this.api.deleteVoice(voiceID);
+            this.voices = this.voices.filter(
+              (candidate) => candidate.id !== voiceID,
+            );
+            this.renderVoices();
+            this.notify(`Голос «${title}» удалён.`, "success");
+          },
+          false,
+        );
+      } catch (error) {
+        this.notifyError(error, "Не удалось удалить голос");
+      }
     }
 
     generationSettingFields() {
@@ -1907,6 +1954,57 @@
       }
     }
 
+    async deleteJob(job, button) {
+      const jobID = String(job && job.id || "").trim();
+      if (!jobID) {
+        return;
+      }
+      if (!TERMINAL_JOB_STATUSES.has(job.status)) {
+        this.notify(
+          "Активную задачу нельзя удалить. Дождитесь завершения генерации или LLM-правки.",
+          "error",
+        );
+        return;
+      }
+      const confirmed = window.confirm(
+        `Удалить задачу ${jobID} из базы данных?\n\n` +
+          "Будут безвозвратно удалены фрагменты, аудио, все попытки, " +
+          "история текста, проверки и задачи LLM. Книга и голос останутся.",
+      );
+      if (!confirmed) {
+        return;
+      }
+      try {
+        await this.withBusy(
+          `delete-job-${jobID}`,
+          button,
+          async () => {
+            await this.api.deleteJob(jobID);
+            if (this.currentJobID === jobID) {
+              if (this.currentRewrite && this.currentRewrite.job_id === jobID) {
+                this.rewritePollToken += 1;
+                this.clearStoredRewrite(this.currentRewrite.id);
+                this.currentRewrite = null;
+              }
+              this.setCurrentJobID("");
+              this.currentJob = null;
+              this.nodes.jobDashboard.hidden = true;
+              this.nodes.jobEmpty.hidden = false;
+              this.nodes.rewriteProgressRegion.hidden = true;
+            }
+            const refreshed = await this.refreshJobs(true);
+            if (refreshed === null) {
+              await this.refreshJobs(true);
+            }
+            this.notify(`Задача ${jobID} удалена из базы данных.`, "success");
+          },
+          false,
+        );
+      } catch (error) {
+        this.notifyError(error, "Не удалось удалить задачу");
+      }
+    }
+
     renderJobs(jobs) {
       this.nodes.jobsList.replaceChildren();
 
@@ -2073,7 +2171,25 @@
           });
         });
       });
-      footer.append(context, openButton);
+      const actions = this.createNode("span", "jobs-card-actions");
+      actions.append(openButton);
+      if (jobID && TERMINAL_JOB_STATUSES.has(job.status)) {
+        const deleteButton = this.createNode(
+          "button",
+          "button button--danger",
+          "Удалить задачу",
+        );
+        deleteButton.type = "button";
+        deleteButton.setAttribute(
+          "aria-label",
+          `Удалить задачу ${jobID} из базы данных`,
+        );
+        deleteButton.addEventListener("click", () => {
+          this.deleteJob(job, deleteButton);
+        });
+        actions.append(deleteButton);
+      }
+      footer.append(context, actions);
 
       card.append(header, title, identity, progressRow, counters, footer);
       return card;
@@ -2138,7 +2254,20 @@
           const chip = this.createNode("span", "voice-chip");
           const chipLabel = this.createNode("span", "", title);
           chip.title = `${title} · ${String(voice.format || "").toUpperCase()}`;
-          chip.append(chipLabel);
+          const deleteButton = this.createNode(
+            "button",
+            "voice-delete-button",
+            "Удалить голос",
+          );
+          deleteButton.type = "button";
+          deleteButton.setAttribute(
+            "aria-label",
+            `Удалить голос «${title}» из базы данных`,
+          );
+          deleteButton.addEventListener("click", () => {
+            this.deleteVoice(voice, deleteButton);
+          });
+          chip.append(chipLabel, deleteButton);
           this.nodes.voiceList.append(chip);
         }
         const exists = this.voices.some((voice) => voice.id === previous);

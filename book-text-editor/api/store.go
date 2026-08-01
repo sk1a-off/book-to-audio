@@ -55,6 +55,7 @@ type repository interface {
 	) (VoiceResource, error)
 	voice(context.Context, string) (VoiceResource, bool, error)
 	voices(context.Context) ([]VoiceResource, error)
+	deleteVoice(context.Context, string) (bool, error)
 
 	createJob(
 		context.Context,
@@ -67,6 +68,7 @@ type repository interface {
 		time.Time,
 	) (JobResource, jobTask, error)
 	deleteJob(context.Context, string) error
+	deleteJobForUser(context.Context, string) (bool, error)
 	job(context.Context, string) (JobResource, bool, error)
 	listJobs(context.Context, jobListFilter) (jobListPage, error)
 	jobIssues(context.Context, string) ([]FragmentResource, bool, error)
