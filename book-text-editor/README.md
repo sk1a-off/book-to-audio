@@ -39,8 +39,12 @@ POST  /v1/voice
 GET   /v1/voices
 GET   /v1/voices/{voiceID}
 POST  /v1/generate/book/{bookID}/voice/{voiceID}
-GET   /v1/jobs?status=active|all|queued|running|completed|completed_with_warnings|failed
+GET   /v1/jobs?status=active|all|queued|running|paused|canceled|completed|completed_with_warnings|failed
+GET   /v1/queue
 GET   /v1/job/{jobID}
+POST  /v1/job/{jobID}/pause
+POST  /v1/job/{jobID}/resume
+POST  /v1/job/{jobID}/cancel
 GET   /v1/job/{jobID}/warnings
 PATCH /v1/fragment/{fragmentID}
 POST  /v1/job/{jobID}/retry/warnings
@@ -97,6 +101,102 @@ GET   /v1/job/{jobID}/chapters/{chapterNumber}/audio.zip
 допускается ещё пять TTS → STT попыток; каждая попытка сохраняется отдельно.
 Транспортные и прочие технические ошибки этим циклом не маскируются.
 
+### Устойчивая очередь озвучки
+
+PostgreSQL является источником истины для общей очереди. Можно поставить
+несколько книг подряд: API принимает каждую задачу с `202 Accepted`, а один
+GPU-dispatcher забирает `queued` jobs последовательно в FIFO-порядке
+`created_at, id`. Внутренний Go-канал только будит dispatcher и не ограничивает
+число сохранённых в БД книг.
+
+Production-конфигурация предполагает ровно один экземпляр `audiobook-api`:
+именно он последовательно владеет одним GPU-dispatcher. Горизонтальное
+масштабирование API без отдельного lease/heartbeat-механизма не поддерживается;
+штатный Compose-файл запускает один экземпляр.
+
+`GET /v1/queue` возвращает `200 OK` и единый снимок активной очереди:
+
+```json
+{
+  "jobs": [
+    {"job": {"id": "...", "status": "running"}, "book_title": "...", "queue_position": 1}
+  ],
+  "fragments": [
+    {
+      "fragment": {"id": "...", "status": "generating"},
+      "book_id": "...",
+      "book_title": "...",
+      "chapter_title": "...",
+      "job_status": "running",
+      "queue_position": 1
+    }
+  ],
+  "total_jobs": 1,
+  "total_fragments": 1
+}
+```
+
+В снимок входят jobs `running`, `queued`, `paused` и только их незавершённые
+фрагменты `generating`/`pending`; большие PCM и voice payload не возвращаются.
+`GET /v1/jobs?status=active` охватывает все нетерминальные jobs:
+`queued|running|paused`; для истории отмен используется точный
+`status=canceled`.
+
+Управление задачей:
+
+- `POST /v1/job/{jobID}/pause` — `200 OK` и обновлённый `JobResource` со
+  статусом `paused`;
+- `POST /v1/job/{jobID}/resume` — `200 OK`, статус `queued` и повторное
+  пробуждение dispatcher;
+- `POST /v1/job/{jobID}/cancel` — `200 OK`, терминальный статус `canceled`;
+- неизвестный ID даёт `404 JOB_NOT_FOUND`, недопустимый переход —
+  `409 JOB_TRANSITION_NOT_ALLOWED`.
+
+Pause атомарно переводит текущий `generating`-фрагмент обратно в `pending`,
+сохраняет уже готовые фрагменты и отменяет текущий HTTP-вызов worker. Частичный
+PCM незавершённой попытки не принимается; после resume этот же фрагмент
+генерируется заново. Cancel использует ту же безопасную границу, но job больше
+не выбирается dispatcher. Canceled job можно удалить обычным
+`DELETE /v1/job/{jobID}`.
+
+При запуске API и между задачами recovery-транзакция возвращает оставшиеся после остановки
+`running/generating` в `queued/pending`. Для совместимого обновления со старой
+версии также восстанавливаются только failed-фрагменты с точным системным
+сообщением `generation interrupted` или `validation interrupted`; обычные
+ошибки синтеза не ретраятся автоматически. Поэтому штатный stop и аварийный
+рестарт продолжают книгу с первого незавершённого фрагмента.
+
+### LLM-правка warning-фрагментов
+
+`POST /v1/job/{jobID}/rewrite/warnings` с пустым JSON-объектом
+`{}` или `{"fragment_ids": []}` атомарно фиксирует все фрагменты
+книги, у которых на момент POST статус `warning`. Снимок
+включает все главы и сохраняет книжный порядок. Warning, появившийся
+позже, попадёт только в следующую операцию. Для отдельной главы
+или ручного выбора передаётся непустой `fragment_ids`; каждый ID должен
+принадлежать этой job и всё ещё иметь статус `warning`.
+
+Успешный запуск возвращает `202 Accepted`, тело `RewriteTaskResponse`
+и `Location: /v1/rewrite/{rewriteID}`. Статус операции читается через
+`GET /v1/rewrite/{rewriteID}`. Общие статусы: `queued`, `running`,
+`completed`, `completed_with_errors`, `failed`; в `fragments` видны
+отдельные `queued`/`running`/`completed`/`failed`, причина ошибки и
+созданная revision. Ошибка одного фрагмента не отменяет уже
+сохранённые результаты и не останавливает остальные.
+
+Одновременно для одной job допускается только одна активная
+LLM-операция: повторный POST возвращает `409 REWRITE_NOT_ALLOWED`
+и не дублирует вызовы модели. После завершения новый POST создаёт
+новый снимок текущих warning-фрагментов. Вызовы локальной LLM
+выполняются последовательно; очередь ожидающих rewrite-задач ограничена
+восемью элементами по умолчанию.
+
+Если LLM изменила текст, сервис добавляет immutable AI-revision,
+удаляет устаревшее аудио и помечает фрагмент `text_rewritten`;
+после проверки его нужно отправить на переозвучивание. Ручное одобрение
+готового аудио через `POST /v1/fragment/{fragmentID}/approve` остаётся
+отдельным потоком и не смешивается с LLM-правкой.
+
 ## Запуск CLI
 
 ```bash
@@ -111,7 +211,8 @@ go run ./cmd/book-text-editor -max-words=45 book.fb2
 - `cmd/migrate` — отдельный, идемпотентный runner SQL-миграций;
 - `api/endpoints.go` — transport и строгие HTTP-контракты;
 - `api/postgres_store.go` — единственная production-реализация хранения;
-- `api/jobs.go` — bounded Go-side orchestration TTS → STT → validation;
+- `api/jobs.go`, `api/job_queue_store.go` — durable FIFO orchestration
+  TTS → STT → validation, pause/resume/cancel и startup recovery;
 - `api/workers.go` — ограниченные HTTP-клиенты Python workers;
 - `api/rewrite*.go` — очередь AI-правок, строгая проверка сохранности фразы и
   история версий;
@@ -169,7 +270,8 @@ PostgreSQL integration test запускается отдельно:
 
 ```bash
 TEST_DATABASE_URL='postgres://…' go test -race ./api \
-  -run '^TestPostgresStoreIntegration$' -count=1
+  -run '^(TestPostgresStoreIntegration|TestPostgresGenerationQueueRecoveryControlsAndFIFO)$' \
+  -count=1
 ```
 
 Тесты покрывают HTTP lifecycle, границы `* * *`, worker-контракты, warnings,
@@ -188,7 +290,7 @@ process-scoped параметры worker; они задаются окружен
 job и ID активной AI-правки для восстановления рабочего контекста после
 обновления страницы. Голосовые референсы, PCM и результаты генерации в
 браузере не сохраняются.
-Общий монитор заданий по умолчанию показывает активную очередь, автоматически
+Общий монитор заданий по умолчанию показывает все задания, автоматически
 обновляет прогресс и счётчики, поддерживает фильтрацию по статусу и
 постраничную навигацию. Из карточки можно открыть полное состояние задачи.
 После успешного завершения доступны как единый ZIP всей книги, так и отдельные

@@ -736,9 +736,19 @@ func TestPostgresManualReviewIntegration(t *testing.T) {
 		t.Fatalf("audio after approval = (%+v, %v, %v)", audioAfter, ok, err)
 	}
 	reviews, ok, err := store.fragmentManualReviews(ctx, "review-fragment")
-	if err != nil || !ok || len(reviews) != 1 ||
-		reviews[0] != approval.Review {
+	if err != nil || !ok || len(reviews) != 1 {
 		t.Fatalf("fragmentManualReviews() = (%+v, %v, %v)", reviews, ok, err)
+	}
+	storedReview := reviews[0]
+	if storedReview.ID != approval.Review.ID ||
+		storedReview.FragmentID != approval.Review.FragmentID ||
+		storedReview.Attempt != approval.Review.Attempt ||
+		storedReview.Decision != approval.Review.Decision ||
+		storedReview.WarningCode != approval.Review.WarningCode ||
+		storedReview.STTText != approval.Review.STTText ||
+		storedReview.Reason != approval.Review.Reason ||
+		!storedReview.CreatedAt.Equal(approval.Review.CreatedAt) {
+		t.Fatalf("stored manual review = %+v, want %+v", storedReview, approval.Review)
 	}
 	if _, err := store.approveFragment(
 		ctx,

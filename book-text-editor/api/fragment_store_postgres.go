@@ -146,6 +146,12 @@ func (s *PostgresStore) editAndPrepareFragment(
 	if err != nil {
 		return FragmentResource{}, jobTask{}, fmt.Errorf("lock fragment job: %w", err)
 	}
+	if job.Status == JobStatusPaused || job.Status == JobStatusCanceled {
+		return FragmentResource{}, jobTask{}, fmt.Errorf(
+			"%w: paused or canceled jobs cannot queue fragment edits",
+			errConflict,
+		)
+	}
 
 	var activeRewrite bool
 	if err := tx.QueryRow(

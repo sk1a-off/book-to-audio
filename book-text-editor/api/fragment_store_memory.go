@@ -95,6 +95,13 @@ func (s *memoryStore) editAndPrepareFragment(
 			"fragment references a missing job",
 		)
 	}
+	if jobEntry.Resource.Status == JobStatusPaused ||
+		jobEntry.Resource.Status == JobStatusCanceled {
+		return FragmentResource{}, jobTask{}, fmt.Errorf(
+			"%w: paused or canceled jobs cannot queue fragment edits",
+			errConflict,
+		)
+	}
 	wasActive := jobEntry.Resource.Status == JobStatusQueued ||
 		jobEntry.Resource.Status == JobStatusRunning
 

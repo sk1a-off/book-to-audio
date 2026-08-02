@@ -81,6 +81,9 @@ type RewriteTaskResponse struct {
 }
 
 type RewriteWarningsRequest struct {
+	// FragmentIDs scopes the rewrite to an explicit chapter/selection. When it
+	// is omitted or empty, task creation atomically snapshots every fragment in
+	// this job whose current status is warning, across all book chapters.
 	FragmentIDs   []string `json:"fragment_ids,omitempty"`
 	ModelID       string   `json:"model_id,omitempty"`
 	Prompt        string   `json:"prompt,omitempty"`

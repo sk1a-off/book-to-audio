@@ -10,7 +10,10 @@ import (
 
 func jobStatusAllowsDeletion(status JobStatus) bool {
 	switch status {
-	case JobStatusCompleted, JobStatusCompletedWithWarnings, JobStatusFailed:
+	case JobStatusCanceled,
+		JobStatusCompleted,
+		JobStatusCompletedWithWarnings,
+		JobStatusFailed:
 		return true
 	default:
 		return false

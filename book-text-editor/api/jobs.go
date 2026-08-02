@@ -11,22 +11,24 @@ import (
 
 type jobRunner struct {
 	server *Server
-	queue  chan jobTask
+	wake   chan struct{}
 
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	mu     sync.Mutex
-	closed bool
-	once   sync.Once
-	wg     sync.WaitGroup
+	mu           sync.Mutex
+	closed       bool
+	activeJobID  string
+	activeCancel context.CancelFunc
+	once         sync.Once
+	wg           sync.WaitGroup
 }
 
 func newJobRunner(server *Server, queueSize int) *jobRunner {
 	ctx, cancel := context.WithCancel(context.Background())
 	runner := &jobRunner{
 		server: server,
-		queue:  make(chan jobTask, queueSize),
+		wake:   make(chan struct{}, max(queueSize, 1)),
 		ctx:    ctx,
 		cancel: cancel,
 	}
@@ -35,20 +37,30 @@ func newJobRunner(server *Server, queueSize int) *jobRunner {
 	return runner
 }
 
-func (r *jobRunner) context() context.Context { return r.ctx }
-
 func (r *jobRunner) enqueue(task jobTask) bool {
+	_ = task // The database is authoritative; this call only wakes the dispatcher.
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.closed {
 		return false
 	}
 	select {
-	case r.queue <- task:
-		return true
+	case r.wake <- struct{}{}:
 	default:
+	}
+	return true
+}
+
+func (r *jobRunner) interrupt(jobID string) bool {
+	r.mu.Lock()
+	if r.activeJobID != jobID || r.activeCancel == nil {
+		r.mu.Unlock()
 		return false
 	}
+	cancel := r.activeCancel
+	r.mu.Unlock()
+	cancel()
+	return true
 }
 
 func (r *jobRunner) close() {
@@ -63,35 +75,97 @@ func (r *jobRunner) close() {
 
 func (r *jobRunner) loop() {
 	defer r.wg.Done()
+
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
 	for {
+		if r.ctx.Err() != nil {
+			return
+		}
+		// The loop is between tasks here, so this single supported dispatcher
+		// cannot own a legitimate running job. Repeating recovery also heals a
+		// finish/release transaction that outlived a temporary PostgreSQL outage,
+		// without requiring an API restart.
+		if err := r.server.store.recoverGenerationQueue(
+			r.ctx,
+			r.server.now().UTC(),
+		); err != nil {
+			if r.ctx.Err() != nil {
+				return
+			}
+			r.server.logger.Error("recover generation queue", "error", err)
+			select {
+			case <-r.ctx.Done():
+				return
+			case <-r.wake:
+			case <-ticker.C:
+			}
+			continue
+		}
+		task, ok, err := r.server.store.claimGenerationTask(
+			r.ctx,
+			r.server.now().UTC(),
+		)
+		if err != nil {
+			if r.ctx.Err() != nil {
+				return
+			}
+			r.server.logger.Error("claim generation task", "error", err)
+		} else if ok {
+			r.process(task)
+			continue
+		}
+
 		select {
 		case <-r.ctx.Done():
 			return
-		case task := <-r.queue:
-			r.process(task)
+		case <-r.wake:
+		case <-ticker.C:
 		}
 	}
 }
 
 func (r *jobRunner) process(task jobTask) {
-	if err := r.server.store.startTask(
-		r.ctx,
-		task,
-		r.server.now().UTC(),
-	); err != nil {
-		r.server.logger.Error(
-			"start generation task",
-			"job_id", task.JobID,
-			"error", err,
-		)
-		return
+	taskContext, cancelTask := context.WithCancel(r.ctx)
+	r.mu.Lock()
+	r.activeJobID = task.JobID
+	r.activeCancel = cancelTask
+	r.mu.Unlock()
+	defer func() {
+		cancelTask()
+		r.mu.Lock()
+		if r.activeJobID == task.JobID {
+			r.activeJobID = ""
+			r.activeCancel = nil
+		}
+		r.mu.Unlock()
+	}()
+
+	if !task.Claimed {
+		if err := r.server.store.startTask(
+			taskContext,
+			task,
+			r.server.now().UTC(),
+		); err != nil {
+			r.server.logger.Error(
+				"start generation task",
+				"job_id", task.JobID,
+				"error", err,
+			)
+			return
+		}
 	}
 
 	for _, fragmentID := range task.FragmentIDs {
-		if r.ctx.Err() != nil {
+		if taskContext.Err() != nil {
+			r.releaseInterrupted(task.JobID, "")
 			return
 		}
-		if err := r.processFragment(task, fragmentID); err != nil {
+		if err := r.processFragment(taskContext, task, fragmentID); err != nil {
+			if taskContext.Err() != nil || errors.Is(err, context.Canceled) {
+				r.releaseInterrupted(task.JobID, fragmentID)
+				return
+			}
 			r.server.logger.Error(
 				"process generation fragment",
 				"job_id", task.JobID,
@@ -101,8 +175,12 @@ func (r *jobRunner) process(task jobTask) {
 		}
 	}
 
+	if taskContext.Err() != nil {
+		r.releaseInterrupted(task.JobID, "")
+		return
+	}
 	if err := r.server.store.finishTask(
-		r.ctx,
+		taskContext,
 		task.JobID,
 		r.server.now().UTC(),
 	); err != nil {
@@ -111,15 +189,21 @@ func (r *jobRunner) process(task jobTask) {
 			"job_id", task.JobID,
 			"error", err,
 		)
+		r.releaseInterrupted(task.JobID, "")
 	}
 }
 
-func (r *jobRunner) processFragment(task jobTask, fragmentID string) error {
+func (r *jobRunner) processFragment(
+	ctx context.Context,
+	task jobTask,
+	fragmentID string,
+) error {
 	retriesRemaining := min(task.Settings.AutomaticWarningRetries, 1)
 	usedSeeds := make(map[uint32]struct{}, retriesRemaining+1)
 
 	for {
 		warningCode, seed, err := r.processFragmentAttempt(
+			ctx,
 			task,
 			fragmentID,
 			usedSeeds,
@@ -131,7 +215,7 @@ func (r *jobRunner) processFragment(task jobTask, fragmentID string) error {
 			return nil
 		}
 		if err := r.server.store.prepareAutomaticWarningRetry(
-			r.ctx,
+			ctx,
 			fragmentID,
 			r.server.now().UTC(),
 		); err != nil {
@@ -143,20 +227,27 @@ func (r *jobRunner) processFragment(task jobTask, fragmentID string) error {
 }
 
 func (r *jobRunner) processFragmentAttempt(
+	ctx context.Context,
 	task jobTask,
 	fragmentID string,
 	usedSeeds map[uint32]struct{},
 ) (string, uint32, error) {
 	started, err := r.server.store.startFragment(
-		r.ctx,
+		ctx,
 		fragmentID,
 		r.server.now().UTC(),
 	)
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", 0, ctx.Err()
+		}
 		return "", 0, fmt.Errorf("mark fragment as generating: %w", err)
 	}
-	item, err := r.server.store.workItem(r.ctx, fragmentID)
+	item, err := r.server.store.workItem(ctx, fragmentID)
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", 0, ctx.Err()
+		}
 		r.failFragment(fragmentID, "fragment dependencies are unavailable", err)
 		return "", 0, err
 	}
@@ -164,11 +255,14 @@ func (r *jobRunner) processFragmentAttempt(
 
 	seed, err := randomWorkerSeed(usedSeeds)
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", 0, ctx.Err()
+		}
 		r.failFragment(fragmentID, "generation seed is unavailable", err)
 		return "", 0, fmt.Errorf("generate worker seed: %w", err)
 	}
 
-	ttsContext, cancelTTS := r.server.workerContext()
+	ttsContext, cancelTTS := r.server.workerContext(ctx)
 	ttsResult, err := r.server.tts.Generate(ttsContext, TTSRequest{
 		RequestID:            r.server.newID(),
 		JobID:                task.JobID,
@@ -197,9 +291,8 @@ func (r *jobRunner) processFragmentAttempt(
 	})
 	cancelTTS()
 	if err != nil {
-		if errors.Is(err, context.Canceled) && r.ctx.Err() != nil {
-			r.failFragment(fragmentID, "generation interrupted", err)
-			return "", seed, err
+		if ctx.Err() != nil {
+			return "", seed, ctx.Err()
 		}
 		r.failFragment(fragmentID, "OmniVoice generation failed", err)
 		return "", seed, fmt.Errorf("call OmniVoice: %w", err)
@@ -210,7 +303,7 @@ func (r *jobRunner) processFragmentAttempt(
 		return "", seed, err
 	}
 
-	sttContext, cancelSTT := r.server.workerContext()
+	sttContext, cancelSTT := r.server.workerContext(ctx)
 	sttResult, err := r.server.stt.Transcribe(sttContext, STTRequest{
 		RequestID:        r.server.newID(),
 		JobID:            task.JobID,
@@ -230,9 +323,8 @@ func (r *jobRunner) processFragmentAttempt(
 	})
 	cancelSTT()
 	if err != nil {
-		if errors.Is(err, context.Canceled) && r.ctx.Err() != nil {
-			r.failFragment(fragmentID, "validation interrupted", err)
-			return "", seed, err
+		if ctx.Err() != nil {
+			return "", seed, ctx.Err()
 		}
 		r.failFragment(fragmentID, "speech validation failed", err)
 		return "", seed, fmt.Errorf("call STT: %w", err)
@@ -246,7 +338,7 @@ func (r *jobRunner) processFragmentAttempt(
 	}
 
 	err = r.server.store.completeFragment(
-		r.ctx,
+		ctx,
 		fragmentID,
 		fragmentResult{
 			AudioPCM:    ttsResult.AudioPCM,
@@ -262,9 +354,30 @@ func (r *jobRunner) processFragmentAttempt(
 		r.server.now().UTC(),
 	)
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", seed, ctx.Err()
+		}
 		return "", seed, fmt.Errorf("save fragment result: %w", err)
 	}
 	return warningCode, seed, nil
+}
+
+func (r *jobRunner) releaseInterrupted(jobID, fragmentID string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := r.server.store.releaseGenerationTask(
+		ctx,
+		jobID,
+		fragmentID,
+		r.server.now().UTC(),
+	); err != nil && !errors.Is(err, errNotFound) {
+		r.server.logger.Error(
+			"release interrupted generation task",
+			"job_id", jobID,
+			"fragment_id", fragmentID,
+			"error", err,
+		)
+	}
 }
 
 func (r *jobRunner) failFragment(
@@ -276,8 +389,10 @@ func (r *jobRunner) failFragment(
 		"fragment_id", fragmentID,
 		"error", cause,
 	)
+	storeContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := r.server.store.failFragment(
-		context.Background(),
+		storeContext,
 		fragmentID,
 		publicMessage,
 		r.server.now().UTC(),

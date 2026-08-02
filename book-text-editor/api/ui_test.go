@@ -20,7 +20,18 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 			contains: []string{
 				`<html lang="ru">`, `id="book-upload-form"`, `id="job-dashboard"`,
 				`id="chapter-downloads"`, `src="/assets/app.js"`,
+				`id="queue-dialog"`, `id="queue-jobs-list"`,
+				`id="job-pause-button"`, `id="job-continue-button"`,
+				`id="rewrite-all-button"`, `Исправить все warnings`,
 				`.fb2.zip`,
+			},
+		},
+		{
+			path: "/assets/app.css", contentType: "text/css; charset=utf-8",
+			contains: []string{
+				".queue-dialog", ".queue-window-body", ".queue-fragment-card",
+				".job-topline-actions", `.status-badge[data-status="paused"]`,
+				"@media (max-width: 760px)",
 			},
 		},
 		{
@@ -57,6 +68,9 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 				"class APIClient", "automatic_warning_retries: 1",
 				"Math.min(candidate, 1)",
 				"deleteVoice(voiceID)", "deleteJob(jobID)",
+				"getQueue()", "pauseJob(jobID)", "resumeJob(jobID)",
+				"cancelJob(jobID)", "startQueueMonitor()", "loadWarningOverview(jobID",
+				`fragment_ids: selectedIDs`,
 				"Удалить задачу", "Удалить голос", "window.confirm",
 			},
 		},
@@ -111,6 +125,42 @@ func TestUIJavaScriptUsesSafeSameOriginDOMRendering(t *testing.T) {
 		if !strings.Contains(content, required) {
 			t.Errorf("JavaScript misses guard %q", required)
 		}
+	}
+}
+
+func TestUIDashboardExposesDurableMultiBookQueueControls(t *testing.T) {
+	fixture := newEndpointTestFixture(t)
+	handler := fixture.server.Handler()
+	page := endpointTestRequest(t, handler, http.MethodGet, "/", nil, "")
+	javascript := endpointTestRequest(t, handler, http.MethodGet, "/assets/app.js", nil, "")
+	if page.Code != http.StatusOK || javascript.Code != http.StatusOK {
+		t.Fatalf("UI assets status: page=%d js=%d", page.Code, javascript.Code)
+	}
+	pageContent := page.Body.String()
+	for _, required := range []string{
+		`id="queue-dialog"`, `id="queue-open-button"`,
+		`id="job-pause-button"`, `id="job-continue-button"`,
+		`id="rewrite-all-button"`, `Поставить книгу в очередь`,
+	} {
+		if !strings.Contains(pageContent, required) {
+			t.Errorf("dashboard misses %q", required)
+		}
+	}
+
+	javascriptContent := javascript.Body.String()
+	for _, required := range []string{
+		`this.request("/v1/queue")`, `/pause`, `/resume`, `/cancel`,
+		"startQueueMonitor", "loadWarningOverview", "fragment_ids: selectedIDs",
+	} {
+		if !strings.Contains(javascriptContent, required) {
+			t.Errorf("dashboard JavaScript misses %q", required)
+		}
+	}
+	if strings.Contains(
+		javascriptContent,
+		"Дождитесь завершения текущей задачи",
+	) {
+		t.Error("dashboard still blocks starting a second book")
 	}
 }
 

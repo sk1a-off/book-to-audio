@@ -785,7 +785,6 @@ func testFragmentResult(
 		STTText:     sttText,
 		STTLanguage: "ru",
 		WarningCode: warningCode,
-		WorkerNotes: []string{"test"},
 	}
 }
 

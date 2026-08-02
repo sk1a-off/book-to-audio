@@ -71,6 +71,13 @@ type repository interface {
 	deleteJobForUser(context.Context, string) (bool, error)
 	job(context.Context, string) (JobResource, bool, error)
 	listJobs(context.Context, jobListFilter) (jobListPage, error)
+	generationQueue(context.Context) (generationQueueSnapshot, error)
+	recoverGenerationQueue(context.Context, time.Time) error
+	claimGenerationTask(context.Context, time.Time) (jobTask, bool, error)
+	releaseGenerationTask(context.Context, string, string, time.Time) error
+	pauseJob(context.Context, string, time.Time) (JobResource, error)
+	resumeJob(context.Context, string, time.Time) (JobResource, error)
+	cancelJob(context.Context, string, time.Time) (JobResource, error)
 	jobIssues(context.Context, string) ([]FragmentResource, bool, error)
 	editFragment(
 		context.Context,
@@ -731,6 +738,10 @@ func (s *memoryStore) prepareRetry(
 		jobEntry.Resource.Status == JobStatusRunning {
 		return jobTask{}, fmt.Errorf("%w: job is already active", errConflict)
 	}
+	if jobEntry.Resource.Status == JobStatusPaused ||
+		jobEntry.Resource.Status == JobStatusCanceled {
+		return jobTask{}, fmt.Errorf("%w: job is paused or canceled", errConflict)
+	}
 	for _, rewrite := range s.rewriteTasks {
 		if rewrite.Resource.JobID == jobID &&
 			(rewrite.Resource.Status == RewriteTaskStatusQueued ||
@@ -838,6 +849,10 @@ func (s *memoryStore) startTask(
 	if !ok {
 		return fmt.Errorf("%w: job not found", errNotFound)
 	}
+	if jobEntry.Resource.Status != JobStatusQueued &&
+		jobEntry.Resource.Status != JobStatusRunning {
+		return fmt.Errorf("%w: job is not queued", errConflict)
+	}
 	jobEntry.Resource.Status = JobStatusRunning
 	jobEntry.Resource.UpdatedAt = now
 
@@ -883,6 +898,16 @@ func (s *memoryStore) startFragment(
 	if fragment.Resource.Status != FragmentStatusPending {
 		return FragmentResource{}, fmt.Errorf(
 			"%w: fragment is not pending",
+			errConflict,
+		)
+	}
+	job := s.jobs[fragment.Resource.JobID]
+	if job == nil {
+		return FragmentResource{}, errors.New("fragment references a missing job")
+	}
+	if job.Resource.Status != JobStatusRunning {
+		return FragmentResource{}, fmt.Errorf(
+			"%w: fragment job is not running",
 			errConflict,
 		)
 	}
@@ -998,7 +1023,15 @@ func (s *memoryStore) finishTask(
 	if !ok {
 		return fmt.Errorf("%w: job not found", errNotFound)
 	}
+	// The worker loop has finished walking its claimed snapshot. Any fragment
+	// still marked generating is therefore orphaned by a failed/ambiguous
+	// persistence operation and must become claimable again.
+	resetGeneratingMemoryFragments(jobEntry, s.fragments, now)
 	recomputeJob(jobEntry, s.fragments, now)
+	if jobEntry.Resource.Status == JobStatusRunning &&
+		jobEntry.Resource.FragmentsPending > 0 {
+		jobEntry.Resource.Status = JobStatusQueued
+	}
 
 	return nil
 }
@@ -1184,7 +1217,15 @@ func recomputeJob(
 		}
 	}
 
+	preservedStatus := resource.Status
 	switch {
+	case preservedStatus == JobStatusPaused || preservedStatus == JobStatusCanceled:
+		resource.Status = preservedStatus
+	case preservedStatus == JobStatusQueued &&
+		!active && resource.FragmentsPending > 0:
+		// queued means durable work exists but no dispatcher owns it. Only an
+		// explicit claim/start transition is allowed to make it running.
+		resource.Status = JobStatusQueued
 	case active || resource.FragmentsPending > 0:
 		resource.Status = JobStatusRunning
 	case resource.FragmentsFailed > 0:

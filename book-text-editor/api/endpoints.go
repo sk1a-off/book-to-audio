@@ -44,7 +44,7 @@ type Dependencies struct {
 	RewriteQueueSize int
 }
 
-// Server owns the HTTP API and bounded orchestration queues.
+// Server owns the HTTP API, durable generation dispatcher, and bounded rewrite queue.
 type Server struct {
 	store           repository
 	parser          fb2.Parser
@@ -237,11 +237,15 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /v1/voices/{voiceID}", s.getVoice)
 	mux.HandleFunc("DELETE /v1/voices/{voiceID}", s.deleteVoiceEndpoint)
 	mux.HandleFunc("GET /v1/jobs", s.listJobs)
+	mux.HandleFunc("GET /v1/queue", s.generationQueue)
 	mux.HandleFunc(
 		"POST /v1/generate/book/{bookID}/voice/{voiceID}",
 		s.generate,
 	)
 	mux.HandleFunc("GET /v1/job/{jobID}", s.jobStatus)
+	mux.HandleFunc("POST /v1/job/{jobID}/pause", s.pauseJobEndpoint)
+	mux.HandleFunc("POST /v1/job/{jobID}/resume", s.resumeJobEndpoint)
+	mux.HandleFunc("POST /v1/job/{jobID}/cancel", s.cancelJobEndpoint)
 	mux.HandleFunc("DELETE /v1/job/{jobID}", s.deleteJobEndpoint)
 	mux.HandleFunc("GET /v1/job/{jobID}/warnings", s.jobWarnings)
 	mux.HandleFunc("GET /v1/job/{jobID}/chapters", s.listJobChapters)
@@ -1026,8 +1030,8 @@ func envOrDefault(name, fallback string) string {
 	return fallback
 }
 
-func (s *Server) workerContext() (context.Context, context.CancelFunc) {
-	return context.WithTimeout(s.runner.context(), s.workerTimeout)
+func (s *Server) workerContext(parent context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(parent, s.workerTimeout)
 }
 
 func (s *Server) internalStoreError(

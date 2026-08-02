@@ -40,10 +40,13 @@
     "completed",
     "completed_with_warnings",
     "failed",
+    "canceled",
   ]);
 
   const JOBS_PAGE_SIZE = 8;
   const JOBS_POLL_INTERVAL_MS = 4000;
+  const QUEUE_POLL_INTERVAL_MS = 3000;
+  const QUEUE_FRAGMENT_RENDER_LIMIT = 250;
   const REWRITE_POLL_INTERVAL_MS = 1800;
   const REWRITE_TERMINAL_STATUSES = new Set([
     "completed",
@@ -54,9 +57,11 @@
   const JOB_STATUS_LABELS = Object.freeze({
     queued: "В очереди",
     running: "Генерация идёт",
+    paused: "Остановлено",
     completed: "Готово",
     completed_with_warnings: "Нужна проверка",
     failed: "Завершено с ошибками",
+    canceled: "Отменено",
   });
 
   const WARNING_LABELS = Object.freeze({
@@ -197,6 +202,31 @@
       return this.request(`/v1/job/${encodeURIComponent(jobID)}`);
     }
 
+    getQueue() {
+      return this.request("/v1/queue");
+    }
+
+    pauseJob(jobID) {
+      return this.request(
+        `/v1/job/${encodeURIComponent(jobID)}/pause`,
+        { method: "POST" },
+      );
+    }
+
+    resumeJob(jobID) {
+      return this.request(
+        `/v1/job/${encodeURIComponent(jobID)}/resume`,
+        { method: "POST" },
+      );
+    }
+
+    cancelJob(jobID) {
+      return this.request(
+        `/v1/job/${encodeURIComponent(jobID)}/cancel`,
+        { method: "POST" },
+      );
+    }
+
     deleteJob(jobID) {
       return this.request(
         `/v1/job/${encodeURIComponent(jobID)}`,
@@ -317,16 +347,30 @@
       this.chapterRequestToken = 0;
       this.chapterDataJobID = "";
       this.chapterLoadingJobID = "";
-      this.jobsFilter = "active";
+      this.jobsFilter = "all";
       this.jobsLimit = JOBS_PAGE_SIZE;
       this.jobsOffset = 0;
       this.jobsTotal = 0;
       this.jobsPollToken = 0;
       this.jobsRefreshInFlight = false;
+      this.queuePollToken = 0;
+      this.queueRefreshInFlight = false;
+      this.queueSnapshot = null;
 
       this.nodes = {
         healthIndicator: this.byID("health-indicator"),
         healthLabel: this.byID("health-label"),
+        queueOpenButton: this.byID("queue-open-button"),
+        queueTriggerLabel: this.byID("queue-trigger-label"),
+        queueTriggerCount: this.byID("queue-trigger-count"),
+        queueDialog: this.byID("queue-dialog"),
+        queueCloseButton: this.byID("queue-close-button"),
+        queueRefreshButton: this.byID("queue-refresh-button"),
+        queueStatus: this.byID("queue-status"),
+        queueJobsCount: this.byID("queue-jobs-count"),
+        queueFragmentsCount: this.byID("queue-fragments-count"),
+        queueJobsList: this.byID("queue-jobs-list"),
+        queueFragmentsList: this.byID("queue-fragments-list"),
 
         bookForm: this.byID("book-upload-form"),
         bookFile: this.byID("book-file"),
@@ -393,6 +437,9 @@
         progressBar: this.byID("job-progress-bar"),
         progressLabel: this.byID("job-progress-label"),
         jobUpdatedLabel: this.byID("job-updated-label"),
+        jobPauseButton: this.byID("job-pause-button"),
+        jobContinueButton: this.byID("job-continue-button"),
+        jobCancelButton: this.byID("job-cancel-button"),
         counterTotal: this.byID("counter-total"),
         counterPending: this.byID("counter-pending"),
         counterReady: this.byID("counter-ready"),
@@ -461,6 +508,7 @@
       this.checkHealth();
       this.refreshVoices();
       this.startJobsMonitor();
+      this.startQueueMonitor();
 
       if (this.currentJobID) {
         this.nodes.jobIDInput.value = this.currentJobID;
@@ -493,6 +541,31 @@
       });
       this.nodes.refreshVoicesButton.addEventListener("click", () => {
         this.refreshVoices();
+      });
+      this.nodes.queueOpenButton.addEventListener("click", () => {
+        if (typeof this.nodes.queueDialog.showModal === "function") {
+          if (!this.nodes.queueDialog.open) {
+            this.nodes.queueDialog.showModal();
+          }
+        } else {
+          this.nodes.queueDialog.setAttribute("open", "");
+        }
+        this.nodes.queueOpenButton.setAttribute("aria-expanded", "true");
+        this.startQueueMonitor(true);
+      });
+      this.nodes.queueCloseButton.addEventListener("click", () => {
+        this.closeQueueDialog();
+      });
+      this.nodes.queueDialog.addEventListener("click", (event) => {
+        if (event.target === this.nodes.queueDialog) {
+          this.closeQueueDialog();
+        }
+      });
+      this.nodes.queueDialog.addEventListener("close", () => {
+        this.nodes.queueOpenButton.setAttribute("aria-expanded", "false");
+      });
+      this.nodes.queueRefreshButton.addEventListener("click", () => {
+        this.startQueueMonitor(true);
       });
       this.nodes.generateButton.addEventListener("click", () => {
         this.startGeneration();
@@ -544,6 +617,25 @@
       });
       this.nodes.copyJobIDButton.addEventListener("click", () => {
         this.copyCurrentJobID();
+      });
+      this.nodes.jobPauseButton.addEventListener("click", () => {
+        if (this.currentJob) {
+          this.changeJobState(this.currentJob, "pause", this.nodes.jobPauseButton);
+        }
+      });
+      this.nodes.jobContinueButton.addEventListener("click", () => {
+        if (this.currentJob) {
+          this.changeJobState(
+            this.currentJob,
+            "resume",
+            this.nodes.jobContinueButton,
+          );
+        }
+      });
+      this.nodes.jobCancelButton.addEventListener("click", () => {
+        if (this.currentJob) {
+          this.changeJobState(this.currentJob, "cancel", this.nodes.jobCancelButton);
+        }
       });
       this.nodes.downloadLink.addEventListener("click", (event) => {
         if (this.nodes.downloadLink.getAttribute("aria-disabled") === "true") {
@@ -1007,16 +1099,6 @@
         this.notify("Выберите книгу и голос.", "error");
         return;
       }
-      if (
-        this.currentJob &&
-        !TERMINAL_JOB_STATUSES.has(this.currentJob.status)
-      ) {
-        this.notify(
-          "Дождитесь завершения текущей задачи или откройте другую.",
-          "error",
-        );
-        return;
-      }
       const settings = this.collectGenerationSettings(true);
       if (!settings) {
         return;
@@ -1043,11 +1125,15 @@
           }
           this.startPolling(jobID);
           this.startJobsMonitor();
+          this.startQueueMonitor();
           this.byID("job-title").scrollIntoView({
             behavior: "smooth",
             block: "start",
           });
-          this.notify("Задача поставлена в очередь.", "success");
+          this.notify(
+            "Книга поставлена в очередь. Можно выбрать следующую книгу.",
+            "success",
+          );
         },
       );
     }
@@ -1135,12 +1221,7 @@
           this.currentJob || { id: jobID, status: "running" },
           chapters,
         );
-        this.warningFragments = [];
-        this.selectedWarningIDs.clear();
-        this.nodes.warningsList.replaceChildren();
-        this.nodes.warningsSection.hidden = true;
-        this.nodes.warningsSummary.textContent = "";
-        this.updateRetrySelectedButton();
+        await this.loadWarningOverview(jobID, announceError);
 
         if (response.audio_zip_url) {
           this.nodes.downloadLink.href = response.audio_zip_url;
@@ -1159,6 +1240,70 @@
 
     async loadWarnings(jobID) {
       await this.loadFragmentCatalog(jobID, true);
+    }
+
+    async loadWarningOverview(jobID, announceError = false) {
+      try {
+        const response = await this.api.getWarnings(jobID);
+        if (jobID !== this.currentJobID) {
+          return;
+        }
+        const fragments = Array.isArray(response && response.fragments)
+          ? response.fragments
+          : [];
+        this.warningFragments = fragments;
+        this.selectedWarningIDs.clear();
+        this.nodes.warningsList.replaceChildren();
+
+        const warnings = fragments.filter(
+          (fragment) => fragment.status === "warning",
+        ).length;
+        const failed = fragments.filter(
+          (fragment) => fragment.status === "failed",
+        ).length;
+        const rewritten = fragments.filter(
+          (fragment) =>
+            fragment.status === "warning" &&
+            fragment.warning_code === "text_rewritten",
+        ).length;
+        const rewriteForCurrentJob = Boolean(
+          this.currentRewrite &&
+          this.currentRewrite.job_id === jobID &&
+          !REWRITE_TERMINAL_STATUSES.has(this.currentRewrite.status),
+        );
+        this.nodes.warningsSection.hidden =
+          warnings === 0 && failed === 0 && !rewriteForCurrentJob;
+        this.nodes.warningsSummary.textContent = rewritten > 0
+          ? `LLM подготовила ${rewritten} правок. ` +
+            "Проверьте их в главах или нажмите «Переозвучить все warnings»."
+          : warnings > 0
+            ? `LLM исправит ${warnings} warning-фрагм. ` +
+              (failed > 0 ? `Ошибок генерации: ${failed}.` : "")
+            : failed > 0
+              ? `Warning-фрагментов нет; ошибок генерации: ${failed}.`
+              : "Все warnings обработаны.";
+        this.updateRetrySelectedButton();
+        if (warnings > 0 && !this.rewriteModelsResponse) {
+          this.loadRewriteModels();
+        }
+      } catch (error) {
+        if (jobID !== this.currentJobID) {
+          return;
+        }
+        const expectedWarnings = this.number(
+          this.currentJob && this.currentJob.fragments_warnings,
+        );
+        this.warningFragments = [];
+        this.nodes.warningsList.replaceChildren();
+        this.nodes.warningsSection.hidden = expectedWarnings === 0;
+        this.nodes.warningsSummary.textContent = expectedWarnings > 0
+          ? `Не удалось загрузить ${expectedWarnings} warnings. Повторим запрос автоматически.`
+          : "";
+        this.updateRetrySelectedButton();
+        if (announceError) {
+          this.notifyError(error, "Не удалось загрузить warnings");
+        }
+      }
     }
 
     async editWarning(fragment, textarea, button) {
@@ -1732,7 +1877,10 @@
             this.clearStoredRewrite(rewriteID);
             const taskJobID = task.job_id || "";
             if (task.status === "completed") {
-              this.notify("AI-правка всех фрагментов завершена.", "success");
+              this.notify(
+                "AI-правка завершена. Проверьте текст или поставьте все правки на переозвучивание.",
+                "success",
+              );
             } else if (task.status === "completed_with_errors") {
               this.notify(
                 "AI-правка завершена, но часть фрагментов требует внимания.",
@@ -1852,6 +2000,353 @@
       return Boolean(
         this.currentRewrite &&
         !REWRITE_TERMINAL_STATUSES.has(this.currentRewrite.status),
+      );
+    }
+
+    closeQueueDialog() {
+      if (typeof this.nodes.queueDialog.close === "function") {
+        if (this.nodes.queueDialog.open) {
+          this.nodes.queueDialog.close();
+        }
+      } else {
+        this.nodes.queueDialog.removeAttribute("open");
+      }
+      this.nodes.queueOpenButton.setAttribute("aria-expanded", "false");
+      this.nodes.queueOpenButton.focus();
+    }
+
+    startQueueMonitor(announceError = false) {
+      this.queuePollToken += 1;
+      const token = this.queuePollToken;
+      let consecutiveErrors = 0;
+
+      const poll = async () => {
+        if (token !== this.queuePollToken) {
+          return;
+        }
+        if (this.document.hidden) {
+          window.setTimeout(poll, QUEUE_POLL_INTERVAL_MS);
+          return;
+        }
+
+        const result = await this.refreshQueue(announceError);
+        announceError = false;
+        if (token !== this.queuePollToken) {
+          return;
+        }
+        if (result === true) {
+          consecutiveErrors = 0;
+        } else if (result === false) {
+          consecutiveErrors += 1;
+        }
+        const delay = result === null
+          ? 300
+          : consecutiveErrors > 0
+            ? Math.min(
+                QUEUE_POLL_INTERVAL_MS * (2 ** consecutiveErrors),
+                30000,
+              )
+            : QUEUE_POLL_INTERVAL_MS;
+        window.setTimeout(poll, delay);
+      };
+
+      poll();
+    }
+
+    async refreshQueue(announceError = false) {
+      if (this.queueRefreshInFlight) {
+        return null;
+      }
+      this.queueRefreshInFlight = true;
+      this.nodes.queueRefreshButton.disabled = true;
+      this.nodes.queueRefreshButton.classList.add("is-busy");
+      this.nodes.queueJobsList.setAttribute("aria-busy", "true");
+      this.nodes.queueFragmentsList.setAttribute("aria-busy", "true");
+
+      try {
+        const response = await this.api.getQueue();
+        this.queueSnapshot = response || {};
+        this.renderQueue(this.queueSnapshot);
+        this.nodes.queueStatus.textContent =
+          `Обновлено ${this.formatDate(new Date())}`;
+        return true;
+      } catch (error) {
+        this.nodes.queueStatus.textContent =
+          "Очередь временно недоступна. Повторяем запрос.";
+        this.nodes.queueTriggerLabel.textContent = "нет связи";
+        if (announceError) {
+          this.notifyError(error, "Не удалось обновить очередь");
+        }
+        return false;
+      } finally {
+        this.queueRefreshInFlight = false;
+        this.nodes.queueRefreshButton.disabled = false;
+        this.nodes.queueRefreshButton.classList.remove("is-busy");
+        this.nodes.queueJobsList.setAttribute("aria-busy", "false");
+        this.nodes.queueFragmentsList.setAttribute("aria-busy", "false");
+      }
+    }
+
+    renderQueue(snapshot) {
+      const jobs = Array.isArray(snapshot.jobs) ? snapshot.jobs : [];
+      const fragments = Array.isArray(snapshot.fragments)
+        ? snapshot.fragments
+        : [];
+      const totalJobs = Number.isFinite(Number(snapshot.total_jobs))
+        ? this.number(snapshot.total_jobs)
+        : jobs.length;
+      const totalFragments = Number.isFinite(Number(snapshot.total_fragments))
+        ? this.number(snapshot.total_fragments)
+        : fragments.length;
+
+      this.nodes.queueJobsCount.textContent = String(totalJobs);
+      this.nodes.queueFragmentsCount.textContent = String(totalFragments);
+      this.nodes.queueTriggerCount.value = String(totalFragments);
+      this.nodes.queueTriggerCount.textContent = String(totalFragments);
+      this.nodes.queueTriggerLabel.textContent = totalJobs > 0
+        ? `${totalJobs} кн. · ${totalFragments} фр.`
+        : "пусто";
+      this.nodes.queueOpenButton.classList.toggle(
+        "queue-trigger--active",
+        totalJobs > 0,
+      );
+
+      this.nodes.queueJobsList.replaceChildren();
+      if (jobs.length === 0) {
+        this.nodes.queueJobsList.append(
+          this.createQueueEmpty("Активных книг нет"),
+        );
+      } else {
+        for (const entry of jobs) {
+          this.nodes.queueJobsList.append(this.createQueueJobCard(entry));
+        }
+      }
+
+      this.nodes.queueFragmentsList.replaceChildren();
+      if (fragments.length === 0) {
+        this.nodes.queueFragmentsList.append(
+          this.createQueueEmpty("Фрагментов в очереди нет"),
+        );
+        return;
+      }
+      for (const entry of fragments.slice(0, QUEUE_FRAGMENT_RENDER_LIMIT)) {
+        this.nodes.queueFragmentsList.append(
+          this.createQueueFragmentCard(entry),
+        );
+      }
+      if (fragments.length > QUEUE_FRAGMENT_RENDER_LIMIT) {
+        this.nodes.queueFragmentsList.append(
+          this.createQueueEmpty(
+            `Показаны первые ${QUEUE_FRAGMENT_RENDER_LIMIT} из ${fragments.length} фрагментов.`,
+          ),
+        );
+      }
+    }
+
+    createQueueEmpty(message) {
+      const empty = this.createNode("p", "queue-empty", message);
+      empty.setAttribute("role", "listitem");
+      return empty;
+    }
+
+    createQueueJobCard(entry) {
+      const job = entry && entry.job ? entry.job : entry || {};
+      const jobID = typeof job.id === "string" ? job.id : "";
+      const card = this.createNode("article", "queue-job-card");
+      card.setAttribute("role", "listitem");
+      card.dataset.status = job.status || "";
+
+      const heading = this.createNode("div", "queue-job-heading");
+      const position = this.number(entry && entry.queue_position);
+      const order = this.createNode(
+        "span",
+        "queue-position",
+        position > 0 ? `#${position}` : "•",
+      );
+      const copy = this.createNode("div", "queue-job-copy");
+      copy.append(
+        this.createNode(
+          "strong",
+          "",
+          (entry && entry.book_title) || `Книга ${this.shortID(job.book_id)}`,
+        ),
+        this.createNode(
+          "small",
+          "",
+          `${JOB_STATUS_LABELS[job.status] || job.status || "Статус неизвестен"} · ` +
+            `задача ${this.shortID(jobID)}`,
+        ),
+      );
+      heading.append(order, copy);
+
+      const total = this.number(job.fragments_count);
+      const finished = Math.min(
+        total,
+        this.number(job.fragments_ready) +
+          this.number(job.fragments_warnings) +
+          this.number(job.fragments_failed),
+      );
+      const percentage = total > 0 ? Math.round((finished / total) * 100) : 0;
+      const progress = this.createNode("progress", "progress-track");
+      progress.max = 100;
+      progress.value = percentage;
+      progress.textContent = `${percentage}%`;
+      progress.setAttribute("aria-label", `Прогресс ${percentage}%`);
+
+      const actions = this.createNode("div", "queue-job-actions");
+      const open = this.createNode("button", "button button--quiet", "Открыть");
+      open.type = "button";
+      open.disabled = !jobID;
+      open.addEventListener("click", () => {
+        this.closeQueueDialog();
+        this.openJob(jobID, true);
+        this.byID("job-title").scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+      actions.append(open);
+      this.appendJobStateActions(actions, job, "queue");
+
+      card.append(heading, progress, actions);
+      return card;
+    }
+
+    createQueueFragmentCard(entry) {
+      const fragment = entry && entry.fragment ? entry.fragment : entry || {};
+      const card = this.createNode("article", "queue-fragment-card");
+      card.setAttribute("role", "listitem");
+      card.dataset.status = fragment.status || "pending";
+      const position = this.number(entry && entry.queue_position);
+      const badge = this.createNode(
+        "span",
+        "queue-position queue-position--fragment",
+        position > 0 ? `#${position}` : "•",
+      );
+      const copy = this.createNode("div", "queue-fragment-copy");
+      const bookTitle = (entry && entry.book_title) ||
+        `Книга ${this.shortID(entry && entry.book_id)}`;
+      const chapter = (entry && entry.chapter_title) ||
+        `Глава ${this.number(fragment.chapter_number)}`;
+      copy.append(
+        this.createNode("strong", "", bookTitle),
+        this.createNode(
+          "small",
+          "",
+          `${chapter} · фрагмент ${this.number(fragment.ordinal)} · ` +
+            (fragment.status === "generating" ? "озвучивается" : "ожидает"),
+        ),
+      );
+      const sourceText = String(fragment.text || "").trim();
+      if (sourceText) {
+        copy.append(
+          this.createNode(
+            "p",
+            "queue-fragment-text",
+            sourceText.length > 180
+              ? `${sourceText.slice(0, 177)}…`
+              : sourceText,
+          ),
+        );
+      }
+      card.append(badge, copy);
+      return card;
+    }
+
+    appendJobStateActions(container, job, prefix) {
+      const jobID = typeof job.id === "string" ? job.id : "";
+      if (!jobID) {
+        return;
+      }
+      if (job.status === "queued" || job.status === "running") {
+        const pause = this.createNode(
+          "button",
+          "button button--quiet",
+          "Остановить",
+        );
+        pause.type = "button";
+        pause.addEventListener("click", () => {
+          this.changeJobState(job, "pause", pause, prefix);
+        });
+        container.append(pause);
+      }
+      if (job.status === "paused") {
+        const resume = this.createNode(
+          "button",
+          "button button--secondary",
+          "Возобновить",
+        );
+        resume.type = "button";
+        resume.addEventListener("click", () => {
+          this.changeJobState(job, "resume", resume, prefix);
+        });
+        container.append(resume);
+      }
+      if (["queued", "running", "paused"].includes(job.status)) {
+        const cancel = this.createNode(
+          "button",
+          "button button--danger",
+          "Отменить",
+        );
+        cancel.type = "button";
+        cancel.addEventListener("click", () => {
+          this.changeJobState(job, "cancel", cancel, prefix);
+        });
+        container.append(cancel);
+      }
+    }
+
+    async changeJobState(job, action, button, prefix = "job") {
+      const jobID = String(job && job.id || "").trim();
+      if (!jobID || !["pause", "resume", "cancel"].includes(action)) {
+        return;
+      }
+      if (action === "cancel") {
+        const confirmed = window.confirm(
+          "Отменить озвучивание этой книги?\n\n" +
+            "Готовые фрагменты останутся в базе, но задача больше не возобновится.",
+        );
+        if (!confirmed) {
+          return;
+        }
+      }
+      const operation = action === "pause"
+        ? () => this.api.pauseJob(jobID)
+        : action === "resume"
+          ? () => this.api.resumeJob(jobID)
+          : () => this.api.cancelJob(jobID);
+      const successMessage = action === "pause"
+        ? "Задача остановлена. Прогресс сохранён."
+        : action === "resume"
+          ? "Задача возобновлена с сохранённого места."
+          : "Задача отменена.";
+
+      await this.withBusy(
+        `${prefix}-${action}-${jobID}`,
+        button,
+        async () => {
+          this.nodes.queueStatus.textContent =
+            "Сохраняем новое состояние задачи…";
+          let updated;
+          try {
+            updated = await operation();
+          } catch (error) {
+            this.nodes.queueStatus.textContent =
+              "Не удалось изменить состояние задачи.";
+            throw error;
+          }
+          if (jobID === this.currentJobID && updated) {
+            this.currentJob = updated;
+            this.renderJob(updated);
+            if (!TERMINAL_JOB_STATUSES.has(updated.status)) {
+              this.startPolling(jobID);
+            }
+          }
+          this.nodes.queueStatus.textContent = successMessage;
+          this.notify(successMessage, "success");
+          this.startJobsMonitor();
+          this.startQueueMonitor();
+        },
       );
     }
 
@@ -2173,6 +2668,7 @@
       });
       const actions = this.createNode("span", "jobs-card-actions");
       actions.append(openButton);
+      this.appendJobStateActions(actions, job, "jobs-card");
       if (jobID && TERMINAL_JOB_STATUSES.has(job.status)) {
         const deleteButton = this.createNode(
           "button",
@@ -2286,15 +2782,10 @@
       this.nodes.selectedVoiceLabel.textContent = voice
         ? voice.name || voice.id
         : "не выбран";
-      const activeJob = Boolean(
-        this.currentJob &&
-        !TERMINAL_JOB_STATUSES.has(this.currentJob.status),
-      );
       this.nodes.generateButton.disabled =
         !book ||
         !voice ||
-        this.busyOperations.has("generate") ||
-        activeJob;
+        this.busyOperations.has("generate");
     }
 
     renderJob(job) {
@@ -2331,6 +2822,7 @@
       this.nodes.counterReady.textContent = String(ready);
       this.nodes.counterWarnings.textContent = String(warnings);
       this.nodes.counterFailed.textContent = String(failed);
+      this.renderCurrentJobControls(job);
       const snapshot =
         job.generation_settings &&
         typeof job.generation_settings === "object"
@@ -2361,6 +2853,21 @@
         this.nodes.chapterDownloads.hidden = false;
       }
       this.renderSelectionSummary();
+    }
+
+    renderCurrentJobControls(job) {
+      const canPause = job.status === "queued" || job.status === "running";
+      const canResume = job.status === "paused";
+      const canCancel = canPause || canResume;
+      this.nodes.jobPauseButton.hidden = !canPause;
+      this.nodes.jobContinueButton.hidden = !canResume;
+      this.nodes.jobCancelButton.hidden = !canCancel;
+      this.nodes.jobPauseButton.disabled =
+        !canPause || this.busyOperations.has(`job-pause-${job.id}`);
+      this.nodes.jobContinueButton.disabled =
+        !canResume || this.busyOperations.has(`job-resume-${job.id}`);
+      this.nodes.jobCancelButton.disabled =
+        !canCancel || this.busyOperations.has(`job-cancel-${job.id}`);
     }
 
     async loadChapterDownloads(job) {

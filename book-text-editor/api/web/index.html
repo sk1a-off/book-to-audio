@@ -33,14 +33,32 @@
         </span>
       </a>
 
-      <div
-        id="health-indicator"
-        class="health-indicator health-indicator--checking"
-        role="status"
-        aria-live="polite"
-      >
-        <span class="health-dot" aria-hidden="true"></span>
-        <span id="health-label">Проверяем API</span>
+      <div class="header-actions">
+        <button
+          id="queue-open-button"
+          class="queue-trigger"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="queue-dialog"
+          aria-expanded="false"
+        >
+          <span class="queue-trigger-icon" aria-hidden="true">≡</span>
+          <span class="queue-trigger-copy">
+            <strong>Очередь</strong>
+            <small id="queue-trigger-label">загружаем…</small>
+          </span>
+          <output id="queue-trigger-count" class="queue-trigger-count" aria-label="Фрагментов в очереди">0</output>
+        </button>
+
+        <div
+          id="health-indicator"
+          class="health-indicator health-indicator--checking"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="health-dot" aria-hidden="true"></span>
+          <span id="health-label">Проверяем API</span>
+        </div>
       </div>
     </div>
   </header>
@@ -218,8 +236,9 @@
         <h2 id="generation-title">Запустите озвучивание</h2>
         <p>
           Go поставит фрагменты в очередь, передаст задания inference-сервисам
-          и проверит распознанный текст. Эту страницу можно безопасно обновить:
-          идентификатор последней задачи сохранится в браузере.
+          и проверит распознанный текст. Можно сразу поставить несколько книг:
+          каждая получит отдельную задачу. Пауза и перезапуск сервисов не сбрасывают
+          сохранённую очередь.
         </p>
       </div>
 
@@ -241,7 +260,7 @@
           disabled
         >
           <span class="button-symbol" aria-hidden="true">▶</span>
-          <span>Начать генерацию</span>
+          <span>Поставить книгу в очередь</span>
         </button>
       </div>
 
@@ -386,8 +405,8 @@
           <p class="eyebrow">Монитор очереди</p>
           <h2 id="jobs-monitor-title">Все задачи</h2>
           <p class="jobs-monitor-description">
-            Следите за текущей очередью и возвращайтесь к завершённым задачам.
-            Список обновляется автоматически.
+            Каждая книга показана отдельно. Здесь можно открыть задачу, остановить её
+            или возобновить. Детальный порядок фрагментов доступен в окне «Очередь».
           </p>
         </div>
 
@@ -395,13 +414,15 @@
           <div class="jobs-filter">
             <label for="jobs-status-filter">Показывать</label>
             <select id="jobs-status-filter" aria-controls="jobs-list">
-              <option value="active" selected>Активные</option>
-              <option value="all">Все задачи</option>
+              <option value="active">В очереди и в работе</option>
+              <option value="all" selected>Все задачи</option>
               <option value="queued">В очереди</option>
               <option value="running">В работе</option>
+              <option value="paused">Остановлены</option>
               <option value="completed">Готовые</option>
               <option value="completed_with_warnings">С предупреждениями</option>
               <option value="failed">С ошибками</option>
+              <option value="canceled">Отменённые</option>
             </select>
           </div>
           <button
@@ -418,7 +439,7 @@
 
       <div class="jobs-monitor-meta">
         <p id="jobs-monitor-summary" role="status" aria-live="polite">
-          Загружаем активные задачи…
+          Загружаем задачи…
         </p>
         <p id="jobs-refreshed-at">Ожидаем первое обновление</p>
       </div>
@@ -493,15 +514,26 @@
               >копировать</button>
             </p>
           </div>
-          <a
-            id="download-link"
-            class="button button--download is-disabled"
-            aria-disabled="true"
-            tabindex="-1"
-          >
-            <span aria-hidden="true">↓</span>
-            Вся книга · главы FLAC, ZIP
-          </a>
+          <div class="job-topline-actions">
+            <button id="job-pause-button" class="button button--quiet" type="button" hidden>
+              Остановить
+            </button>
+            <button id="job-continue-button" class="button button--secondary" type="button" hidden>
+              Возобновить
+            </button>
+            <button id="job-cancel-button" class="button button--danger" type="button" hidden>
+              Отменить
+            </button>
+            <a
+              id="download-link"
+              class="button button--download is-disabled"
+              aria-disabled="true"
+              tabindex="-1"
+            >
+              <span aria-hidden="true">↓</span>
+              Вся книга · главы FLAC, ZIP
+            </a>
+          </div>
         </div>
 
         <progress
@@ -568,10 +600,10 @@
       <div class="warnings-heading">
         <div>
           <p class="eyebrow">Контроль качества</p>
-          <h2 id="warnings-title">Фрагменты озвучки</h2>
+          <h2 id="warnings-title">Все warnings этой книги</h2>
           <p id="warnings-description">
-            Предупреждения теперь разбираются на отдельной странице каждой главы,
-            чтобы основной экран оставался быстрым даже для большой книги.
+            Одной кнопкой передайте все предупреждения книги локальной LLM. Открывать
+            каждую главу не нужно; постраничная проверка и исправление отдельной главы остаются в её карточке выше.
           </p>
           <p id="warnings-summary" class="warnings-summary" aria-live="polite"></p>
         </div>
@@ -581,12 +613,13 @@
             class="button button--secondary"
             type="button"
             disabled
+            hidden
           >Повторить выбранные</button>
           <button
             id="retry-all-button"
             class="button button--quiet"
             type="button"
-          >Повторить все</button>
+          >Переозвучить все warnings</button>
         </div>
       </div>
 
@@ -598,11 +631,10 @@
         <div class="rewrite-panel-heading">
           <div>
             <p class="eyebrow">Локальная правка текста</p>
-            <h3 id="rewrite-title">Переписать предупреждения с AI</h3>
+            <h3 id="rewrite-title">Исправить все warnings с помощью LLM</h3>
             <p class="rewrite-intro">
-              Модель работает через Go API локально на CPU. При первом запуске
-              сервер может скачать GGUF-файл размером в несколько гигабайт —
-              это займёт несколько минут. Вкладку можно оставить открытой.
+              Будут выбраны все фрагменты со статусом warning во всех главах. Задача продолжится
+              на сервере после обновления страницы. Первый запуск может скачать GGUF-файл.
             </p>
           </div>
           <button
@@ -612,7 +644,9 @@
           >Обновить модели</button>
         </div>
 
-        <div class="rewrite-settings-grid">
+        <details class="rewrite-settings-details">
+          <summary>Модель и расширенные параметры</summary>
+          <div class="rewrite-settings-grid">
           <label class="field">
             <span>Модель</span>
             <select
@@ -708,7 +742,8 @@
             >
             <small id="rewrite-max-tokens-range">Диапазон задаёт API.</small>
           </label>
-        </div>
+          </div>
+        </details>
 
         <div class="rewrite-toolbar">
           <p
@@ -725,17 +760,18 @@
               disabled
             >Вернуть инструкцию</button>
             <button
-              id="rewrite-selected-button"
-              class="button button--secondary"
-              type="button"
-              disabled
+            id="rewrite-selected-button"
+            class="button button--secondary"
+            type="button"
+            disabled
+            hidden
             >Переписать выбранные</button>
             <button
               id="rewrite-all-button"
               class="button button--primary"
               type="button"
               disabled
-            >Переписать все</button>
+            >Исправить все warnings с помощью LLM</button>
           </div>
         </div>
 
@@ -772,6 +808,47 @@
     <p>Голос Книги</p>
     <p>Интерфейс работает через Go API и не обращается к inference-сервисам напрямую.</p>
   </footer>
+
+  <dialog id="queue-dialog" class="queue-dialog" aria-labelledby="queue-dialog-title">
+    <section class="queue-window">
+      <header class="queue-window-header">
+        <div>
+          <p class="eyebrow">Живой монитор</p>
+          <h2 id="queue-dialog-title">Очередь озвучивания</h2>
+          <p>Книги и фрагменты в том порядке, в котором их обработает сервер.</p>
+        </div>
+        <button id="queue-close-button" class="icon-button queue-close-button" type="button" aria-label="Закрыть очередь">×</button>
+      </header>
+
+      <div class="queue-window-toolbar">
+        <dl class="queue-totals">
+          <div><dt>Книг в работе</dt><dd id="queue-jobs-count">0</dd></div>
+          <div><dt>Фрагментов в очереди</dt><dd id="queue-fragments-count">0</dd></div>
+        </dl>
+        <div class="queue-refresh-copy">
+          <p id="queue-status" role="status" aria-live="polite">Загружаем очередь…</p>
+          <button id="queue-refresh-button" class="button button--quiet" type="button">↻ Обновить</button>
+        </div>
+      </div>
+
+      <div class="queue-window-body">
+        <section class="queue-column" aria-labelledby="queue-books-title">
+          <div class="queue-column-heading">
+            <h3 id="queue-books-title">Книги и задачи</h3>
+            <small>Пауза сохраняет прогресс</small>
+          </div>
+          <div id="queue-jobs-list" class="queue-jobs-list" role="list"></div>
+        </section>
+        <section class="queue-column" aria-labelledby="queue-fragments-title">
+          <div class="queue-column-heading">
+            <h3 id="queue-fragments-title">Ближайшие фрагменты</h3>
+            <small>Очередь обновляется автоматически</small>
+          </div>
+          <div id="queue-fragments-list" class="queue-fragments-list" role="list"></div>
+        </section>
+      </div>
+    </section>
+  </dialog>
 
   <div
     id="toast-region"

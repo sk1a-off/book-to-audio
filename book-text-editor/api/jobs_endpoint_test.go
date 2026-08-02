@@ -32,11 +32,15 @@ func TestParseJobListFilter(t *testing.T) {
 			wantOffset: 0,
 		},
 		{
-			name:         "active jobs",
-			rawQuery:     "status=active&limit=25&offset=50",
-			wantStatuses: []JobStatus{JobStatusQueued, JobStatusRunning},
-			wantLimit:    25,
-			wantOffset:   50,
+			name:     "active jobs",
+			rawQuery: "status=active&limit=25&offset=50",
+			wantStatuses: []JobStatus{
+				JobStatusQueued,
+				JobStatusRunning,
+				JobStatusPaused,
+			},
+			wantLimit:  25,
+			wantOffset: 50,
 		},
 		{
 			name:         "exact status",

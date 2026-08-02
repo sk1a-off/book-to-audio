@@ -22,6 +22,32 @@ type JobsResponse struct {
 	Offset int           `json:"offset"`
 }
 
+// QueueJobResource adds presentation metadata to a durable generation job.
+type QueueJobResource struct {
+	Job           JobResource `json:"job"`
+	BookTitle     string      `json:"book_title"`
+	QueuePosition int         `json:"queue_position"`
+}
+
+// QueueFragmentResource is the lightweight queue view. It intentionally does
+// not contain PCM bytes, voice prompts, or other large worker payloads.
+type QueueFragmentResource struct {
+	Fragment      FragmentResource `json:"fragment"`
+	BookID        string           `json:"book_id"`
+	BookTitle     string           `json:"book_title"`
+	ChapterTitle  string           `json:"chapter_title"`
+	JobStatus     JobStatus        `json:"job_status"`
+	QueuePosition int              `json:"queue_position"`
+}
+
+// GenerationQueueResponse is a point-in-time view of the shared FIFO queue.
+type GenerationQueueResponse struct {
+	Jobs           []QueueJobResource      `json:"jobs"`
+	Fragments      []QueueFragmentResource `json:"fragments"`
+	TotalJobs      int                     `json:"total_jobs"`
+	TotalFragments int                     `json:"total_fragments"`
+}
+
 type jobListFilter struct {
 	Statuses []JobStatus
 	Limit    int
@@ -62,6 +88,112 @@ func (s *Server) listJobs(writer http.ResponseWriter, request *http.Request) {
 		Limit:  filter.Limit,
 		Offset: filter.Offset,
 	})
+}
+
+// generationQueue handles GET /v1/queue.
+func (s *Server) generationQueue(writer http.ResponseWriter, request *http.Request) {
+	if request.URL.RawQuery != "" {
+		writeProblem(
+			writer,
+			request,
+			http.StatusBadRequest,
+			"INVALID_QUERY",
+			"generation queue does not accept query parameters",
+		)
+		return
+	}
+	snapshot, err := s.store.generationQueue(request.Context())
+	if err != nil {
+		s.internalStoreError(writer, request, "get generation queue", err)
+		return
+	}
+	if snapshot.Jobs == nil {
+		snapshot.Jobs = make([]QueueJobResource, 0)
+	}
+	if snapshot.Fragments == nil {
+		snapshot.Fragments = make([]QueueFragmentResource, 0)
+	}
+	writeJSON(writer, http.StatusOK, GenerationQueueResponse{
+		Jobs:           snapshot.Jobs,
+		Fragments:      snapshot.Fragments,
+		TotalJobs:      len(snapshot.Jobs),
+		TotalFragments: len(snapshot.Fragments),
+	})
+}
+
+func (s *Server) pauseJobEndpoint(writer http.ResponseWriter, request *http.Request) {
+	jobID := request.PathValue("jobID")
+	resource, err := s.store.pauseJob(
+		request.Context(),
+		jobID,
+		s.now().UTC(),
+	)
+	if !s.handleJobTransitionError(writer, request, err, "pause job") {
+		return
+	}
+	s.runner.interrupt(jobID)
+	writeJSON(writer, http.StatusOK, resource)
+}
+
+func (s *Server) resumeJobEndpoint(writer http.ResponseWriter, request *http.Request) {
+	jobID := request.PathValue("jobID")
+	resource, err := s.store.resumeJob(
+		request.Context(),
+		jobID,
+		s.now().UTC(),
+	)
+	if !s.handleJobTransitionError(writer, request, err, "resume job") {
+		return
+	}
+	s.runner.enqueue(jobTask{JobID: jobID})
+	writeJSON(writer, http.StatusOK, resource)
+}
+
+func (s *Server) cancelJobEndpoint(writer http.ResponseWriter, request *http.Request) {
+	jobID := request.PathValue("jobID")
+	resource, err := s.store.cancelJob(
+		request.Context(),
+		jobID,
+		s.now().UTC(),
+	)
+	if !s.handleJobTransitionError(writer, request, err, "cancel job") {
+		return
+	}
+	s.runner.interrupt(jobID)
+	writeJSON(writer, http.StatusOK, resource)
+}
+
+func (s *Server) handleJobTransitionError(
+	writer http.ResponseWriter,
+	request *http.Request,
+	err error,
+	operation string,
+) bool {
+	switch {
+	case errors.Is(err, errNotFound):
+		writeProblem(
+			writer,
+			request,
+			http.StatusNotFound,
+			"JOB_NOT_FOUND",
+			"job not found",
+		)
+		return false
+	case errors.Is(err, errConflict):
+		writeProblem(
+			writer,
+			request,
+			http.StatusConflict,
+			"JOB_TRANSITION_NOT_ALLOWED",
+			err.Error(),
+		)
+		return false
+	case err != nil:
+		s.internalStoreError(writer, request, operation, err)
+		return false
+	default:
+		return true
+	}
 }
 
 func parseJobListFilter(query url.Values) (jobListFilter, error) {
@@ -119,11 +251,19 @@ func parseJobListStatuses(query url.Values) ([]JobStatus, error) {
 	case "all":
 		return nil, nil
 	case "active":
-		return []JobStatus{JobStatusQueued, JobStatusRunning}, nil
+		return []JobStatus{
+			JobStatusQueued,
+			JobStatusRunning,
+			JobStatusPaused,
+		}, nil
 	case string(JobStatusQueued):
 		return []JobStatus{JobStatusQueued}, nil
 	case string(JobStatusRunning):
 		return []JobStatus{JobStatusRunning}, nil
+	case string(JobStatusPaused):
+		return []JobStatus{JobStatusPaused}, nil
+	case string(JobStatusCanceled):
+		return []JobStatus{JobStatusCanceled}, nil
 	case string(JobStatusCompleted):
 		return []JobStatus{JobStatusCompleted}, nil
 	case string(JobStatusCompletedWithWarnings):
@@ -185,6 +325,8 @@ func (filter jobListFilter) validate() error {
 		switch status {
 		case JobStatusQueued,
 			JobStatusRunning,
+			JobStatusPaused,
+			JobStatusCanceled,
 			JobStatusCompleted,
 			JobStatusCompletedWithWarnings,
 			JobStatusFailed:

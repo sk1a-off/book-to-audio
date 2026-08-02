@@ -14,6 +14,10 @@
 - загружать и разбирать `.fb2`, `.zip` и `.fb2.zip`;
 - создавать голос по референсу `.flac` или PCM `.wav` и точной расшифровке;
 - асинхронно озвучивать книгу через OmniVoice;
+- ставить несколько книг в общую FIFO-очередь;
+- останавливать и возобновлять отдельную задачу без потери готовых фрагментов;
+- автоматически подхватывать незавершённую озвучку после `stop`, `down` или
+  перезапуска API;
 - проверять произношение через Whisper/STT;
 - показывать **все фрагменты по мере генерации**, а не только warning;
 - прослушивать уже готовый фрагмент прямо во время озвучки книги;
@@ -21,6 +25,8 @@
 - автоматически ставить отредактированный фрагмент на переозвучивание;
 - вручную принимать корректное аудио с ложным warning;
 - повторять выбранные проблемные фрагменты;
+- исправлять одной кнопкой все warning-фрагменты книги через локальную LLM,
+  сохраняя отдельную правку на странице каждой главы;
 - скачивать отдельную готовую главу как **прямой `.flac`**;
 - скачивать всю готовую книгу как ZIP с одним FLAC на главу;
 - хранить историю текстовых ревизий и ручных решений.
@@ -64,13 +70,18 @@ Smoke загружает небольшую FB2 и голосовой рефер
 ```text
 1. Загрузить FB2
 2. Загрузить голосовой референс и его расшифровку
-3. Запустить генерацию
-4. Следить за фрагментами в UI
+3. Поставить одну или несколько книг в очередь
+4. Следить за книгами и фрагментами в отдельном окне «Очередь»
+   ├─ остановить задачу с сохранением прогресса
+   ├─ возобновить её с первого незавершённого фрагмента
+   └─ открыть нужную книгу, не дожидаясь остальных
+5. Проверить предупреждения
    ├─ прослушать готовый WAV-preview
    ├─ исправить текст → фрагмент автоматически переозвучится
    ├─ принять корректный warning вручную
+   ├─ исправить все warnings книги через локальную LLM
    └─ повторить warning/failed
-5. Скачать готовую главу FLAC или ZIP всей книги
+6. Скачать готовую главу FLAC или ZIP всей книги
 ```
 
 ### Просмотр во время генерации
@@ -86,6 +97,27 @@ Smoke загружает небольшую FB2 и голосовой рефер
 
 Этот endpoint **не склеивает PCM и не кодирует FLAC**, поэтому UI может
 безопасно опрашивать его во время генерации.
+
+### Устойчивая очередь, остановка и возобновление
+
+PostgreSQL является источником истины для очереди. Процессная Go-очередь лишь
+будит последовательный dispatcher; порядок книг, незавершённые фрагменты и
+статусы не пропадают вместе с контейнером API.
+Штатная конфигурация запускает один `audiobook-api`; несколько API-replica без
+lease/heartbeat не поддерживаются, чтобы не отправлять две книги на один GPU.
+
+- `GET /v1/queue` возвращает книги `running`, `queued`, `paused` и их
+  `pending`/`generating` фрагменты в фактическом порядке обработки;
+- `POST /v1/job/{jobID}/pause` отменяет текущий worker-вызов, отбрасывает только
+  незавершённый PCM и сохраняет задачу как `paused`;
+- `POST /v1/job/{jobID}/resume` возвращает её в `queued`;
+- `POST /v1/job/{jobID}/cancel` окончательно исключает задачу из очереди, но не
+  удаляет уже готовые фрагменты.
+
+При старте API и между задачами recovery-транзакция возвращает прерванные
+`running/generating` в `queued/pending`. Она также понимает состояния
+`generation interrupted` и `validation interrupted`, оставленные предыдущей
+версией сервиса, поэтому первое обновление не теряет активный фрагмент.
 
 ### Редактирование озвученного фрагмента
 
@@ -104,13 +136,18 @@ Content-Type: application/json
 3. переводит фрагмент в `pending`;
 4. пересчитывает состояние job и подготавливает задачу повторной генерации.
 
-После фиксации состояния application service передаёт задачу bounded runner.
-При успехе клиент получает `X-Fragment-Regeneration-Queued: true`, затем TTS и
-STT выполняются асинхронно. Если очередь переполнена, API отвечает
-`503 FRAGMENT_SAVED_QUEUE_FULL`: исправленный текст остаётся сохранённым,
-фрагмент возвращается в retryable `warning`, и его можно повторить позже. Это
-не выдаёт внешнюю in-memory очередь за часть SQL-транзакции и не оставляет
-устаревшее аудио после правки.
+После фиксации состояния application service будит durable dispatcher. Клиент
+получает `X-Fragment-Regeneration-Queued: true`, затем TTS и STT выполняются
+асинхронно. Даже если API остановится сразу после ответа, `pending`-фрагмент
+останется в PostgreSQL и будет обработан после следующего запуска.
+
+### Массовая LLM-правка warnings
+
+`POST /v1/job/{jobID}/rewrite/warnings` с `{}`, пустым телом или пустым
+`fragment_ids` создаёт неизменяемый снимок всех текущих warning-фрагментов во
+всех главах книги. Непустой `fragment_ids` сохраняет прежний сценарий правки
+выбранных фрагментов одной главы. Операция отвечает `202 Accepted`; прогресс и
+частичные ошибки читаются через `GET /v1/rewrite/{rewriteID}`.
 
 ## Экспорт без преждевременной сборки
 
@@ -187,6 +224,7 @@ Browser
   ▼
 audiobook-api (Go)
   ├─ HTTP transport / embedded UI
+  ├─ durable FIFO generation dispatcher + startup recovery
   ├─ generation and review application services
   ├─ fragment read model + focused persistence port
   ├─ PostgreSQL fragment adapter
@@ -227,7 +265,7 @@ HTTP-обработчики не выполняют storage orchestration сам
 
 - metadata-only fragment catalog;
 - атомарная правка текста и подготовка retry task;
-- компенсация при переполненной runner queue;
+- durable постановка правки на повторную генерацию;
 - snapshot одной полностью готовой главы для on-demand экспорта.
 
 Memory и PostgreSQL находятся за отдельными adapter-файлами. В результате
@@ -251,8 +289,12 @@ GET   /v1/voices
 GET   /v1/voices/{voiceID}
 
 POST  /v1/generate/book/{bookID}/voice/{voiceID}
-GET   /v1/jobs?status=active|all|queued|running|completed|completed_with_warnings|failed
+GET   /v1/jobs?status=active|all|queued|running|paused|canceled|completed|completed_with_warnings|failed
+GET   /v1/queue
 GET   /v1/job/{jobID}
+POST  /v1/job/{jobID}/pause
+POST  /v1/job/{jobID}/resume
+POST  /v1/job/{jobID}/cancel
 
 GET   /v1/job/{jobID}/chapters
 GET   /v1/job/{jobID}/chapters/{chapterNumber}/audio.flac
@@ -282,7 +324,8 @@ GET   /v1/rewrite/{rewriteID}
 book-text-editor/
   api/
     endpoints.go              # HTTP transport and routing
-    jobs.go                   # generation orchestration
+    jobs.go                   # durable generation dispatcher
+    job_queue_store.go        # FIFO, pause/resume/cancel and recovery
     fragment_service.go       # fragment review application service
     fragment_store_memory.go  # in-memory adapter
     fragment_store_postgres.go # PostgreSQL adapter and transactions

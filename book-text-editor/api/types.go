@@ -34,6 +34,8 @@ type JobStatus string
 const (
 	JobStatusQueued                JobStatus = "queued"
 	JobStatusRunning               JobStatus = "running"
+	JobStatusPaused                JobStatus = "paused"
+	JobStatusCanceled              JobStatus = "canceled"
 	JobStatusCompleted             JobStatus = "completed"
 	JobStatusCompletedWithWarnings JobStatus = "completed_with_warnings"
 	JobStatusFailed                JobStatus = "failed"
@@ -112,6 +114,7 @@ type RetryResponse struct {
 type jobTask struct {
 	JobID            string
 	FragmentIDs      []string
+	Claimed          bool
 	IsRetry          bool
 	PreviousStatuses map[string]FragmentStatus
 	Settings         GenerationSettings

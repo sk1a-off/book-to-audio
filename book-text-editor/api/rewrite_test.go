@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
@@ -240,6 +242,175 @@ func TestRewriteWarningsCreatesImmutableAIRevision(t *testing.T) {
 	}
 }
 
+func TestRewriteAllWarningsSnapshotsWholeBookAndReportsPartialErrors(
+	t *testing.T,
+) {
+	fixture, handler, jobID, warnings, lateWarningID :=
+		endpointBookWideRewriteFixture(t)
+	started := make(chan struct{})
+	release := make(chan struct{})
+	var startedOnce sync.Once
+	var releaseOnce sync.Once
+	releaseWorker := func() {
+		releaseOnce.Do(func() { close(release) })
+	}
+	defer releaseWorker()
+
+	rewriter := &endpointTestRewriter{
+		models: testRewriteModels(),
+		rewrite: func(request RewriterRequest) (RewriterResult, error) {
+			if request.FragmentID == warnings[0].ID {
+				startedOnce.Do(func() { close(started) })
+				<-release
+			}
+			if request.FragmentID == warnings[1].ID {
+				return RewriterResult{}, errors.New("simulated local model failure")
+			}
+			return RewriterResult{
+				APIVersion:    "v1",
+				RequestID:     request.RequestID,
+				FragmentID:    request.FragmentID,
+				RewrittenText: request.Text,
+				Reason:        "Изменения не требуются.",
+				ModelID:       request.ModelID,
+				ModelRevision: testRewriteModels().Models[0].Revision,
+				DurationMS:    3,
+			}, nil
+		},
+	}
+	fixture.server.rewriter = rewriter
+
+	createResponse := endpointTestRequest(
+		t,
+		handler,
+		http.MethodPost,
+		"/v1/job/"+jobID+"/rewrite/warnings",
+		strings.NewReader(`{}`),
+		"application/json",
+	)
+	if createResponse.Code != http.StatusAccepted {
+		t.Fatalf(
+			"POST all warnings status = %d, body = %s",
+			createResponse.Code,
+			createResponse.Body,
+		)
+	}
+	var created RewriteTaskResponse
+	endpointTestDecodeJSON(t, createResponse, &created)
+	if created.FragmentsCount != 2 || len(created.Fragments) != 2 {
+		t.Fatalf("created all-warning rewrite = %+v", created)
+	}
+	if createResponse.Header().Get("Location") != "/v1/rewrite/"+created.ID {
+		t.Fatalf("rewrite Location = %q", createResponse.Header().Get("Location"))
+	}
+	for index, warning := range warnings {
+		if created.Fragments[index].FragmentID != warning.ID {
+			t.Fatalf(
+				"created fragment[%d] = %q, want %q",
+				index,
+				created.Fragments[index].FragmentID,
+				warning.ID,
+			)
+		}
+	}
+
+	select {
+	case <-started:
+	case <-time.After(time.Second):
+		t.Fatal("book-wide rewrite did not start")
+	}
+
+	// A repeated click while the same book is being processed is rejected and
+	// therefore cannot enqueue duplicate LLM calls.
+	duplicateResponse := endpointTestRequest(
+		t,
+		handler,
+		http.MethodPost,
+		"/v1/job/"+jobID+"/rewrite/warnings",
+		strings.NewReader(`{"fragment_ids":[]}`),
+		"application/json",
+	)
+	if duplicateResponse.Code != http.StatusConflict {
+		t.Fatalf(
+			"duplicate rewrite status = %d, body = %s",
+			duplicateResponse.Code,
+			duplicateResponse.Body,
+		)
+	}
+	var duplicateProblem ErrorResponse
+	endpointTestDecodeJSON(t, duplicateResponse, &duplicateProblem)
+	if duplicateProblem.Code != "REWRITE_NOT_ALLOWED" {
+		t.Fatalf("duplicate rewrite problem = %+v", duplicateProblem)
+	}
+
+	// This warning appears after POST. It must be left for the next operation,
+	// proving that the current task is the immutable book-wide snapshot returned
+	// in the 202 response.
+	markEndpointRewriteFragmentWarning(t, fixture, jobID, lateWarningID)
+	releaseWorker()
+
+	completed := waitForRewriteTask(t, handler, created.ID)
+	if completed.Status != RewriteTaskStatusCompletedWithErrors ||
+		completed.FragmentsPending != 0 ||
+		completed.FragmentsCompleted != 1 ||
+		completed.FragmentsFailed != 1 ||
+		len(completed.Fragments) != 2 {
+		t.Fatalf("completed book-wide rewrite = %+v", completed)
+	}
+	if completed.Fragments[1].Status != RewriteFragmentStatusFailed ||
+		completed.Fragments[1].Error != "local text model failed" {
+		t.Fatalf("failed rewrite fragment = %+v", completed.Fragments[1])
+	}
+
+	requests := rewriter.Requests()
+	if len(requests) != 2 ||
+		requests[0].FragmentID != warnings[0].ID ||
+		requests[1].FragmentID != warnings[1].ID {
+		t.Fatalf("book-wide worker requests = %+v", requests)
+	}
+	if slices.ContainsFunc(requests, func(request RewriterRequest) bool {
+		return request.FragmentID == lateWarningID
+	}) {
+		t.Fatalf("late warning %q leaked into immutable task", lateWarningID)
+	}
+}
+
+func TestRewriteWarningsExplicitSelectionRemainsScoped(t *testing.T) {
+	fixture, handler, jobID, warnings, _ := endpointBookWideRewriteFixture(t)
+	rewriter := &endpointTestRewriter{models: testRewriteModels()}
+	fixture.server.rewriter = rewriter
+
+	target := warnings[1]
+	createResponse := endpointTestRequest(
+		t,
+		handler,
+		http.MethodPost,
+		"/v1/job/"+jobID+"/rewrite/warnings",
+		strings.NewReader(`{"fragment_ids":["`+target.ID+`"]}`),
+		"application/json",
+	)
+	if createResponse.Code != http.StatusAccepted {
+		t.Fatalf(
+			"POST selected warning status = %d, body = %s",
+			createResponse.Code,
+			createResponse.Body,
+		)
+	}
+	var created RewriteTaskResponse
+	endpointTestDecodeJSON(t, createResponse, &created)
+	completed := waitForRewriteTask(t, handler, created.ID)
+	if completed.Status != RewriteTaskStatusCompleted ||
+		completed.FragmentsCount != 1 ||
+		len(completed.Fragments) != 1 ||
+		completed.Fragments[0].FragmentID != target.ID {
+		t.Fatalf("selected rewrite = %+v", completed)
+	}
+	requests := rewriter.Requests()
+	if len(requests) != 1 || requests[0].FragmentID != target.ID {
+		t.Fatalf("selected worker requests = %+v", requests)
+	}
+}
+
 func TestRewriteWarningsRejectsPhraseContentMutation(t *testing.T) {
 	fixture, handler, jobID, warning := endpointWarningFixture(t)
 	fixture.server.rewriter = &endpointTestRewriter{
@@ -402,6 +573,90 @@ func TestRewriteModelsUnavailableFailsClosed(t *testing.T) {
 	if response.Code != http.StatusServiceUnavailable {
 		t.Fatalf("status = %d, body = %s", response.Code, response.Body)
 	}
+}
+
+func endpointBookWideRewriteFixture(
+	t *testing.T,
+) (
+	endpointTestFixture,
+	http.Handler,
+	string,
+	[]FragmentResource,
+	string,
+) {
+	t.Helper()
+	now := time.Date(2026, time.August, 2, 12, 0, 0, 0, time.UTC)
+	store := bookWideRewriteTestMemoryStore(now)
+
+	tts := &endpointTestTTS{}
+	stt := &endpointTestSTT{}
+	server, err := newServerWithRepository(Dependencies{
+		TTS:             tts,
+		STT:             stt,
+		Logger:          slog.New(slog.NewTextHandler(io.Discard, nil)),
+		Now:             func() time.Time { return now },
+		WorkerTimeout:   time.Second,
+		RewriterTimeout: time.Second,
+	}, store)
+	if err != nil {
+		t.Fatalf("newServerWithRepository() error = %v", err)
+	}
+	t.Cleanup(server.Close)
+	fixture := endpointTestFixture{server: server, tts: tts, stt: stt}
+	handler := server.Handler()
+	job := store.jobs["job-1"]
+	warnings := make([]FragmentResource, 0, 2)
+	lateWarningID := ""
+	for _, fragmentID := range job.FragmentIDs {
+		fragment := store.fragments[fragmentID]
+		if fragment == nil {
+			continue
+		}
+		if fragment.Resource.Status == FragmentStatusWarning {
+			warnings = append(warnings, fragment.Resource)
+		} else if lateWarningID == "" {
+			lateWarningID = fragmentID
+		}
+	}
+
+	if len(warnings) != 2 ||
+		warnings[0].ChapterNumber != 1 ||
+		warnings[1].ChapterNumber != 2 ||
+		lateWarningID == "" {
+		t.Fatalf(
+			"book-wide fixture warnings = %+v, late warning = %q",
+			warnings,
+			lateWarningID,
+		)
+	}
+	return fixture, handler, "job-1", warnings, lateWarningID
+}
+
+func markEndpointRewriteFragmentWarning(
+	t *testing.T,
+	fixture endpointTestFixture,
+	jobID, fragmentID string,
+) {
+	t.Helper()
+	store, ok := fixture.server.store.(*memoryStore)
+	if !ok {
+		t.Fatalf("endpoint repository type = %T, want *memoryStore", fixture.server.store)
+	}
+	store.mu.Lock()
+	defer store.mu.Unlock()
+	fragment := store.fragments[fragmentID]
+	if fragment == nil {
+		t.Fatalf("fragment %q is missing", fragmentID)
+	}
+	job := store.jobs[jobID]
+	if job == nil {
+		t.Fatalf("job %q is missing", jobID)
+	}
+	fragment.Resource.Status = FragmentStatusWarning
+	fragment.Resource.WarningCode = "transcript_mismatch"
+	fragment.Resource.STTText = "Поздний warning."
+	fragment.Resource.UpdatedAt = fixture.server.now().UTC()
+	recomputeJob(job, store.fragments, fixture.server.now().UTC())
 }
 
 func waitForRewriteTask(

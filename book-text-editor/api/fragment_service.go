@@ -79,9 +79,9 @@ func (s *fragmentService) chapterSnapshot(
 }
 
 // editAndQueue atomically persists the new revision and marks the fragment as
-// pending, then hands the task to the bounded runner. If the in-memory queue is
-// full, cancelRetry restores a durable warning state with the edited text and
-// no stale audio; a later explicit retry remains safe.
+// pending, then wakes the durable generation dispatcher. If the dispatcher is
+// unavailable, cancelRetry restores a durable warning state with the edited
+// text and no stale audio; a later explicit retry remains safe.
 func (s *fragmentService) editAndQueue(
 	ctx context.Context,
 	fragmentID, text, revisionID string,

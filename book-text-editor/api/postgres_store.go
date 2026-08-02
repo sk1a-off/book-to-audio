@@ -795,6 +795,10 @@ func (s *PostgresStore) prepareRetry(
 		jobResource.Status == JobStatusRunning {
 		return jobTask{}, fmt.Errorf("%w: job is already active", errConflict)
 	}
+	if jobResource.Status == JobStatusPaused ||
+		jobResource.Status == JobStatusCanceled {
+		return jobTask{}, fmt.Errorf("%w: job is paused or canceled", errConflict)
+	}
 	var activeRewrite bool
 	if err := tx.QueryRow(
 		ctx,
@@ -919,7 +923,8 @@ func (s *PostgresStore) startTask(
 ) error {
 	tag, err := s.pool.Exec(
 		ctx,
-		`UPDATE jobs SET status = $2, updated_at = $3 WHERE id = $1`,
+		`UPDATE jobs SET status = $2, updated_at = $3
+		 WHERE id = $1 AND status IN ('queued', 'running')`,
 		task.JobID,
 		JobStatusRunning,
 		now,
@@ -928,6 +933,17 @@ func (s *PostgresStore) startTask(
 		return mapPostgresWriteError("start job task", err)
 	}
 	if tag.RowsAffected() == 0 {
+		var exists bool
+		if checkErr := s.pool.QueryRow(
+			ctx,
+			`SELECT EXISTS (SELECT 1 FROM jobs WHERE id = $1)`,
+			task.JobID,
+		).Scan(&exists); checkErr != nil {
+			return fmt.Errorf("check generation job: %w", checkErr)
+		}
+		if exists {
+			return fmt.Errorf("%w: job is not queued", errConflict)
+		}
 		return fmt.Errorf("%w: job not found", errNotFound)
 	}
 	return nil
@@ -1002,6 +1018,29 @@ func (s *PostgresStore) startFragment(
 		)
 	}
 	defer rollback(tx)
+
+	var jobStatus JobStatus
+	err = tx.QueryRow(
+		ctx,
+		`SELECT j.status
+		 FROM jobs AS j
+		 JOIN job_fragments AS f ON f.job_id = j.id
+		 WHERE f.id = $1
+		 FOR UPDATE OF j`,
+		fragmentID,
+	).Scan(&jobStatus)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return FragmentResource{}, fmt.Errorf("%w: fragment not found", errNotFound)
+	}
+	if err != nil {
+		return FragmentResource{}, fmt.Errorf("lock fragment job: %w", err)
+	}
+	if jobStatus != JobStatusRunning {
+		return FragmentResource{}, fmt.Errorf(
+			"%w: fragment job is not running",
+			errConflict,
+		)
+	}
 
 	resource, err := scanFragment(
 		tx.QueryRow(ctx, fragmentSelect+` WHERE id = $1 FOR UPDATE`, fragmentID),
@@ -1229,8 +1268,21 @@ func (s *PostgresStore) finishTask(
 	if err := lockJob(ctx, tx, jobID); err != nil {
 		return err
 	}
+	_, err = tx.Exec(ctx, `UPDATE job_fragments
+		SET status = 'pending', error_message = '', updated_at = $2
+		WHERE job_id = $1 AND status = 'generating'`, jobID, now)
+	if err != nil {
+		return mapPostgresWriteError("release orphaned generating fragments", err)
+	}
 	if err := recomputePostgresJob(ctx, tx, jobID, now); err != nil {
 		return err
+	}
+	_, err = tx.Exec(ctx, `UPDATE jobs
+		SET status = 'queued', updated_at = $2
+		WHERE id = $1 AND status = 'running' AND fragments_pending > 0`,
+		jobID, now)
+	if err != nil {
+		return mapPostgresWriteError("requeue remaining generation fragments", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("commit finish task transaction: %w", err)
@@ -1809,6 +1861,9 @@ func recomputePostgresJob(
 			fragments_warnings = counts.warnings,
 			fragments_failed = counts.failed,
 			status = CASE
+				WHEN jobs.status IN ('paused', 'canceled') THEN jobs.status
+				WHEN jobs.status = 'queued'
+					AND NOT counts.active AND counts.pending > 0 THEN 'queued'
 				WHEN counts.active OR counts.pending > 0 THEN 'running'
 				WHEN counts.failed > 0 THEN 'failed'
 				WHEN counts.warnings > 0 THEN 'completed_with_warnings'

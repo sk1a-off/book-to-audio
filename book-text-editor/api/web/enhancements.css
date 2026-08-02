@@ -9,44 +9,6 @@
   --studio-accent: #3563e9;
 }
 
-body {
-  background:
-    radial-gradient(circle at 8% 6%, rgba(53, 99, 233, 0.1), transparent 24rem),
-    radial-gradient(circle at 92% 18%, rgba(19, 121, 91, 0.08), transparent 24rem),
-    #f5f8fc;
-}
-
-.site-header {
-  backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.86);
-  border-bottom: 1px solid var(--studio-border);
-}
-
-.hero,
-.panel,
-.jobs-card,
-.job-shell,
-.warnings-section,
-.fragment-studio {
-  box-shadow: var(--studio-shadow);
-}
-
-.panel,
-.jobs-card,
-.fragment-card,
-.chapter-download-link {
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-}
-
-.panel:hover,
-.jobs-card:hover,
-.fragment-card:hover,
-.chapter-download-link:hover {
-  transform: translateY(-2px);
-  border-color: rgba(53, 99, 233, 0.28);
-  box-shadow: 0 16px 36px rgba(16, 42, 67, 0.11);
-}
-
 .button:focus-visible,
 .icon-button:focus-visible,
 .copy-button:focus-visible,
@@ -470,14 +432,17 @@ audio:focus-visible {
 /* Lightweight chapter overview: fragment editors moved to a separate page. */
 .chapter-overview-card {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
   align-items: center;
+  min-width: 0;
   gap: 0.9rem;
 }
 .chapter-card-actions {
   display: flex;
+  grid-column: 2;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  min-width: 0;
   gap: 0.55rem;
 }
 .chapter-review-link,
@@ -488,6 +453,7 @@ audio:focus-visible {
   padding: 0.45rem 0.75rem;
   border-radius: 0.7rem;
   font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
 }
 .chapter-review-link {
@@ -503,7 +469,7 @@ audio:focus-visible {
 }
 @media (max-width: 720px) {
   .chapter-overview-card { grid-template-columns: auto minmax(0, 1fr); }
-  .chapter-card-actions { grid-column: 1 / -1; justify-content: flex-start; }
+  .chapter-card-actions { grid-column: 1 / -1; }
 }
 
 
