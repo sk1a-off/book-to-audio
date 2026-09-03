@@ -4,6 +4,8 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"unicode"
+	"unicode/utf8"
 )
 
 func TestNewRejectsInvalidLimit(t *testing.T) {
@@ -13,6 +15,137 @@ func TestNewRejectsInvalidLimit(t *testing.T) {
 			t.Fatalf("New(%d) returned nil error", limit)
 		}
 	}
+}
+
+func TestNewWithProfileRejectsUnknownProfile(t *testing.T) {
+	t.Parallel()
+	if _, err := NewWithProfile(Profile("future"), 60); err == nil {
+		t.Fatal("NewWithProfile(future) error = nil")
+	}
+}
+
+func TestProductionDefaultRemainsLegacyV1(t *testing.T) {
+	t.Parallel()
+	segmenter, err := New(60)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if segmenter.Profile() != LegacyV1 {
+		t.Fatalf("Profile() = %q, want %q", segmenter.Profile(), LegacyV1)
+	}
+	if got, want := segmenter.Split("Первая строка.\nВторая строка."),
+		[]string{"Первая строка. Вторая строка."}; !slices.Equal(got, want) {
+		t.Fatalf("legacy Split() = %q, want %q", got, want)
+	}
+}
+
+func TestProsodyV2PreservesStructuralLineBoundaries(t *testing.T) {
+	t.Parallel()
+	segmenter, err := NewWithProfile(ProsodyV2, 60)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := "Глава 7\nПервый снег выпал ночью. К утру город стал неузнаваем."
+	want := []string{
+		"Глава 7",
+		"Первый снег выпал ночью. К утру город стал неузнаваем.",
+	}
+	if got := segmenter.Split(text); !slices.Equal(got, want) {
+		t.Fatalf("Split() = %q, want %q", got, want)
+	}
+}
+
+func TestProsodyV2ProtectsInitialsAndRussianAbbreviations(t *testing.T) {
+	t.Parallel()
+	segmenter, err := NewWithProfile(ProsodyV2, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		text string
+		want []string
+	}{
+		{
+			text: "А. С. Пушкин приехал. Потом уехал.",
+			want: []string{"А. С. Пушкин приехал.", "Потом уехал."},
+		},
+		{
+			text: "См. рис. 3 в книге. Потом продолжим.",
+			want: []string{"См. рис. 3 в книге.", "Потом продолжим."},
+		},
+		{
+			text: "Это важно, т. е. отступать нельзя. Потом продолжим.",
+			want: []string{"Это важно, т. е. отступать нельзя.", "Потом продолжим."},
+		},
+		{
+			text: "Он взял хлеб и т. д. Потом ушёл.",
+			want: []string{"Он взял хлеб и т. д.", "Потом ушёл."},
+		},
+	}
+	for _, test := range tests {
+		if got := segmenter.Split(test.text); !slices.Equal(got, test.want) {
+			t.Errorf("Split(%q) = %q, want %q", test.text, got, test.want)
+		}
+	}
+}
+
+func TestProsodyV2HardLimitUsesClauseThenDeterministicForcedSplit(t *testing.T) {
+	t.Parallel()
+	segmenter, err := NewWithProfile(ProsodyV2, 60)
+	if err != nil {
+		t.Fatal(err)
+	}
+	clause := strings.Repeat("слово ", 70) + ", " + strings.Repeat("дальше ", 70)
+	result := segmenter.SplitDetailed(strings.TrimSpace(clause))
+	if len(result.Segments) < 2 || len(result.Warnings) != 1 {
+		t.Fatalf("clause result = %#v", result)
+	}
+	if result.Warnings[0].Kind != "hard_limit_clause_split" {
+		t.Fatalf("clause warning = %#v", result.Warnings[0])
+	}
+	assertWithinOmniVoiceLimits(t, result.Segments)
+
+	forced := strings.TrimSpace(strings.Repeat("слово ", OmniVoiceHardMaxWords+5))
+	result = segmenter.SplitDetailed(forced)
+	if len(result.Segments) != 2 || len(result.Warnings) != 1 ||
+		result.Warnings[0].Kind != "hard_limit_forced_split" {
+		t.Fatalf("forced result = %#v", result)
+	}
+	assertWithinOmniVoiceLimits(t, result.Segments)
+}
+
+func TestProsodyV2HardCharacterLimitDoesNotDropLongToken(t *testing.T) {
+	t.Parallel()
+	segmenter, err := NewWithProfile(ProsodyV2, 60)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := strings.Repeat("я", OmniVoiceHardMaxRunes+7)
+	result := segmenter.SplitDetailed(source)
+	if len(result.Segments) != 2 || strings.Join(result.Segments, "") != source {
+		t.Fatalf("long token was not conserved: segment lengths=%v", runeLengths(result.Segments))
+	}
+	assertWithinOmniVoiceLimits(t, result.Segments)
+}
+
+func assertWithinOmniVoiceLimits(t *testing.T, segments []string) {
+	t.Helper()
+	for index, value := range segments {
+		if words := countWords(value); words > OmniVoiceHardMaxWords {
+			t.Errorf("segment[%d] words=%d", index, words)
+		}
+		if runes := utf8.RuneCountInString(value); runes > OmniVoiceHardMaxRunes {
+			t.Errorf("segment[%d] runes=%d", index, runes)
+		}
+	}
+}
+
+func runeLengths(values []string) []int {
+	result := make([]int, len(values))
+	for index, value := range values {
+		result[index] = utf8.RuneCountInString(value)
+	}
+	return result
 }
 
 func TestSplitDetailed(t *testing.T) {
@@ -175,6 +308,36 @@ func FuzzSplitPreservesSourceText(f *testing.F) {
 			t.Fatalf("reconstructed text = %q, want %q", got, want)
 		}
 	})
+}
+
+func FuzzProsodyV2ConservesNonWhitespaceAndHardLimits(f *testing.F) {
+	f.Add("Глава 7\nПервый снег выпал ночью. К утру город стал неузнаваем.")
+	f.Add("А. С. Пушкин открыл книгу. См. рис. 3.")
+	f.Add(strings.Repeat("длинное ", OmniVoiceHardMaxWords+5))
+
+	f.Fuzz(func(t *testing.T, text string) {
+		if strings.Contains(text, sceneBreak) {
+			t.Skip()
+		}
+		segmenter, err := NewWithProfile(ProsodyV2, 60)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result := segmenter.SplitDetailed(text)
+		got := strings.Map(removeWhitespace, strings.Join(result.Segments, ""))
+		want := strings.Map(removeWhitespace, text)
+		if got != want {
+			t.Fatalf("non-whitespace text changed: got=%q want=%q", got, want)
+		}
+		assertWithinOmniVoiceLimits(t, result.Segments)
+	})
+}
+
+func removeWhitespace(character rune) rune {
+	if unicode.IsSpace(character) || character == '\u200b' || character == '\ufeff' {
+		return -1
+	}
+	return character
 }
 
 func normalizeWithoutSceneBreaks(text string) string {

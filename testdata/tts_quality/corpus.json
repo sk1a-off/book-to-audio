@@ -1,0 +1,350 @@
+{
+  "schema_version": "tts-quality-corpus-v1",
+  "corpus_version": "1.1.0",
+  "language": "ru-RU",
+  "description": "Контролируемый корпус для регрессии русской художественной long-form TTS. source_text является каноническим и не должен изменяться или теряться.",
+  "cases": [
+    {
+      "id": "prose-long-period",
+      "category": "prose",
+      "block_type": "paragraph",
+      "source_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+      "tags": ["narration", "long-sentence", "paragraph"],
+      "review_focus": ["naturalness", "rhythm", "paragraph-intonation"],
+      "text_preserved": true
+    },
+    {
+      "id": "dialogue-question-answer",
+      "category": "dialogue",
+      "block_type": "dialogue",
+      "source_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+      "tags": ["direct-speech", "question", "author-remark"],
+      "review_focus": ["dialogue-expressiveness", "question-contour", "speaker-stability"],
+      "text_preserved": true
+    },
+    {
+      "id": "question-and-exclamation",
+      "category": "question_exclamation",
+      "block_type": "dialogue",
+      "source_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+      "tags": ["question", "exclamation", "interrobang"],
+      "review_focus": ["question-contour", "energy", "non-caricature-emotion"],
+      "text_preserved": true
+    },
+    {
+      "id": "ellipsis-interruption",
+      "category": "ellipsis",
+      "block_type": "dialogue",
+      "source_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+      "tags": ["ellipsis", "interruption", "dialogue"],
+      "review_focus": ["hesitation", "pause-duration", "phrase-ending"],
+      "text_preserved": true
+    },
+    {
+      "id": "nested-russian-quotes",
+      "category": "nested_quotes",
+      "block_type": "sentence",
+      "source_text": "«Он сказал: „Я вернусь до рассвета“, — и закрыл дверь», — вспоминала Мария.",
+      "tags": ["quotes", "author-remark"],
+      "review_focus": ["punctuation-interpretation", "pause-duration", "naturalness"],
+      "text_preserved": true
+    },
+    {
+      "id": "initials-spaced-and-compact",
+      "category": "initials",
+      "block_type": "paragraph",
+      "source_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+      "tags": ["initials", "sentence-boundary"],
+      "review_focus": ["segmentation", "pronunciation", "text-conservation"],
+      "text_preserved": true
+    },
+    {
+      "id": "abbreviations-context",
+      "category": "abbreviations",
+      "block_type": "paragraph",
+      "source_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+      "tags": ["abbreviations", "period", "context"],
+      "review_focus": ["segmentation", "normalization", "pronunciation"],
+      "text_preserved": true
+    },
+    {
+      "id": "dates-numeric-and-words",
+      "category": "dates",
+      "block_type": "paragraph",
+      "source_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+      "tags": ["date", "year", "case-agreement"],
+      "review_focus": ["normalization", "case-agreement", "pronunciation"],
+      "text_preserved": true
+    },
+    {
+      "id": "numbers-gender-and-ordinal",
+      "category": "numbers",
+      "block_type": "paragraph",
+      "source_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+      "tags": ["cardinal", "ordinal", "gender", "case-agreement"],
+      "review_focus": ["normalization", "morphology", "pronunciation"],
+      "text_preserved": true
+    },
+    {
+      "id": "numbers-decimals-and-grouping",
+      "category": "numbers",
+      "block_type": "paragraph",
+      "source_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+      "tags": ["decimal", "grouped-number", "cardinal"],
+      "review_focus": ["normalization", "pronunciation", "rhythm"],
+      "text_preserved": true
+    },
+    {
+      "id": "units-and-percent",
+      "category": "units",
+      "block_type": "paragraph",
+      "source_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+      "tags": ["units", "percent", "abbreviation"],
+      "review_focus": ["normalization", "case-agreement", "pronunciation"],
+      "text_preserved": true
+    },
+    {
+      "id": "money-rubles-and-dollars",
+      "category": "money",
+      "block_type": "sentence",
+      "source_text": "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек.",
+      "tags": ["money", "currency-symbol", "case-agreement"],
+      "review_focus": ["normalization", "pronunciation", "pause-duration"],
+      "text_preserved": true
+    },
+    {
+      "id": "roman-book-and-chapter",
+      "category": "roman_numerals",
+      "block_type": "heading",
+      "source_text": "Книга XV. Глава XIV",
+      "tags": ["roman-numeral", "heading", "ordinal"],
+      "review_focus": ["context-aware-normalization", "heading-prosody"],
+      "text_preserved": true
+    },
+    {
+      "id": "roman-century-and-rulers",
+      "category": "roman_numerals",
+      "block_type": "paragraph",
+      "source_text": "В XVIII веке Пётр I уже стал частью истории, а о встрече Екатерины II с наследием Людовика XIV спорили учёные.",
+      "tags": ["roman-numeral", "century", "person-name"],
+      "review_focus": ["context-aware-normalization", "ordinal-case", "pronunciation"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-zamok",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "tags": ["homograph", "stress", "замок"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-muka",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "tags": ["homograph", "stress", "мука"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-stoit",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+      "tags": ["homograph", "stress", "стоит"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-plachu",
+      "category": "homographs",
+      "block_type": "dialogue",
+      "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "tags": ["homograph", "stress", "плачу"],
+      "review_focus": ["stress-accuracy", "dialogue-expressiveness"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-atlas",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+      "tags": ["homograph", "stress", "атлас"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-organ",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "tags": ["homograph", "stress", "орган"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-strelki",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "tags": ["homograph", "stress", "стрелки"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-doroga",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+      "tags": ["homograph", "stress", "дорога"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-uzhe",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+      "tags": ["homograph", "stress", "уже"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "homograph-belki",
+      "category": "homographs",
+      "block_type": "sentence",
+      "source_text": "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.",
+      "tags": ["homograph", "stress", "белки"],
+      "review_focus": ["stress-accuracy", "context-use"],
+      "text_preserved": true
+    },
+    {
+      "id": "names-russian-and-geographic",
+      "category": "names",
+      "block_type": "paragraph",
+      "source_text": "Всеволод Мейерхольд писал из Санкт-Петербурга Александре Коллонтай, а Николай Рерих отвечал ему из Урусвати.",
+      "tags": ["person-name", "geographic-name", "dictionary-candidate"],
+      "review_focus": ["pronunciation", "stress-accuracy", "speaker-stability"],
+      "text_preserved": true
+    },
+    {
+      "id": "foreign-words-code-switching",
+      "category": "foreign_words",
+      "block_type": "sentence",
+      "source_text": "В письме он упомянул rendez-vous, саундтрек из Interstellar и новый release проекта Open Source.",
+      "tags": ["foreign-word", "code-switching"],
+      "review_focus": ["pronunciation", "rhythm", "voice-stability"],
+      "text_preserved": true
+    },
+    {
+      "id": "fantasy-names-dictionary",
+      "category": "fantasy_names",
+      "block_type": "paragraph",
+      "source_text": "Эйлар Венн покинул Ксар-Нор и направился к перевалу Шаэррис, где его ждала Иараэль из дома Тхорн.",
+      "tags": ["fantasy-name", "dictionary-candidate"],
+      "review_focus": ["pronunciation", "consistency", "dictionary-override"],
+      "text_preserved": true
+    },
+    {
+      "id": "poetry-stanza",
+      "category": "poetry",
+      "block_type": "poetry",
+      "source_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+      "tags": ["poetry", "line-break", "stanza"],
+      "review_focus": ["line-rhythm", "pause-duration", "non-prose-prosody"],
+      "text_preserved": true
+    },
+    {
+      "id": "epigraph-attribution",
+      "category": "epigraph",
+      "block_type": "epigraph",
+      "source_text": "Дорогу осилит идущий.\nИз старой рукописи",
+      "tags": ["epigraph", "attribution", "line-break"],
+      "review_focus": ["epigraph-prosody", "attribution-pause", "text-conservation"],
+      "text_preserved": true
+    },
+    {
+      "id": "heading-book-fifteen",
+      "category": "heading",
+      "block_type": "heading",
+      "source_text": "Книга XV",
+      "tags": ["heading", "no-final-punctuation", "roman-numeral"],
+      "review_focus": ["heading-prosody", "normalization", "pause-duration"],
+      "text_preserved": true
+    },
+    {
+      "id": "no-final-punctuation-caption",
+      "category": "no_final_punctuation",
+      "block_type": "paragraph",
+      "source_text": "Для нас обоих",
+      "tags": ["no-final-punctuation", "short-block"],
+      "review_focus": ["preservation", "non-error-handling", "phrase-ending"],
+      "text_preserved": true
+    },
+    {
+      "id": "long-atomic-sentence",
+      "category": "very_long_sentence",
+      "block_type": "sentence",
+      "source_text": "Когда поезд наконец вышел из тумана и медленно потянулся вдоль берега, где мокрые сосны клонились к воде, а редкие огни рыбацких домов отражались в чёрной глади, Алексей, который всю ночь не смыкал глаз и всё пытался восстановить последовательность событий вчерашнего вечера, вдруг понял, что оставленная на столе записка была не прощанием, как он сначала решил, и не предупреждением, как предположил проводник, а просьбой вернуться до рассвета в старый дом у станции, найти в библиотеке книгу без названия, открыть её на странице с засушенным листом рябины и прочитать вслух единственную подчёркнутую строку, после чего следовало немедленно погасить лампу, закрыть окно, не отвечать на стук и ждать, пока на башне не пробьют четыре часа, потому что только тогда становилось ясно, кому на самом деле предназначалось письмо и почему его нельзя было показывать никому из тех, кто садился в поезд после полуночи.",
+      "tags": ["oversized", "single-sentence", "forced-split"],
+      "review_focus": ["text-conservation", "deterministic-split", "safe-boundary"],
+      "text_preserved": true
+    },
+    {
+      "id": "very-long-semantic-paragraph",
+      "category": "very_long_paragraph",
+      "block_type": "paragraph",
+      "source_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+      "tags": ["long-paragraph", "multi-sentence", "semantic-context"],
+      "review_focus": ["paragraph-intonation", "context-continuity", "chunk-transitions"],
+      "text_preserved": true
+    },
+    {
+      "id": "emotional-dialogue-controlled",
+      "category": "emotional_dialogue",
+      "block_type": "dialogue",
+      "source_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+      "tags": ["emotion", "dialogue", "energy-transition"],
+      "review_focus": ["expressiveness", "dynamic-range", "listening-fatigue"],
+      "text_preserved": true
+    },
+    {
+      "id": "neutral-narration-weather",
+      "category": "neutral_narration",
+      "block_type": "paragraph",
+      "source_text": "Температура воздуха постепенно снижалась. К полуночи дождь прекратился, дорога подсохла, и дежурная смена приступила к обычному обходу территории.",
+      "tags": ["neutral", "narration"],
+      "review_focus": ["naturalness", "stable-energy", "speaking-rate"],
+      "text_preserved": true
+    },
+    {
+      "id": "dialogue-with-author-words",
+      "category": "dialogue_author_words",
+      "block_type": "dialogue",
+      "source_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+      "tags": ["direct-speech", "author-words", "quiet-intent"],
+      "review_focus": ["prosodic-continuity", "pause-duration", "dialogue-expressiveness"],
+      "text_preserved": true
+    },
+    {
+      "id": "chapter-transition-scene",
+      "category": "chapter_transition",
+      "block_type": "chapter_transition",
+      "source_text": "Глава 7\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "tags": ["chapter", "heading", "transition"],
+      "review_focus": ["chapter-pause", "heading-prosody", "transition-naturalness"],
+      "text_preserved": true
+    },
+    {
+      "id": "heading-chapter-seven-words",
+      "category": "heading",
+      "block_type": "chapter_transition",
+      "source_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "tags": ["chapter", "heading", "normalized-ordinal", "adaptive-pause"],
+      "review_focus": ["chapter-pause", "heading-prosody", "transition-naturalness"],
+      "text_preserved": true
+    }
+  ]
+}

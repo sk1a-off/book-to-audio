@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:dates-numeric-and-words",
+  "case_id": "dates-numeric-and-words",
+  "corpus_version": "1.1.0",
+  "source_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+  "tts_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "dates-numeric-and-words.wav",
+    "sha256": "1687e0100263231da152f8cc479ec9e11efb98c1eccdbff0cca80dfc511d39e5",
+    "pcm_sha256": "4cb6c1bad4b39e9e25a41569b57d84a18ae992e8adb2893423f18aba5c1d4da9",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 15.600000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 11.791243,
+    "audio_seconds": 15.600000,
+    "rtf": 0.755848910,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 11791,
+    "audio_duration_ms": 15600,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "5e821da55e7b43aea12b06c16c2eda68",
+      "text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+      "seed": 42,
+      "pcm_sha256": "4cb6c1bad4b39e9e25a41569b57d84a18ae992e8adb2893423f18aba5c1d4da9",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 15600,
+      "generation_duration_ms": 11791,
+      "warnings": []
+    }
+  ]
+}

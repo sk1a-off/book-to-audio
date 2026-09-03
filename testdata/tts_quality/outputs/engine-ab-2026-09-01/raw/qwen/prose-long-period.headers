@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 05:43:33 GMT
+server: uvicorn
+x-tts-backend: qwen3-tts
+x-tts-elapsed-seconds: 10.006170
+x-tts-queue-wait-seconds: 0.000004
+x-tts-audio-sha256: 0f3c0f85cfc42bef76e170f0ab77c3f5bc23d11153869dd4b7d3bb2c3f56b7c0
+x-tts-sample-rate: 24000
+x-tts-item-id: 968a3adb37974d269d9c3cc65e1240a8
+content-length: 637484
+content-type: audio/wav
+x-request-id: 4f4176fd8a254fb1bb33edc301d9618d
+

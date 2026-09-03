@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-raw-v1:prose-long-period",
+  "case_id": "prose-long-period",
+  "corpus_version": "1.1.0",
+  "source_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+  "tts_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "prose-long-period.wav",
+    "sha256": "0f3c0f85cfc42bef76e170f0ab77c3f5bc23d11153869dd4b7d3bb2c3f56b7c0",
+    "pcm_sha256": "39f34b87893228b06fd8900819c692426b0828ea809091f76ab05d1fe050a2bd",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 13.280000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 10.006170,
+    "audio_seconds": 13.280000,
+    "rtf": 0.753476657,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 10006,
+    "audio_duration_ms": 13280,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "4f4176fd8a254fb1bb33edc301d9618d",
+      "text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+      "seed": 42,
+      "pcm_sha256": "39f34b87893228b06fd8900819c692426b0828ea809091f76ab05d1fe050a2bd",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 13280,
+      "generation_duration_ms": 10006,
+      "warnings": []
+    }
+  ]
+}

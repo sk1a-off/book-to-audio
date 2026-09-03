@@ -1,0 +1,19 @@
+{
+  "schema_version": "tts-quality-expressiveness-preference-v1",
+  "session_id": "expressiveness-class-temperature-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "А выразительнее не появилось никаких дефектов и лучше слушать А",
+  "variable": "class_temperature",
+  "reveal": {
+    "A": 0.0,
+    "B": 0.5,
+    "C": 0.2
+  },
+  "preferred_label": "A",
+  "preferred_value": 0.0,
+  "defects_in_preferred": false,
+  "long_listening_preference": "A",
+  "verdict": "current_greedy_baseline_wins",
+  "decision": "Keep class_temperature at 0. Increasing token sampling randomness did not improve perceived expressiveness and is not promoted to production."
+}

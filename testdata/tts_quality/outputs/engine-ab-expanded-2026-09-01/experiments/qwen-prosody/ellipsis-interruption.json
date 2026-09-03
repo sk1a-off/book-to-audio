@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:ellipsis-interruption",
+  "case_id": "ellipsis-interruption",
+  "corpus_version": "1.1.0",
+  "source_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+  "tts_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "ellipsis-interruption.wav",
+    "sha256": "35360efe0c3d45ce9f90a2b6d219d85c0fcd35ff99ef0926a80b9c4828bca277",
+    "pcm_sha256": "36420d7f1afaea6d575e93a4406f0786e8fe84e1c22e7a397a8da44b2b5e65bc",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 6.240042,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 4.748979,
+    "audio_seconds": 6.240042,
+    "rtf": 0.761049204,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 4749,
+    "audio_duration_ms": 6240,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "319c807ed21c4dd795ac6ee17e81a930",
+      "text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+      "seed": 42,
+      "pcm_sha256": "36420d7f1afaea6d575e93a4406f0786e8fe84e1c22e7a397a8da44b2b5e65bc",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 6240,
+      "generation_duration_ms": 4749,
+      "warnings": []
+    }
+  ]
+}

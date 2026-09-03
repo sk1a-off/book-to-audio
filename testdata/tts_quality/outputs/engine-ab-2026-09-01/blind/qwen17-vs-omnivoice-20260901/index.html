@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Слепое сравнение TTS</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; background: #101318; color: #edf2f7; }
+    body { margin: 0; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }
+    header, article { background: #181d25; border: 1px solid #2a3340; border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+    h1, h2, h3 { margin-top: 0; }
+    .muted { color: #aab4c2; }
+    .source { line-height: 1.6; white-space: pre-wrap; padding: 14px; background: #11161d; border-radius: 10px; }
+    .samples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .sample { padding: 14px; background: #11161d; border-radius: 12px; }
+    audio { width: 100%; }
+    fieldset { border: 0; padding: 14px 0 0; display: flex; flex-wrap: wrap; gap: 12px 18px; }
+    label { cursor: pointer; }
+    textarea { box-sizing: border-box; width: 100%; min-height: 72px; margin-top: 12px; padding: 10px; border-radius: 10px; border: 1px solid #354152; background: #0f141a; color: inherit; }
+    button { border: 0; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; background: #67e8b2; color: #092217; }
+    #status { min-height: 1.5em; color: #aab4c2; }
+    @media (max-width: 680px) { .samples { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-session="qwen17-vs-omnivoice-20260901">
+<main>
+  <header>
+    <p class="muted">Внутренняя субъективная оценка · не официальный MOS</p>
+    <h1>Слепое сравнение TTS</h1>
+    <p>Названия алгоритмов скрыты. Прослушайте A и B в одинаковых наушниках и громкости. Оценивайте естественность, произношение, интонацию и целостность фразы.</p>
+  </header>
+  <form id="rating-form">
+  
+    <article data-case-id="prose-long-period">
+      <p class="muted">Случай 1 из 4</p>
+      <h2>prose-long-period</h2>
+      <p class="source">К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/prose-long-period/A.wav"></audio>
+          <p class="muted">13.28 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/prose-long-period/B.wav"></audio>
+          <p class="muted">13.16 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="prose-long-period-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="prose-long-period-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="prose-long-period-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="prose-long-period-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="prose-long-period-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="dialogue-question-answer">
+      <p class="muted">Случай 2 из 4</p>
+      <h2>dialogue-question-answer</h2>
+      <p class="source">— Ты действительно собираешься туда идти? — спросила Анна.
+— А у меня есть выбор? — ответил он.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/dialogue-question-answer/A.wav"></audio>
+          <p class="muted">5.50 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/dialogue-question-answer/B.wav"></audio>
+          <p class="muted">5.92 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="dialogue-question-answer-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="dialogue-question-answer-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="dialogue-question-answer-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="dialogue-question-answer-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="dialogue-question-answer-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="heading-chapter-seven-words">
+      <p class="muted">Случай 3 из 4</p>
+      <h2>heading-chapter-seven-words</h2>
+      <p class="source">Глава седьмая.
+
+Первый снег выпал ночью. К утру город стал неузнаваем.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/heading-chapter-seven-words/A.wav"></audio>
+          <p class="muted">4.36 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/heading-chapter-seven-words/B.wav"></audio>
+          <p class="muted">4.96 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="heading-chapter-seven-words-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="heading-chapter-seven-words-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="heading-chapter-seven-words-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="heading-chapter-seven-words-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="heading-chapter-seven-words-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-zamok">
+      <p class="muted">Случай 4 из 4</p>
+      <h2>homograph-zamok</h2>
+      <p class="source">Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-zamok/A.wav"></audio>
+          <p class="muted">5.20 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-zamok/B.wav"></audio>
+          <p class="muted">5.60 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-zamok-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-zamok-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+  </form>
+  <button id="download" type="button">Сохранить оценки JSON</button>
+  <p id="status" role="status" aria-live="polite"></p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const form = document.getElementById("rating-form");
+  const status = document.getElementById("status");
+  const sessionID = document.body.dataset.session;
+  const storageKey = "tts-quality-blind:" + sessionID;
+  const articles = Array.from(form.querySelectorAll("article[data-case-id]"));
+
+  function snapshot() {
+    const state = {};
+    for (const article of articles) {
+      const caseID = article.dataset.caseId;
+      const selected = article.querySelector("input[type=radio]:checked");
+      state[caseID] = {
+        verdict: selected ? selected.value : "",
+        notes: article.querySelector("textarea").value,
+      };
+    }
+    return state;
+  }
+
+  function persist() {
+    localStorage.setItem(storageKey, JSON.stringify(snapshot()));
+    status.textContent = "Черновик сохранён в браузере.";
+  }
+
+  function restore() {
+    let state;
+    try { state = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch (_) { state = {}; }
+    for (const article of articles) {
+      const saved = state[article.dataset.caseId];
+      if (!saved) continue;
+      const radio = Array.from(article.querySelectorAll("input[type=radio]"))
+        .find(input => input.value === saved.verdict);
+      if (radio) radio.checked = true;
+      article.querySelector("textarea").value = saved.notes || "";
+    }
+  }
+
+  form.addEventListener("input", persist);
+  restore();
+  document.getElementById("download").addEventListener("click", () => {
+    const state = snapshot();
+    const missing = articles.filter(article => !state[article.dataset.caseId].verdict);
+    if (missing.length) {
+      status.textContent = "Оцените все случаи. Осталось: " + missing.length + ".";
+      missing[0].scrollIntoView({behavior: "smooth", block: "center"});
+      return;
+    }
+    const cases = articles.map(article => {
+      const caseID = article.dataset.caseId;
+      const saved = state[caseID];
+      const preferred = saved.verdict === "prefer_a" ? "A" : saved.verdict === "prefer_b" ? "B" : null;
+      return {
+        case_id: caseID,
+        preferred_label: preferred,
+        verdict: preferred ? "preference" : saved.verdict,
+        notes: saved.notes,
+      };
+    });
+    const result = {
+      schema_version: "tts-quality-blind-session-v1",
+      session_id: sessionID,
+      rated_at: new Date().toISOString(),
+      method: "single-listener blind A/B preference; not MOS",
+      reveal_mapping_path: "reveal.json",
+      cases,
+    };
+    const blob = new Blob([JSON.stringify(result, null, 2) + "\n"], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ratings-" + sessionID + ".json";
+    link.click();
+    URL.revokeObjectURL(url);
+    status.textContent = "Оценки сохранены. Reveal mapping пока не открывайте.";
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "schema_version": "tts-quality-experiment-v1",
+  "experiment_id": "omnivoice-semantic-gateway-candidate-20260902",
+  "started_at": "2026-09-02T09:14:29.43427509Z",
+  "completed_at": "2026-09-02T09:14:32.491291304Z",
+  "corpus_version": "1.1.0",
+  "corpus_path": "/quality/corpus.json",
+  "case_ids": [
+    "homograph-stoit",
+    "homograph-strelki",
+    "homograph-doroga",
+    "homograph-belki"
+  ],
+  "reference_path": "/voice_data/voice_reference_omnivoice.flac",
+  "reference_text_path": "/voice_data/transcription.txt",
+  "reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "reference_text_sha256": "b7cf7809fe734e7bc5be63271032f63df7e68e748db3454b0f03dda0fe3c2385",
+  "reference_text_file_sha256": "b30f8cf08667fef20430ee935a2884a44067366a921154dde79ea097970374ce",
+  "seed": 42,
+  "silence_threshold_dbfs": -50,
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "segmenter_version": "legacy-v1",
+  "segmenter_max_words": 60,
+  "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+  "text_overrides_path": "/quality/experiments/stress-overrides-semantic-gateway-gemini-fast-v2.json",
+  "text_overrides_sha256": "3b1271b6effae4d8b746fcd37e7d348d7c20a44c7c8cc08acc701eb3e82b39c4",
+  "allow_dense_stress_overrides": false,
+  "russian_text": {
+    "SelectiveStress": false,
+    "NormalizeMorphology": false
+  },
+  "sample_manifests": [
+    "homograph-stoit.json",
+    "homograph-strelki.json",
+    "homograph-doroga.json",
+    "homograph-belki.json"
+  ],
+  "total_audio_seconds": 18.8,
+  "total_wall_seconds": 3.057016214
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "qwen17-vs-omnivoice-20260901",
+  "rated_at": "2026-09-01T06:09:48Z",
+  "method": "single-listener blind A/B preference; not MOS",
+  "reveal_mapping_path": "../outputs/engine-ab-2026-09-01/blind/qwen17-vs-omnivoice-20260901/reveal.json",
+  "cases": [
+    {
+      "case_id": "prose-long-period",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": ""
+    },
+    {
+      "case_id": "dialogue-question-answer",
+      "preferred_label": null,
+      "verdict": "tie",
+      "notes": ""
+    },
+    {
+      "case_id": "heading-chapter-seven-words",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": ""
+    },
+    {
+      "case_id": "homograph-zamok",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": ""
+    }
+  ]
+}

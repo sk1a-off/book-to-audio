@@ -1,0 +1,17 @@
+{
+  "schema_version": "tts-quality-references-v1",
+  "references": [
+    {
+      "reference_id": "omnivoice-priest-v1",
+      "relative_path_from_repository_root": "data/voice_reference_omnivoice.flac",
+      "sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+      "duration_seconds": 8.95,
+      "sample_rate_hz": 24000,
+      "channels": 1,
+      "codec": "flac",
+      "transcript_relative_path_from_repository_root": "data/transcription.txt",
+      "transcript_sha256": "b30f8cf08667fef20430ee935a2884a44067366a921154dde79ea097970374ce",
+      "quality_review_status": "not_yet_formally_rated"
+    }
+  ]
+}

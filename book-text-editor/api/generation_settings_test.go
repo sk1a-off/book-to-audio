@@ -39,6 +39,13 @@ func TestDecodeGenerationSettings(t *testing.T) {
 		if want := defaultGenerationSettings(); got != want {
 			t.Fatalf("settings = %+v, want %+v", got, want)
 		}
+		if !got.RussianText.SelectiveStress ||
+			!got.RussianText.NormalizeMorphology {
+			t.Fatalf(
+				"russian text defaults = %+v, want validated v3 features enabled",
+				got.RussianText,
+			)
+		}
 	})
 
 	t.Run("custom values preserve explicit zero and false", func(t *testing.T) {
@@ -68,6 +75,10 @@ func TestDecodeGenerationSettings(t *testing.T) {
 				"temperature":0,
 				"vad_filter":true,
 				"word_timestamps":false
+			},
+			"russian_text":{
+				"selective_stress":true,
+				"normalize_morphology":true
 			},
 			"automatic_warning_retries":0
 		}`
@@ -103,6 +114,11 @@ func TestDecodeGenerationSettings(t *testing.T) {
 				Temperature:    0,
 				VADFilter:      true,
 				WordTimestamps: false,
+			},
+			RussianText: RussianTextGenerationSettings{
+				Version:             "ru-selective-morph-v3",
+				SelectiveStress:     true,
+				NormalizeMorphology: true,
 			},
 			AutomaticWarningRetries: 0,
 		}

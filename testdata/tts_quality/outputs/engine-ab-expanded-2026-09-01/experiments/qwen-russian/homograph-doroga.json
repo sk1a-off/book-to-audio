@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-doroga",
+  "case_id": "homograph-doroga",
+  "corpus_version": "1.1.0",
+  "source_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+  "tts_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "homograph-doroga.wav",
+    "sha256": "7a34023e727c1fa9e816e74f6e6841bfe4718c18eaba4c4763b8eba51876a15d",
+    "pcm_sha256": "092e58d3b10bdcf4dab2694994275fca24626803d4fcd6f52e3c60de107e3e3d",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.240000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 3.329545,
+    "audio_seconds": 4.240000,
+    "rtf": 0.785270047,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 3330,
+    "audio_duration_ms": 4240,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "90cfd00429ce4a56b6f6f82c3461625a",
+      "text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+      "seed": 42,
+      "pcm_sha256": "092e58d3b10bdcf4dab2694994275fca24626803d4fcd6f52e3c60de107e3e3d",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 4240,
+      "generation_duration_ms": 3330,
+      "warnings": []
+    }
+  ]
+}

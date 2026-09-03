@@ -220,6 +220,39 @@ func (s *PostgresStore) voice(
 	return resource, true, nil
 }
 
+func (s *PostgresStore) voicePayload(
+	ctx context.Context,
+	id string,
+) (voicePayload, bool, error) {
+	row := s.pool.QueryRow(
+		ctx,
+		voicePayloadSelect+` WHERE id = $1`,
+		id,
+	)
+	var payload voicePayload
+	err := row.Scan(
+		&payload.Resource.ID,
+		&payload.Resource.Name,
+		&payload.Resource.Mode,
+		&payload.Resource.Format,
+		&payload.Resource.ContentType,
+		&payload.Resource.SizeBytes,
+		&payload.Resource.HasReferenceText,
+		&payload.Resource.Status,
+		&payload.Resource.CreatedAt,
+		&payload.ReferenceText,
+		&payload.Audio,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return voicePayload{}, false, nil
+	}
+	if err != nil {
+		return voicePayload{}, false, fmt.Errorf("query voice payload: %w", err)
+	}
+	payload.Audio = slices.Clone(payload.Audio)
+	return payload, true, nil
+}
+
 func (s *PostgresStore) voices(
 	ctx context.Context,
 ) ([]VoiceResource, error) {
@@ -368,11 +401,15 @@ func (s *PostgresStore) createJob(
 			omnivoice_fade_duration, whisper_beam_size,
 			whisper_patience, whisper_temperature, whisper_vad_filter,
 			whisper_word_timestamps, automatic_warning_retries,
+			pronunciation_enabled, pronunciation_rules,
+			russian_text_version, russian_selective_stress,
+			russian_normalize_morphology,
 			created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
 			$13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23,
-			$24, $25, $26, $27, $28, $29, $30, $31, $32
+			$24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34,
+			$35, $36, $37
 		)`,
 		resource.ID,
 		resource.BookID,
@@ -404,6 +441,11 @@ func (s *PostgresStore) createJob(
 		resource.GenerationSettings.Whisper.VADFilter,
 		resource.GenerationSettings.Whisper.WordTimestamps,
 		resource.GenerationSettings.AutomaticWarningRetries,
+		resource.GenerationSettings.Pronunciation.Enabled,
+		resource.GenerationSettings.Pronunciation.Rules,
+		resource.GenerationSettings.RussianText.Version,
+		resource.GenerationSettings.RussianText.SelectiveStress,
+		resource.GenerationSettings.RussianText.NormalizeMorphology,
 		resource.CreatedAt,
 		resource.UpdatedAt,
 	)
@@ -1989,6 +2031,11 @@ const voiceSelect = `SELECT
 	has_reference_text, status, created_at
 FROM voices`
 
+const voicePayloadSelect = `SELECT
+	id, name, mode, format, content_type, size_bytes,
+	has_reference_text, status, created_at, reference_text, reference_audio
+FROM voices`
+
 const jobSelect = `SELECT
 	id, book_id, voice_id, status, fragments_count, fragments_pending,
 	fragments_ready, fragments_warnings, fragments_failed,
@@ -2000,7 +2047,10 @@ const jobSelect = `SELECT
 	omnivoice_audio_chunk_threshold, omnivoice_pad_duration,
 	omnivoice_fade_duration, whisper_beam_size, whisper_patience,
 	whisper_temperature, whisper_vad_filter, whisper_word_timestamps,
-	automatic_warning_retries, created_at, updated_at
+	automatic_warning_retries, pronunciation_enabled, pronunciation_rules,
+	russian_text_version, russian_selective_stress,
+	russian_normalize_morphology,
+	created_at, updated_at
 FROM jobs`
 
 const fragmentSelect = `SELECT
@@ -2077,6 +2127,11 @@ func scanJob(row rowScanner) (JobResource, error) {
 		&resource.GenerationSettings.Whisper.VADFilter,
 		&resource.GenerationSettings.Whisper.WordTimestamps,
 		&resource.GenerationSettings.AutomaticWarningRetries,
+		&resource.GenerationSettings.Pronunciation.Enabled,
+		&resource.GenerationSettings.Pronunciation.Rules,
+		&resource.GenerationSettings.RussianText.Version,
+		&resource.GenerationSettings.RussianText.SelectiveStress,
+		&resource.GenerationSettings.RussianText.NormalizeMorphology,
 		&resource.CreatedAt,
 		&resource.UpdatedAt,
 	)

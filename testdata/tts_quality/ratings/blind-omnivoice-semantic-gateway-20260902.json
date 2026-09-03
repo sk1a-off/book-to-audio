@@ -1,0 +1,53 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-semantic-gateway-blind-20260902",
+  "rated_at": "2026-09-02T09:26:29Z",
+  "method": "single-listener blind A/B preference; not MOS",
+  "reveal_mapping_path": "../outputs/blind/omnivoice-semantic-gateway-blind-20260902/reveal.json",
+  "cases": [
+    {
+      "case_id": "homograph-stoit",
+      "preferred_label": null,
+      "verdict": "tie",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "tie"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-strelki",
+      "preferred_label": null,
+      "verdict": "both_bad",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": null, "verdict": "both_bad"},
+        "speaker_stability": {"preferred_label": null, "verdict": "both_bad"}
+      }
+    },
+    {
+      "case_id": "homograph-doroga",
+      "preferred_label": null,
+      "verdict": "both_bad",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": null, "verdict": "both_bad"},
+        "speaker_stability": {"preferred_label": null, "verdict": "both_bad"}
+      }
+    },
+    {
+      "case_id": "homograph-belki",
+      "preferred_label": null,
+      "verdict": "both_bad",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": null, "verdict": "both_bad"},
+        "speaker_stability": {"preferred_label": null, "verdict": "both_bad"}
+      }
+    }
+  ]
+}

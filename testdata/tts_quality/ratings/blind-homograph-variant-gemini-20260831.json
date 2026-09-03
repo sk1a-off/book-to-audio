@@ -1,0 +1,25 @@
+{
+  "schema_version": "tts-quality-homograph-variant-gemini-blind-preference-v1",
+  "session_id": "blind-homograph-variant-gemini-20260831",
+  "rated_on": "2026-08-31",
+  "method": "single-listener blind per-case A/B preference; not MOS",
+  "raw_response": ["Мука: A", "Плачу: B"],
+  "cases": [
+    {
+      "case_id": "homograph-muka",
+      "reveal": {"A": "control", "B": "candidate"},
+      "preferred_label": "A",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    },
+    {
+      "case_id": "homograph-plachu",
+      "reveal": {"A": "candidate", "B": "control"},
+      "preferred_label": "B",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    }
+  ],
+  "summary": {"control_wins": 2, "candidate_wins": 0},
+  "decision": "Reject Gemini 3.5 Flash Lite homograph selection as an autonomous production path. It matched the control in 8 of 10 cases but reversed both meanings in muka and plachu; the listener preferred the control in both informative A/B comparisons."
+}

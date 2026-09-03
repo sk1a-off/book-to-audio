@@ -1,0 +1,26 @@
+{
+  "schema_version": "tts-quality-intrachunk-pause-preference-v1",
+  "session_id": "intrachunk-sentence-pause-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": [
+    "1. Да",
+    "2. Б и можно как-то интонации добавлять чтобы он более выразительно читал"
+  ],
+  "source_generation": "contextual_two_sentence_omnivoice_chunk",
+  "fixed_heading_minimum_pause_ms": 800,
+  "alignment": {
+    "previous_word_end_ms": 3620,
+    "next_word_start_ms": 3720,
+    "insertion_point_ms": 3670
+  },
+  "preferred_label": "B",
+  "preferred_sentence_minimum_pause_ms": 500,
+  "speech_preservation": {
+    "first_word_audible": true,
+    "prefix_pcm_identical": true,
+    "suffix_pcm_identical": true
+  },
+  "verdict": "accepted",
+  "decision": "Use 500 ms as the accepted sentence-boundary minimum for this pilot. Preserve contextual OmniVoice synthesis and insert only missing PCM silence at an aligned intra-chunk boundary."
+}

@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-expanded-russian-v1:abbreviations-context",
+  "case_id": "abbreviations-context",
+  "corpus_version": "1.1.0",
+  "source_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+  "tts_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "abbreviations-context.wav",
+    "sha256": "c74d3befdf866b5530e3cb6136a4436348226e5b7957221d3902a09166e27a44",
+    "pcm_sha256": "62795c97f307a016a14d4c80674035453228690473a08e6c7eeb16de5f5b5ed2",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 9.040000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.927000,
+    "audio_seconds": 9.040000,
+    "rtf": 0.102544248,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 927,
+    "audio_duration_ms": 9040,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "exp-abbreviations-context",
+      "text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+      "seed": 42,
+      "pcm_sha256": "62795c97f307a016a14d4c80674035453228690473a08e6c7eeb16de5f5b5ed2",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 9040,
+      "generation_duration_ms": 927,
+      "warnings": []
+    }
+  ]
+}

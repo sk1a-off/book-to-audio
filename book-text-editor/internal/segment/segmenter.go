@@ -5,10 +5,28 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // DefaultMaxWords is the preferred upper bound for a single segment.
 const DefaultMaxWords = 60
+
+// OmniVoiceHardMaxWords and OmniVoiceHardMaxRunes mirror the default request
+// limits enforced by the local OmniVoice worker. They are hard safety limits,
+// unlike DefaultMaxWords, which is a quality-oriented packing preference.
+const (
+	OmniVoiceHardMaxWords = 120
+	OmniVoiceHardMaxRunes = 2_000
+)
+
+// Profile identifies a versioned segmentation algorithm. LegacyV1 remains the
+// production default until ProsodyV2 has passed controlled listening tests.
+type Profile string
+
+const (
+	LegacyV1  Profile = "legacy-v1"
+	ProsodyV2 Profile = "prosody-v2"
+)
 
 const sceneBreak = "* * *"
 
@@ -18,6 +36,7 @@ type Warning struct {
 	Phrase string
 	Words  int
 	Limit  int
+	Kind   string
 }
 
 func (w Warning) Error() string {
@@ -41,15 +60,33 @@ type WarningHandler func(Warning)
 // Segmenter splits text at semantic boundaries. The zero value is ready to use.
 type Segmenter struct {
 	maxWords  int
+	hardWords int
+	hardRunes int
+	profile   Profile
 	onWarning WarningHandler
 }
 
 // New creates a Segmenter with the requested preferred word limit.
 func New(maxWords int) (Segmenter, error) {
+	return NewWithProfile(LegacyV1, maxWords)
+}
+
+// NewWithProfile creates a versioned segmenter. ProsodyV2 preserves structural
+// line boundaries, protects common Russian abbreviations and initials, and
+// deterministically splits phrases that would be rejected by OmniVoice.
+func NewWithProfile(profile Profile, maxWords int) (Segmenter, error) {
 	if maxWords <= 0 {
 		return Segmenter{}, fmt.Errorf("max words must be positive, got %d", maxWords)
 	}
-	return Segmenter{maxWords: maxWords}, nil
+	if profile != LegacyV1 && profile != ProsodyV2 {
+		return Segmenter{}, fmt.Errorf("unsupported segmentation profile %q", profile)
+	}
+	return Segmenter{
+		maxWords:  maxWords,
+		hardWords: OmniVoiceHardMaxWords,
+		hardRunes: OmniVoiceHardMaxRunes,
+		profile:   profile,
+	}, nil
 }
 
 // WithWarningHandler returns a copy that reports non-fatal segmentation
@@ -65,6 +102,14 @@ func (s Segmenter) MaxWords() int {
 		return DefaultMaxWords
 	}
 	return s.maxWords
+}
+
+// Profile returns the effective versioned algorithm name.
+func (s Segmenter) Profile() Profile {
+	if s.profile == "" {
+		return LegacyV1
+	}
+	return s.profile
 }
 
 // Split is the compatibility entry point used by the FB2 parser.
@@ -83,6 +128,9 @@ func (s Segmenter) Split(text string) []string {
 // at an arbitrary word, which produces unnatural TTS and false STT warnings.
 func (s Segmenter) SplitDetailed(text string) Result {
 	units := splitIntoUnits(text)
+	if s.Profile() == ProsodyV2 {
+		units = splitIntoProsodyUnits(text)
+	}
 	if len(units) == 0 {
 		return Result{}
 	}
@@ -110,6 +158,14 @@ func (s Segmenter) SplitDetailed(text string) Result {
 			continue
 		}
 
+		if s.Profile() == ProsodyV2 && s.exceedsHardLimit(unit.text) {
+			flush()
+			parts, warning := s.splitAtHardLimit(unit.text)
+			result.Segments = append(result.Segments, parts...)
+			result.Warnings = append(result.Warnings, warning)
+			continue
+		}
+
 		wordCount := countWords(unit.text)
 		if wordCount > limit {
 			flush()
@@ -118,6 +174,7 @@ func (s Segmenter) SplitDetailed(text string) Result {
 				Phrase: unit.text,
 				Words:  wordCount,
 				Limit:  limit,
+				Kind:   "soft_limit_preserved",
 			})
 			continue
 		}
@@ -129,6 +186,101 @@ func (s Segmenter) SplitDetailed(text string) Result {
 	}
 	flush()
 	return result
+}
+
+func (s Segmenter) exceedsHardLimit(text string) bool {
+	return countWords(text) > s.hardWords || utf8.RuneCountInString(text) > s.hardRunes
+}
+
+func (s Segmenter) splitAtHardLimit(text string) ([]string, Warning) {
+	original := text
+	parts := make([]string, 0, 2)
+	kind := "hard_limit_clause_split"
+	for s.exceedsHardLimit(text) {
+		cut, clauseBoundary := hardSplitIndex(text, s.hardWords, s.hardRunes)
+		if cut <= 0 {
+			cut = runeByteIndex(text, s.hardRunes)
+			clauseBoundary = false
+		}
+		part := strings.TrimSpace(text[:cut])
+		if part == "" {
+			cut = runeByteIndex(text, s.hardRunes)
+			part = text[:cut]
+		}
+		parts = append(parts, part)
+		text = strings.TrimSpace(text[cut:])
+		if !clauseBoundary {
+			kind = "hard_limit_forced_split"
+		}
+	}
+	if text != "" {
+		parts = append(parts, text)
+	}
+	return parts, Warning{
+		Phrase: original,
+		Words:  countWords(original),
+		Limit:  s.hardWords,
+		Kind:   kind,
+	}
+}
+
+func hardSplitIndex(text string, maxWords, maxRunes int) (int, bool) {
+	words := 0
+	inWord := false
+	runesSeen := 0
+	lastWhitespace := 0
+	lastClause := 0
+	previous := rune(0)
+	for byteIndex, character := range text {
+		if runesSeen >= maxRunes {
+			break
+		}
+		runesSeen++
+		if unicode.IsSpace(character) {
+			inWord = false
+			lastWhitespace = byteIndex
+			if isClauseBoundary(previous) {
+				lastClause = byteIndex
+			}
+			previous = character
+			continue
+		}
+		if !inWord {
+			words++
+			inWord = true
+			if words > maxWords {
+				break
+			}
+		}
+		previous = character
+	}
+	if lastClause > 0 {
+		return lastClause, true
+	}
+	return lastWhitespace, false
+}
+
+func runeByteIndex(text string, runeLimit int) int {
+	if runeLimit <= 0 {
+		return 0
+	}
+	count := 0
+	for byteIndex := range text {
+		if count == runeLimit {
+			return byteIndex
+		}
+		count++
+	}
+	return len(text)
+}
+
+func isClauseBoundary(character rune) bool {
+	switch character {
+	case ',', ';', ':', '—', '–':
+		return true
+	default:
+		return false
+	}
 }
 
 func countWords(text string) int {
@@ -160,6 +312,45 @@ func splitIntoUnits(text string) []textUnit {
 	return units
 }
 
+func splitIntoProsodyUnits(text string) []textUnit {
+	var units []textUnit
+	for _, line := range strings.Split(text, "\n") {
+		line = normalizeSpace(line)
+		if line == "" {
+			continue
+		}
+		for {
+			before, after, found := strings.Cut(line, sceneBreak)
+			units = appendProsodyPhrases(units, before)
+			if !found {
+				break
+			}
+			units = appendBoundary(units)
+			line = after
+		}
+		units = appendBoundary(units)
+	}
+	return units
+}
+
+func appendBoundary(units []textUnit) []textUnit {
+	if len(units) == 0 || units[len(units)-1].forceBoundary {
+		return units
+	}
+	return append(units, textUnit{forceBoundary: true})
+}
+
+func appendProsodyPhrases(units []textUnit, text string) []textUnit {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return units
+	}
+	for _, phrase := range splitLineProsody(text) {
+		units = append(units, textUnit{text: phrase})
+	}
+	return units
+}
+
 func appendPhrases(units []textUnit, text string) []textUnit {
 	text = strings.TrimSpace(text)
 	if text == "" {
@@ -172,11 +363,20 @@ func appendPhrases(units []textUnit, text string) []textUnit {
 }
 
 func splitLine(line string) []string {
+	return splitLineWithPeriodRule(line, false)
+}
+
+func splitLineProsody(line string) []string {
+	return splitLineWithPeriodRule(line, true)
+}
+
+func splitLineWithPeriodRule(line string, protectRussian bool) []string {
 	runes := []rune(line)
 	var phrases []string
 	start := 0
 	for index := 0; index < len(runes); index++ {
-		if !isSentenceEnd(runes[index]) || isDecimalPoint(runes, index) {
+		if !isSentenceEnd(runes[index]) || isDecimalPoint(runes, index) ||
+			(protectRussian && isProtectedRussianPeriod(runes, index)) {
 			continue
 		}
 		end := index + 1
@@ -202,6 +402,74 @@ func splitLine(line string) []string {
 		phrases = append(phrases, tail)
 	}
 	return phrases
+}
+
+var protectedRussianAbbreviations = map[string]struct{}{
+	"г": {}, "гг": {}, "им": {}, "млн": {}, "млрд": {}, "рис": {},
+	"см": {}, "стр": {}, "т": {}, "тыс": {}, "ул": {},
+}
+
+func isProtectedRussianPeriod(runes []rune, index int) bool {
+	if runes[index] != '.' {
+		return false
+	}
+	start := index
+	for start > 0 && (unicode.IsLetter(runes[start-1]) || runes[start-1] == '-') {
+		start--
+	}
+	token := strings.ToLower(string(runes[start:index]))
+	if _, protected := protectedRussianAbbreviations[token]; protected {
+		return true
+	}
+	if isCompoundAbbreviationTail(token) && previousDottedToken(runes, start) == "т" &&
+		!nextNonSpaceIsUpper(runes, index+1) {
+		return true
+	}
+	if utf8.RuneCountInString(token) != 1 || token == "я" {
+		return false
+	}
+	next := index + 1
+	for next < len(runes) && unicode.IsSpace(runes[next]) {
+		next++
+	}
+	if next >= len(runes) || !unicode.IsUpper(runes[next]) {
+		return false
+	}
+	// A single capital followed by another initial or a surname is an initial,
+	// not a sentence. The explicit exclusion for "Я" protects the pronoun.
+	return unicode.IsUpper(runes[start])
+}
+
+func nextNonSpaceIsUpper(runes []rune, start int) bool {
+	for start < len(runes) && unicode.IsSpace(runes[start]) {
+		start++
+	}
+	return start < len(runes) && unicode.IsUpper(runes[start])
+}
+
+func isCompoundAbbreviationTail(token string) bool {
+	switch token {
+	case "е", "к", "д", "п":
+		return true
+	default:
+		return false
+	}
+}
+
+func previousDottedToken(runes []rune, before int) string {
+	index := before - 1
+	for index >= 0 && unicode.IsSpace(runes[index]) {
+		index--
+	}
+	if index < 0 || runes[index] != '.' {
+		return ""
+	}
+	index--
+	end := index + 1
+	for index >= 0 && unicode.IsLetter(runes[index]) {
+		index--
+	}
+	return strings.ToLower(string(runes[index+1 : end]))
 }
 
 func isDecimalPoint(runes []rune, index int) bool {

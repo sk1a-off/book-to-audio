@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:very-long-semantic-paragraph",
+  "case_id": "very-long-semantic-paragraph",
+  "corpus_version": "1.1.0",
+  "source_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+  "tts_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "very-long-semantic-paragraph.wav",
+    "sha256": "7f29dd80bcdcc612529bbdd5f7993f649fb445f04b426b3d0f3afebfbb3f3a0d",
+    "pcm_sha256": "04b1d2795bdc1b2aae2962429cd8a5d54a5c189c7def83a622d238bfba49716a",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 30.720000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 23.225565,
+    "audio_seconds": 30.720000,
+    "rtf": 0.756040527,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 23226,
+    "audio_duration_ms": 30720,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "0b5df1d905a548dca2824cd565a38b25",
+      "text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+      "seed": 42,
+      "pcm_sha256": "04b1d2795bdc1b2aae2962429cd8a5d54a5c189c7def83a622d238bfba49716a",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 30720,
+      "generation_duration_ms": 23226,
+      "warnings": []
+    }
+  ]
+}

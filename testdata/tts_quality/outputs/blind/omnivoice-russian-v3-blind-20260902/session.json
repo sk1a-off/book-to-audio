@@ -1,0 +1,199 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-russian-v3-blind-20260902",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "source_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/numbers-gender-and-ordinal/A.wav",
+          "duration_seconds": 9.79
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/numbers-gender-and-ordinal/B.wav",
+          "duration_seconds": 10.2
+        }
+      ]
+    },
+    {
+      "case_id": "numbers-decimals-and-grouping",
+      "source_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/numbers-decimals-and-grouping/A.wav",
+          "duration_seconds": 12.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/numbers-decimals-and-grouping/B.wav",
+          "duration_seconds": 10.72
+        }
+      ]
+    },
+    {
+      "case_id": "units-and-percent",
+      "source_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/units-and-percent/A.wav",
+          "duration_seconds": 9.89
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/units-and-percent/B.wav",
+          "duration_seconds": 7.88
+        }
+      ]
+    },
+    {
+      "case_id": "money-rubles-and-dollars",
+      "source_text": "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/money-rubles-and-dollars/A.wav",
+          "duration_seconds": 4.88
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/money-rubles-and-dollars/B.wav",
+          "duration_seconds": 5.8
+        }
+      ]
+    },
+    {
+      "case_id": "roman-book-and-chapter",
+      "source_text": "Книга XV. Глава XIV",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/roman-book-and-chapter/A.wav",
+          "duration_seconds": 1.29
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/roman-book-and-chapter/B.wav",
+          "duration_seconds": 2.6
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-zamok/A.wav",
+          "duration_seconds": 5.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-zamok/B.wav",
+          "duration_seconds": 5.6
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-muka/A.wav",
+          "duration_seconds": 3.68
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-muka/B.wav",
+          "duration_seconds": 3.68
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-plachu",
+      "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-plachu/A.wav",
+          "duration_seconds": 5.44
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-plachu/B.wav",
+          "duration_seconds": 5.44
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-atlas",
+      "source_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-atlas/A.wav",
+          "duration_seconds": 5.08
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-atlas/B.wav",
+          "duration_seconds": 5.08
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-organ",
+      "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-organ/A.wav",
+          "duration_seconds": 5.66
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-organ/B.wav",
+          "duration_seconds": 5.23
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-uzhe",
+      "source_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-uzhe/A.wav",
+          "duration_seconds": 2.84
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-uzhe/B.wav",
+          "duration_seconds": 2.84
+        }
+      ]
+    },
+    {
+      "case_id": "chapter-transition-scene",
+      "source_text": "Глава 7\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/chapter-transition-scene/A.wav",
+          "duration_seconds": 4
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/chapter-transition-scene/B.wav",
+          "duration_seconds": 4.2
+        }
+      ]
+    }
+  ]
+}

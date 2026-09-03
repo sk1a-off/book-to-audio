@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-russian-v3-control-20260902:homograph-muka",
+  "case_id": "homograph-muka",
+  "corpus_version": "1.1.0",
+  "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+  "tts_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-muka.wav",
+    "sha256": "dcb0d5ce3a82dc974a6ee233db2c47fc11f4d8a5464626f43f1f84362c08a652",
+    "pcm_sha256": "84a11ee4eff4ac1687799039a0395cdecd25e5e5c7c5b7166a600dba7e9acd9e",
+    "worker_reported_pcm_sha256": "84a11ee4eff4ac1687799039a0395cdecd25e5e5c7c5b7166a600dba7e9acd9e",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 3.68,
+    "peak_dbfs": -1.4246665978019648,
+    "rms_dbfs": -16.25833387020606,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.19697690217391303,
+    "leading_silence_seconds": 0.30025,
+    "trailing_silence_seconds": 0.10979166666666666,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.709,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.710934634,
+    "audio_seconds": 3.68,
+    "rtf": 0.19318875923913043,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 709,
+    "audio_duration_ms": 3680,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-007-homograph-muka-001",
+      "text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "seed": 42,
+      "pcm_sha256": "84a11ee4eff4ac1687799039a0395cdecd25e5e5c7c5b7166a600dba7e9acd9e",
+      "worker_reported_pcm_sha256": "84a11ee4eff4ac1687799039a0395cdecd25e5e5c7c5b7166a600dba7e9acd9e",
+      "audio_duration_ms": 3680,
+      "generation_duration_ms": 709,
+      "warnings": []
+    }
+  ]
+}

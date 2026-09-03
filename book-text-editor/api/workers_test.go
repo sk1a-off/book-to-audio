@@ -139,6 +139,13 @@ func TestOmniVoiceHTTPClientGenerate(t *testing.T) {
 		writer.Header().Set("X-Audio-Channels", "1")
 		writer.Header().Set("X-Audio-Bits-Per-Sample", "16")
 		writer.Header().Set("X-Audio-Duration-Ms", "125")
+		writer.Header().Set("X-Generation-Duration-Ms", "95")
+		writer.Header().Set("X-Seed-Used", "42")
+		writer.Header().Set("X-Voice-Cache-Hit", "true")
+		writer.Header().Set("X-Model-ID", "k2-fsa/OmniVoice")
+		writer.Header().Set("X-Model-Version", "revision-1")
+		digest := sha256.Sum256(pcm)
+		writer.Header().Set("X-Audio-SHA256", hex.EncodeToString(digest[:]))
 		writer.Header().Set("X-Audio-Warnings", "FIRST, SECOND")
 		_, _ = writer.Write(pcm)
 	}))
@@ -171,6 +178,12 @@ func TestOmniVoiceHTTPClientGenerate(t *testing.T) {
 	}
 	if result.Channels != 1 || result.SampleWidth != 2 || result.DurationMS != 125 {
 		t.Errorf("unexpected audio metadata: %+v", result)
+	}
+	if result.GenerationDurationMS != 95 || result.SeedUsed == nil ||
+		*result.SeedUsed != 42 || result.VoiceCacheHit == nil ||
+		!*result.VoiceCacheHit || result.ModelID != "k2-fsa/OmniVoice" ||
+		result.ModelVersion != "revision-1" || result.AudioSHA256 == "" {
+		t.Errorf("unexpected inference provenance: %+v", result)
 	}
 	if len(result.Warnings) != 2 ||
 		result.Warnings[0] != "FIRST" ||
@@ -762,6 +775,27 @@ func TestOmniVoiceHTTPClientRequiresBoundedResponseAndSampleRate(t *testing.T) {
 		_, err = client.Generate(context.Background(), TTSRequest{})
 		if !errors.Is(err, ErrWorkerResponseTooLarge) {
 			t.Fatalf("Generate() error = %v, want ErrWorkerResponseTooLarge", err)
+		}
+	})
+
+	t.Run("mismatched audio digest", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+			writer.Header().Set("X-Audio-Sample-Rate", "24000")
+			writer.Header().Set("X-Audio-Channels", "1")
+			writer.Header().Set("X-Audio-Bits-Per-Sample", "16")
+			writer.Header().Set("X-Audio-Duration-Ms", "1")
+			writer.Header().Set("X-Audio-SHA256", strings.Repeat("0", 64))
+			_, _ = writer.Write([]byte{1, 0})
+		}))
+		defer server.Close()
+
+		client, err := NewOmniVoiceHTTPClient(server.URL, server.Client())
+		if err != nil {
+			t.Fatalf("create client: %v", err)
+		}
+		_, err = client.Generate(context.Background(), TTSRequest{})
+		if err == nil || !strings.Contains(err.Error(), "does not match payload") {
+			t.Fatalf("Generate() error = %v, want audio digest mismatch", err)
 		}
 	})
 }

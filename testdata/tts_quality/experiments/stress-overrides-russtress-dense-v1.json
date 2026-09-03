@@ -1,0 +1,20 @@
+{
+  "schema_version": "tts-quality-text-overrides-v1",
+  "normalizer_version": "russtress-0.1.4-dense-v1",
+  "transform_kind": "stress_marks_only",
+  "description": "Direct dense russtress 0.1.4 output converted from apostrophe-after-vowel to Unicode U+0301; experimental, no Gemini filtering.",
+  "cases": [
+    {
+      "case_id": "homograph-strelki",
+      "tts_text": "Стре́лки часо́в за́мерли на полу́ночи, а лу́чшие стрелки́ отря́да уже́ за́няли пози́ции."
+    },
+    {
+      "case_id": "homograph-zamok",
+      "tts_text": "Стари́нный за́мок на две́ри не открыва́лся, пока́ пу́тники рассма́тривали за́мок на верши́не хо́лма."
+    },
+    {
+      "case_id": "homograph-muka",
+      "tts_text": "На столе́ лежа́ла бе́лая мука́, а в душе́ росла́ невыноси́мая мука́."
+    }
+  ]
+}

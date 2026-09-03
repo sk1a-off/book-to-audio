@@ -1,0 +1,71 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-semantic-gateway-blind-20260902",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "homograph-stoit",
+      "source_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-stoit/A.wav",
+          "duration_seconds": 4.36
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-stoit/B.wav",
+          "duration_seconds": 4.36
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-strelki",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-strelki/A.wav",
+          "duration_seconds": 4.84
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-strelki/B.wav",
+          "duration_seconds": 4.84
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-doroga",
+      "source_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-doroga/A.wav",
+          "duration_seconds": 4.4
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-doroga/B.wav",
+          "duration_seconds": 4.4
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-belki",
+      "source_text": "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-belki/A.wav",
+          "duration_seconds": 5.2
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-belki/B.wav",
+          "duration_seconds": 5.2
+        }
+      ]
+    }
+  ]
+}

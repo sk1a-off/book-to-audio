@@ -1,0 +1,135 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-morphology-blind-20260901",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "dates-numeric-and-words",
+      "source_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/dates-numeric-and-words/A.wav",
+          "duration_seconds": 15.76
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/dates-numeric-and-words/B.wav",
+          "duration_seconds": 16.56
+        }
+      ]
+    },
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "source_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/numbers-gender-and-ordinal/A.wav",
+          "duration_seconds": 9.79
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/numbers-gender-and-ordinal/B.wav",
+          "duration_seconds": 10.2
+        }
+      ]
+    },
+    {
+      "case_id": "numbers-decimals-and-grouping",
+      "source_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/numbers-decimals-and-grouping/A.wav",
+          "duration_seconds": 10.72
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/numbers-decimals-and-grouping/B.wav",
+          "duration_seconds": 12.6
+        }
+      ]
+    },
+    {
+      "case_id": "units-and-percent",
+      "source_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/units-and-percent/A.wav",
+          "duration_seconds": 9.89
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/units-and-percent/B.wav",
+          "duration_seconds": 7.88
+        }
+      ]
+    },
+    {
+      "case_id": "money-rubles-and-dollars",
+      "source_text": "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/money-rubles-and-dollars/A.wav",
+          "duration_seconds": 4.88
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/money-rubles-and-dollars/B.wav",
+          "duration_seconds": 5.8
+        }
+      ]
+    },
+    {
+      "case_id": "roman-book-and-chapter",
+      "source_text": "Книга XV. Глава XIV",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/roman-book-and-chapter/A.wav",
+          "duration_seconds": 1.29
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/roman-book-and-chapter/B.wav",
+          "duration_seconds": 2.6
+        }
+      ]
+    },
+    {
+      "case_id": "roman-century-and-rulers",
+      "source_text": "В XVIII веке Пётр I уже стал частью истории, а о встрече Екатерины II с наследием Людовика XIV спорили учёные.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/roman-century-and-rulers/A.wav",
+          "duration_seconds": 7.16
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/roman-century-and-rulers/B.wav",
+          "duration_seconds": 6.6
+        }
+      ]
+    },
+    {
+      "case_id": "chapter-transition-scene",
+      "source_text": "Глава 7\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/chapter-transition-scene/A.wav",
+          "duration_seconds": 4.2
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/chapter-transition-scene/B.wav",
+          "duration_seconds": 4
+        }
+      ]
+    }
+  ]
+}

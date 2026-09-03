@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-expanded-prosody-v1:very-long-semantic-paragraph",
+  "case_id": "very-long-semantic-paragraph",
+  "corpus_version": "1.1.0",
+  "source_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+  "tts_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "very-long-semantic-paragraph.wav",
+    "sha256": "94d8bab8d97f4f798998757a0ffe94c4a4853bba5de8e13ad7c09527877813df",
+    "pcm_sha256": "9821efc1ed65bb7348594f963e317a94a86518ba356ed935b129ba55e334707e",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 29.240000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 2.166000,
+    "audio_seconds": 29.240000,
+    "rtf": 0.074076607,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 2166,
+    "audio_duration_ms": 29240,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "exp-very-long-semantic-paragraph",
+      "text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+      "seed": 42,
+      "pcm_sha256": "9821efc1ed65bb7348594f963e317a94a86518ba356ed935b129ba55e334707e",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 29240,
+      "generation_duration_ms": 2166,
+      "warnings": []
+    }
+  ]
+}

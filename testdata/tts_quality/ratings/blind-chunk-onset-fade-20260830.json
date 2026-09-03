@@ -1,0 +1,15 @@
+{
+  "schema_version": "tts-quality-chunk-onset-preference-v1",
+  "session_id": "chunk-onset-fade-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "Нет слово первый во фразе первый снег выпал ночью не слышно все варианты плохие",
+  "reveal": {
+    "A": {"fade_duration_ms": 10},
+    "B": {"fade_duration_ms": 0},
+    "C": {"fade_duration_ms": 30}
+  },
+  "verdict": "all_bad",
+  "conclusion": "Reducing or disabling output fade does not restore the missing first word. The loss is caused by isolated sentence synthesis rather than worker fade-in.",
+  "decision": "Reject independent sentence chunks for pause control. Preserve the successful contextual OmniVoice generation and insert silence inside its existing sentence boundary."
+}

@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 06:20:04 GMT
+server: uvicorn
+cache-control: no-store
+content-disposition: attachment; filename="segment.wav"
+x-request-id: exp-homograph-doroga
+x-audio-encoding: WAV_PCM_S16LE
+x-audio-sample-rate: 24000
+x-audio-channels: 1
+x-audio-bits-per-sample: 16
+x-audio-sha256: 9511529c42f398ddc4552e3097292c495ebce8774aaff56d6e4f806c5c83c95f
+x-audio-duration-ms: 4400
+x-generation-duration-ms: 675
+x-seed-used: 42
+x-voice-cache-hit: true
+x-model-id: k2-fsa/OmniVoice
+x-model-version: c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1
+content-length: 211244
+content-type: audio/wav
+

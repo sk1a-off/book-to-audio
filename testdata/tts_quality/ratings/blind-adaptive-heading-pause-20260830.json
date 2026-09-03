@@ -1,0 +1,19 @@
+{
+  "schema_version": "tts-quality-adaptive-pause-preference-v1",
+  "session_id": "adaptive-heading-pause-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "А но мне не нравиться что нет паузы после выпал ночью. [пауза] К утру должно быть так",
+  "heading_boundary": {
+    "preferred_label": "A",
+    "preferred_minimum_pause_ms": 800,
+    "verdict": "accepted"
+  },
+  "sentence_boundary": {
+    "text_before": "Первый снег выпал ночью.",
+    "text_after": "К утру город стал неузнаваем.",
+    "verdict": "missing_or_too_short",
+    "root_cause": "Both sentences were synthesized inside one OmniVoice chunk, so inter-chunk assembly could not control their boundary."
+  },
+  "decision": "Keep the 800 ms chapter-heading minimum for the next pilot and separately test sentence-boundary pauses with both sentences generated as distinct chunks."
+}

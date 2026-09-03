@@ -56,6 +56,8 @@ type Server struct {
 	now             func() time.Time
 	workerTimeout   time.Duration
 	rewriterTimeout time.Duration
+	ttsSlot         chan struct{}
+	previewSlot     chan struct{}
 
 	handler       http.Handler
 	runner        *jobRunner
@@ -126,6 +128,8 @@ func newServerWithRepository(
 		now:             now,
 		workerTimeout:   workerTimeout,
 		rewriterTimeout: rewriterTimeout,
+		ttsSlot:         make(chan struct{}, 1),
+		previewSlot:     make(chan struct{}, 1),
 	}
 	server.runner = newJobRunner(server, queueSize)
 	fragments, err := newFragmentService(store, server.runner.enqueue)
@@ -235,6 +239,10 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("POST /v1/voice", s.uploadVoice)
 	mux.HandleFunc("GET /v1/voices", s.getVoices)
 	mux.HandleFunc("GET /v1/voices/{voiceID}", s.getVoice)
+	mux.HandleFunc(
+		"POST /v1/preview/voice/{voiceID}/audio.wav",
+		s.generatePreview,
+	)
 	mux.HandleFunc("DELETE /v1/voices/{voiceID}", s.deleteVoiceEndpoint)
 	mux.HandleFunc("GET /v1/jobs", s.listJobs)
 	mux.HandleFunc("GET /v1/queue", s.generationQueue)

@@ -353,6 +353,57 @@
             </div>
           </details>
 
+          <fieldset class="pronunciation-settings">
+            <legend>Выборочные ударения для этой книги</legend>
+            <label class="settings-check">
+              <input id="russian-selective-stress" type="checkbox" checked>
+              <span>Контекстные ударения для проверенных омографов</span>
+              <small>Ставит ударение только в известных контекстных фразах. Не размечает каждое слово.</small>
+            </label>
+            <label class="settings-check">
+              <input id="russian-normalize-morphology" type="checkbox" checked>
+              <span>Склонять числа, единицы и заголовки</span>
+              <small>Например: «Глава 7» → «Глава седьмая». Меняется только текст для OmniVoice, не исходник книги.</small>
+            </label>
+            <label class="settings-check">
+              <input id="pronunciation-enabled" type="checkbox">
+              <span>Применять мои контекстные правила</span>
+              <small>Только к тексту для OmniVoice; исходник и проверка Whisper остаются без ударений.</small>
+            </label>
+            <label class="pronunciation-rules-field" for="pronunciation-rules">
+              <span>Одна пара на строку: исходная фраза =&gt; та же фраза с U+0301</span>
+              <textarea
+                id="pronunciation-rules"
+                rows="6"
+                spellcheck="false"
+                placeholder="Старинный замок =&gt; Старинный за́мок&#10;вершине холма =&gt; вершине холма́&#10;дверной замок =&gt; дверной замо́к"
+              ></textarea>
+              <small>
+                Добавляйте ударение только проблемному слову. Для омографов копируйте
+                достаточно контекста из книги. Массовая разметка каждого слова ухудшает интонацию.
+              </small>
+            </label>
+          </fieldset>
+
+          <fieldset class="quality-preview-settings">
+            <legend>Проверка голоса до запуска книги</legend>
+            <label for="quality-preview-text">
+              <span>Тестовый фрагмент</span>
+              <small><span id="quality-preview-count">0</span> / 2000 · рекомендуется 30–90 секунд речи</small>
+              <textarea id="quality-preview-text" rows="7" maxlength="2000"></textarea>
+            </label>
+            <div class="quality-preview-actions">
+              <button id="quality-preview-button" class="button button--secondary" type="button" disabled>
+                <span aria-hidden="true">▶</span>
+                <span>Сгенерировать preview</span>
+              </button>
+              <p id="quality-preview-status" role="status" aria-live="polite" data-state="idle">
+                Выберите голос. Preview не создаёт задачу и не меняет книгу.
+              </p>
+            </div>
+            <audio id="quality-preview-audio" controls preload="none" hidden></audio>
+          </fieldset>
+
           <fieldset>
             <legend>Whisper · проверка произношения</legend>
             <div class="settings-grid">

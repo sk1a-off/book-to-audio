@@ -1,0 +1,103 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "qwen17-vs-omnivoice-prosody-expanded-20260901",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "very-long-semantic-paragraph",
+      "source_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/very-long-semantic-paragraph/A.wav",
+          "duration_seconds": 30.72
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/very-long-semantic-paragraph/B.wav",
+          "duration_seconds": 29.24
+        }
+      ]
+    },
+    {
+      "case_id": "emotional-dialogue-controlled",
+      "source_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/emotional-dialogue-controlled/A.wav",
+          "duration_seconds": 6.8
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/emotional-dialogue-controlled/B.wav",
+          "duration_seconds": 6.8
+        }
+      ]
+    },
+    {
+      "case_id": "ellipsis-interruption",
+      "source_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/ellipsis-interruption/A.wav",
+          "duration_seconds": 4.96
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/ellipsis-interruption/B.wav",
+          "duration_seconds": 6.240042
+        }
+      ]
+    },
+    {
+      "case_id": "poetry-stanza",
+      "source_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/poetry-stanza/A.wav",
+          "duration_seconds": 5.88
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/poetry-stanza/B.wav",
+          "duration_seconds": 6.480042
+        }
+      ]
+    },
+    {
+      "case_id": "question-and-exclamation",
+      "source_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/question-and-exclamation/A.wav",
+          "duration_seconds": 4.48
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/question-and-exclamation/B.wav",
+          "duration_seconds": 4.72
+        }
+      ]
+    },
+    {
+      "case_id": "dialogue-with-author-words",
+      "source_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/dialogue-with-author-words/A.wav",
+          "duration_seconds": 4.8
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/dialogue-with-author-words/B.wav",
+          "duration_seconds": 4.88
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-expanded-prosody-v1:poetry-stanza",
+  "case_id": "poetry-stanza",
+  "corpus_version": "1.1.0",
+  "source_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+  "tts_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "poetry-stanza.wav",
+    "sha256": "e710f6c7d4dcc33d6c63551136674ccf8c61fc80826413108da5872fe7bea2bc",
+    "pcm_sha256": "032b40dec92828bd3a1054880e563f3cf03703125c2ecfb7cd62636ecf09679d",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.880000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.730000,
+    "audio_seconds": 5.880000,
+    "rtf": 0.124149660,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 730,
+    "audio_duration_ms": 5880,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "exp-poetry-stanza",
+      "text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+      "seed": 42,
+      "pcm_sha256": "032b40dec92828bd3a1054880e563f3cf03703125c2ecfb7cd62636ecf09679d",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 5880,
+      "generation_duration_ms": 730,
+      "warnings": []
+    }
+  ]
+}

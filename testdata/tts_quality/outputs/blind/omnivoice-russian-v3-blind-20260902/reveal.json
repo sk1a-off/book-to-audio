@@ -1,0 +1,813 @@
+{
+  "schema_version": "tts-quality-blind-reveal-v1",
+  "session_id": "omnivoice-russian-v3-blind-20260902",
+  "created_at": "2026-09-02T08:18:39.612500294Z",
+  "primary_variable": "normalizer_version",
+  "shuffle_seed": 3201,
+  "cases": [
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:numbers-gender-and-ordinal",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "В комнате стоял двадцать один стул и лежала двадцать одна книга. Он занял двадцать первый ряд, вернулся к двадцать первому пункту и не дошёл до двадцать первого километра.",
+          "chunks": [
+            "В комнате стоял двадцать один стул и лежала двадцать одна книга. Он занял двадцать первый ряд, вернулся к двадцать первому пункту и не дошёл до двадцать первого километра."
+          ],
+          "artifact_sha256": "ff9119e145fa459d51cc170c2afd7367a2bc06817767e6a359276a1f1fd9ead0",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:numbers-gender-and-ordinal",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+          "chunks": [
+            "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра."
+          ],
+          "artifact_sha256": "97a01859b6dbb27773adbb309d4a2ececcaa31242ca0e11b4e12bcbe08ca53ff",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "numbers-decimals-and-grouping",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:numbers-decimals-and-grouping",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "В отчёте указали двенадцать тысяч пятьсот участников, одна целая пять десятых литра воды и коэффициент три целых четырнадцать сотых. Из них две тысячи двадцать шесть человек ответили на двадцать один вопрос.",
+          "chunks": [
+            "В отчёте указали двенадцать тысяч пятьсот участников, одна целая пять десятых литра воды и коэффициент три целых четырнадцать сотых. Из них две тысячи двадцать шесть человек ответили на двадцать один вопрос."
+          ],
+          "artifact_sha256": "4625ecccc8bc2de4ca79a2caa0c675e5660fca508a2e83f92432dffd7fb14467",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:numbers-decimals-and-grouping",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+          "chunks": [
+            "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос."
+          ],
+          "artifact_sha256": "6f8f2a32d0835bf9ec9bb2f669e66bc8d5bbacf89df6266a97bd3b3514096c9d",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "units-and-percent",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:units-and-percent",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Посылка весила пять килограммов, влажность достигла трёх процентов, а машина двигалась со скоростью десять километров в час. До станции оставалось двенадцать километров.",
+          "chunks": [
+            "Посылка весила пять килограммов, влажность достигла трёх процентов, а машина двигалась со скоростью десять километров в час. До станции оставалось двенадцать километров."
+          ],
+          "artifact_sha256": "ea8f9088f3a1fcfc106d98719a4d01017e64cc6ef3fa59c3fe01e61e6c0fc776",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:units-and-percent",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+          "chunks": [
+            "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км."
+          ],
+          "artifact_sha256": "6899f7bd6a65b50ac10fdf601396c19eb5f4e97b4be8224cff07616fdb446ca4",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "money-rubles-and-dollars",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:money-rubles-and-dollars",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек.",
+          "chunks": [
+            "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек."
+          ],
+          "artifact_sha256": "d66bae7fce9a20ba68ea8d42e2aa5e9b29477dcfbee5593dfea9548a9d02c740",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:money-rubles-and-dollars",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Билет стоил сто рублей, залог — сто долларов, а сдача составила двадцать один рубль пять копеек.",
+          "chunks": [
+            "Билет стоил сто рублей, залог — сто долларов, а сдача составила двадцать один рубль пять копеек."
+          ],
+          "artifact_sha256": "7a1ca3602f7b3d9f4b5dfc21b96d60cddfad03ad1b183f59c965cd5200fa501a",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "roman-book-and-chapter",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:roman-book-and-chapter",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Книга XV. Глава XIV",
+          "chunks": [
+            "Книга XV. Глава XIV"
+          ],
+          "artifact_sha256": "17fd255d144d2ba035189f0b36905dd402c02a7f90d347fba53c5977ed50ff39",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:roman-book-and-chapter",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Книга пятнадцатая. Глава четырнадцатая",
+          "chunks": [
+            "Книга пятнадцатая. Глава четырнадцатая"
+          ],
+          "artifact_sha256": "2e00b857eb4dcf3c96fa96c76bd6009d676c2c2d2482f6759326d6352ffe147c",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-zamok",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-zamok",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма.",
+          "chunks": [
+            "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма."
+          ],
+          "artifact_sha256": "315174ae23c2795d4f71d85a64429d44ef93a0fb78224b2f4a46adf7f3f19554",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-zamok",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+          "chunks": [
+            "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма."
+          ],
+          "artifact_sha256": "4485f3114597fa946daeef59704bdc896a87afc8b70256e09f9e15b312084e59",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-muka",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-muka",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+          "chunks": [
+            "На столе лежала белая мука, а в душе росла невыносимая мука."
+          ],
+          "artifact_sha256": "dcb0d5ce3a82dc974a6ee233db2c47fc11f4d8a5464626f43f1f84362c08a652",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-muka",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "На столе лежала белая мука́, а в душе росла невыносимая му́ка.",
+          "chunks": [
+            "На столе лежала белая мука́, а в душе росла невыносимая му́ка."
+          ],
+          "artifact_sha256": "4e445c09582962f2e5a2e1457a78190303ceccdce608238638d25b1e3e584038",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-plachu",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-plachu",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "— Я плачу́ за квартиру вовремя, — сказала она. — А сегодня пла́чу потому, что вынуждена уехать.",
+          "chunks": [
+            "— Я плачу́ за квартиру вовремя, — сказала она. — А сегодня пла́чу потому, что вынуждена уехать."
+          ],
+          "artifact_sha256": "444ac6eaae59500a224d7e29b934cc9e3d21a11fbc15d58b9345aef6443412d2",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-plachu",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+          "chunks": [
+            "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать."
+          ],
+          "artifact_sha256": "9d57d66d60a44c0d7d6aa620704d2c8a4b4cbad5939a43fc135113cd2fd76cb9",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-atlas",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-atlas",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+          "chunks": [
+            "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа."
+          ],
+          "artifact_sha256": "aa49d871086186fc3ca90ab0dcb9a7ee67894a14f597875ef6edab30fb69f81b",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-atlas",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.",
+          "chunks": [
+            "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са."
+          ],
+          "artifact_sha256": "6761040e1e4a14c3c8a120b894cfe83db58030b4228f4aa1f9d9ac1495ef6505",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-organ",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-organ",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Государственный о́рган запретил концерт, но старинный орга́н всё же зазвучал в пустом соборе.",
+          "chunks": [
+            "Государственный о́рган запретил концерт, но старинный орга́н всё же зазвучал в пустом соборе."
+          ],
+          "artifact_sha256": "9b77180c33484ba2f21c4e8167269c4382e7dbcec1732ddb562c09b6b8e171b8",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-organ",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+          "chunks": [
+            "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе."
+          ],
+          "artifact_sha256": "11d1fbc1cd0bc68f7ab354e9a29c27520a25a64067368e7dfd9ac67af2d502a3",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-uzhe",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:homograph-uzhe",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+          "chunks": [
+            "Коридор стал уже, и мы уже не могли идти рядом."
+          ],
+          "artifact_sha256": "050a793ba49f9988b626487d521e0a5c9c72587c01817a317a3fa67edb2313d7",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-uzhe",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Коридор стал у́же, и мы уже́ не могли идти рядом.",
+          "chunks": [
+            "Коридор стал у́же, и мы уже́ не могли идти рядом."
+          ],
+          "artifact_sha256": "f549376f9e205c5d8413bf6f8307364d610812802ee1fcaacd82e25372f80bf2",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "chapter-transition-scene",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-russian-v3-control-20260902",
+          "sample_id": "omnivoice-russian-v3-control-20260902:chapter-transition-scene",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Глава 7 Первый снег выпал ночью. К утру город стал неузнаваем.",
+          "chunks": [
+            "Глава 7 Первый снег выпал ночью. К утру город стал неузнаваем."
+          ],
+          "artifact_sha256": "2387e6295b0744cefe1d3c8c748db622a47320068c6056346bd018ef32b686e6",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-russian-v3-candidate-20260902",
+          "sample_id": "omnivoice-russian-v3-candidate-20260902:chapter-transition-scene",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+          "tts_text": "Глава седьмая Первый снег выпал ночью. К утру город стал неузнаваем.",
+          "chunks": [
+            "Глава седьмая Первый снег выпал ночью. К утру город стал неузнаваем."
+          ],
+          "artifact_sha256": "6d2eaf4b7fa8807fea3e0fda624c3166ee1bcb4cdcb00b0b1432026cbce2f050",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    }
+  ]
+}

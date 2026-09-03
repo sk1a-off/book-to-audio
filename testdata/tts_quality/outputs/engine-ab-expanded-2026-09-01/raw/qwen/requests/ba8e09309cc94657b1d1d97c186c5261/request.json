@@ -1,0 +1,14 @@
+{
+  "extra": {},
+  "input": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+  "instruct": null,
+  "language": "Russian",
+  "mode": "voice_clone",
+  "model": "qwen3-tts",
+  "reference_audio": "/data/references/current/voice_reference_engine_ab.wav",
+  "reference_text": "Мы шагали с Хаосом по морозной заснеженной пустыне. Всюду торчали ледяные торосы, при должной доле фантазии похожие на скульптуры животных и людей.",
+  "response_format": "wav",
+  "seed": 42,
+  "speed": 1.0,
+  "voice": null
+}

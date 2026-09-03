@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-atlas",
+  "case_id": "homograph-atlas",
+  "corpus_version": "1.1.0",
+  "source_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+  "tts_text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.",
+  "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-atlas.wav",
+    "sha256": "6761040e1e4a14c3c8a120b894cfe83db58030b4228f4aa1f9d9ac1495ef6505",
+    "pcm_sha256": "c138209429576041f4f8dfe0132dd666d79b64b4bf9ea3c04abd52ea85f686a4",
+    "worker_reported_pcm_sha256": "c138209429576041f4f8dfe0132dd666d79b64b4bf9ea3c04abd52ea85f686a4",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.08,
+    "peak_dbfs": -2.0112022638023936,
+    "rms_dbfs": -17.93898265503055,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.19838418635170604,
+    "leading_silence_seconds": 0.113625,
+    "trailing_silence_seconds": 0.11183333333333334,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.777,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.779229028,
+    "audio_seconds": 5.08,
+    "rtf": 0.1533915409448819,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 777,
+    "audio_duration_ms": 5080,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-009-homograph-atlas-001",
+      "text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.",
+      "seed": 42,
+      "pcm_sha256": "c138209429576041f4f8dfe0132dd666d79b64b4bf9ea3c04abd52ea85f686a4",
+      "worker_reported_pcm_sha256": "c138209429576041f4f8dfe0132dd666d79b64b4bf9ea3c04abd52ea85f686a4",
+      "audio_duration_ms": 5080,
+      "generation_duration_ms": 777,
+      "warnings": []
+    }
+  ]
+}

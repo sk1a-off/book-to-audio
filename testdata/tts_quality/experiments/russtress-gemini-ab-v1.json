@@ -1,0 +1,38 @@
+{
+  "schema_version": "tts-quality-russtress-gemini-ab-v1",
+  "experiment_id": "russtress-gemini-sparse-filter-ab-2026-08-31",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0,
+  "primary_variable": "stress_preparation",
+  "control": "accepted curated sparse stress",
+  "candidate": "russtress 0.1.4 dense candidates filtered by Gemini candidate IDs",
+  "fixed": {
+    "canonical_text_immutable": true,
+    "voice": "current OmniVoice quality reference",
+    "seed": 42,
+    "class_temperature": 0,
+    "position_temperature": 5,
+    "fade_duration_seconds": 0.03,
+    "speaking_rate": 1.0
+  },
+  "cases": [
+    {
+      "id": "homograph-strelki",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "control_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "russtress_text": "Стре'лки часо'в за'мерли на полу'ночи, а лу'чшие стрелки' отря'да уже' за'няли пози'ции."
+    },
+    {
+      "id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "control_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "russtress_text": "Стари'нный за'мок на две'ри не открыва'лся, пока' пу'тники рассма'тривали за'мок на верши'не хо'лма."
+    },
+    {
+      "id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "control_tts_text": "На столе лежала белая мука́, а в душе росла невыносимая му́ка.",
+      "russtress_text": "На столе' лежа'ла бе'лая мука', а в душе' росла' невыноси'мая мука'."
+    }
+  ]
+}

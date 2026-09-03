@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:initials-spaced-and-compact",
+  "case_id": "initials-spaced-and-compact",
+  "corpus_version": "1.1.0",
+  "source_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+  "tts_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "initials-spaced-and-compact.wav",
+    "sha256": "1a7b3e06583068d211e06d1092f5c4524c4e9a9ab2b97da2eed280d7cf804afc",
+    "pcm_sha256": "0961850573e55aeeaeceed77a4865e90a502d297ee9b3bd7165770f3b907a1b8",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 9.040000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 16.210289,
+    "audio_seconds": 9.040000,
+    "rtf": 1.793173562,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 16210,
+    "audio_duration_ms": 9040,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "1baaf9f5fdbc4af1820c678d616f8b82",
+      "text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+      "seed": 42,
+      "pcm_sha256": "0961850573e55aeeaeceed77a4865e90a502d297ee9b3bd7165770f3b907a1b8",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 9040,
+      "generation_duration_ms": 16210,
+      "warnings": []
+    }
+  ]
+}

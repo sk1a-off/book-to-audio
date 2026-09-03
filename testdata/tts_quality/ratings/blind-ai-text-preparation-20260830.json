@@ -1,0 +1,26 @@
+{
+  "schema_version": "tts-quality-ai-text-blind-preference-v1",
+  "session_id": "blind-ai-text-preparation-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C stress preference plus blind D/E heading-pause preference; not MOS",
+  "raw_response": "A при выборе D E у обоих нет нормальной паузы",
+  "stress": {
+    "preferred_label": "A",
+    "preferred_condition": "ai_with_project_lexicon",
+    "reveal": {
+      "A": "ai_with_project_lexicon",
+      "B": "raw_unmarked",
+      "C": "generic_ai_without_project_lexicon"
+    },
+    "verdict": "project_lexicon_wins"
+  },
+  "heading_pause": {
+    "preferred_label": null,
+    "reveal": {
+      "D": "paragraph_break",
+      "E": "single_space"
+    },
+    "verdict": "both_bad"
+  },
+  "decision": "Adopt sparse AI plus project lexicon as the quality baseline. Reject text whitespace alone as heading-pause control; the next controlled experiment must preserve semantic boundary metadata and apply measured minimum silence during audio assembly."
+}

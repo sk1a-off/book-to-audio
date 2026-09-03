@@ -1,0 +1,141 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-russian-v3-blind-20260902",
+  "rated_at": "2026-09-02T08:31:38Z",
+  "method": "single-listener blind A/B preference; not MOS",
+  "reveal_mapping_path": "../outputs/blind/omnivoice-russian-v3-blind-20260902/reveal.json",
+  "cases": [
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "numbers-decimals-and-grouping",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "units-and-percent",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "money-rubles-and-dollars",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "roman-book-and-chapter",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-zamok",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-muka",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-plachu",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-atlas",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-organ",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "homograph-uzhe",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    },
+    {
+      "case_id": "chapter-transition-scene",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": null, "verdict": "tie"},
+        "speaker_stability": {"preferred_label": null, "verdict": "tie"}
+      }
+    }
+  ]
+}

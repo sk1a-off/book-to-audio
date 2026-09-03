@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-selective-stress-v1-20260901:homograph-strelki",
+  "case_id": "homograph-strelki",
+  "corpus_version": "1.1.0",
+  "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+  "tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+  "normalizer_version": "ru-selective-morph-v1:stress",
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-strelki.wav",
+    "sha256": "c8049049698be21d68fac7cfc3486ea78e7b07e1f98fa1a97e2f12049e803e6f",
+    "pcm_sha256": "33c7f81d93b01ca767d0ad202edd80f43067f33b5912afefa93f923db0e188d4",
+    "worker_reported_pcm_sha256": "33c7f81d93b01ca767d0ad202edd80f43067f33b5912afefa93f923db0e188d4",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.84,
+    "peak_dbfs": -2.5843716876038543,
+    "rms_dbfs": -19.380458639696226,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.19074552341597797,
+    "leading_silence_seconds": 0.2745,
+    "trailing_silence_seconds": 0.13429166666666667,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.712,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.714177349,
+    "audio_seconds": 4.84,
+    "rtf": 0.14755730351239668,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 712,
+    "audio_duration_ms": 4840,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-006-homograph-strelki-001",
+      "text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "seed": 42,
+      "pcm_sha256": "33c7f81d93b01ca767d0ad202edd80f43067f33b5912afefa93f923db0e188d4",
+      "worker_reported_pcm_sha256": "33c7f81d93b01ca767d0ad202edd80f43067f33b5912afefa93f923db0e188d4",
+      "audio_duration_ms": 4840,
+      "generation_duration_ms": 712,
+      "warnings": []
+    }
+  ]
+}

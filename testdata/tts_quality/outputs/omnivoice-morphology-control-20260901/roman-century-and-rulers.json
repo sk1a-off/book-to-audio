@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-morphology-control-20260901:roman-century-and-rulers",
+  "case_id": "roman-century-and-rulers",
+  "corpus_version": "1.1.0",
+  "source_text": "В XVIII веке Пётр I уже стал частью истории, а о встрече Екатерины II с наследием Людовика XIV спорили учёные.",
+  "tts_text": "В XVIII веке Пётр I уже стал частью истории, а о встрече Екатерины II с наследием Людовика XIV спорили учёные.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "roman-century-and-rulers.wav",
+    "sha256": "55148f07d9f9a82d8b7ddc16c1d90874e4d3e8748ccb0306845beb065a6519ab",
+    "pcm_sha256": "73e9ee03e907a941d8b47a81d5152621784866fd59bc0b482c4ec4f8fbb6655e",
+    "worker_reported_pcm_sha256": "73e9ee03e907a941d8b47a81d5152621784866fd59bc0b482c4ec4f8fbb6655e",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 6.6,
+    "peak_dbfs": -1.328074621117283,
+    "rms_dbfs": -18.311148841380398,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.13114267676767677,
+    "leading_silence_seconds": 0.123125,
+    "trailing_silence_seconds": 0.117125,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.812,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.813670546,
+    "audio_seconds": 6.6,
+    "rtf": 0.12328341606060607,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 812,
+    "audio_duration_ms": 6600,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-007-roman-century-and-rulers-001",
+      "text": "В XVIII веке Пётр I уже стал частью истории, а о встрече Екатерины II с наследием Людовика XIV спорили учёные.",
+      "seed": 42,
+      "pcm_sha256": "73e9ee03e907a941d8b47a81d5152621784866fd59bc0b482c4ec4f8fbb6655e",
+      "worker_reported_pcm_sha256": "73e9ee03e907a941d8b47a81d5152621784866fd59bc0b482c4ec4f8fbb6655e",
+      "audio_duration_ms": 6600,
+      "generation_duration_ms": 812,
+      "warnings": []
+    }
+  ]
+}

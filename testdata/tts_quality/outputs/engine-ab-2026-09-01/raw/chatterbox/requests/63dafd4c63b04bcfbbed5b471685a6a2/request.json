@@ -1,0 +1,14 @@
+{
+  "extra": {},
+  "input": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+  "instruct": null,
+  "language": "Russian",
+  "mode": "voice_clone",
+  "model": "chatterbox-multilingual-v3",
+  "reference_audio": "/data/references/current/voice_reference_engine_ab.wav",
+  "reference_text": null,
+  "response_format": "wav",
+  "seed": 42,
+  "speed": 1.0,
+  "voice": null
+}

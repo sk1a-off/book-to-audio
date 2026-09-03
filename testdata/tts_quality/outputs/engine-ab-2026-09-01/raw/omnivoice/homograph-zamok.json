@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-raw-v1:homograph-zamok",
+  "case_id": "homograph-zamok",
+  "corpus_version": "1.1.0",
+  "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+  "tts_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "homograph-zamok.wav",
+    "sha256": "478f1cdf0ffdf5b3844f7c4b05089e68777dc9ef2f31c200bbfd4c3ff2006081",
+    "pcm_sha256": "dde1ae4f25e5c767de27cfcd792403c782fba267fa4470795a4e5f5d7671f089",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.600000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.715000,
+    "audio_seconds": 5.600000,
+    "rtf": 0.127678571,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 715,
+    "audio_duration_ms": 5600,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "engine-ab-omnivoice-homograph-zamok",
+      "text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "seed": 42,
+      "pcm_sha256": "dde1ae4f25e5c767de27cfcd792403c782fba267fa4470795a4e5f5d7671f089",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 5600,
+      "generation_duration_ms": 715,
+      "warnings": []
+    }
+  ]
+}

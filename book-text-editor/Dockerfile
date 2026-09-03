@@ -11,12 +11,18 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath -ldflags="-s -w" -o /out/audiobook-api ./cmd/api
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath -ldflags="-s -w" -o /out/migrate ./cmd/migrate
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath -ldflags="-s -w" -o /out/quality-runner ./cmd/quality-runner
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath -ldflags="-s -w" -o /out/quality-blind ./cmd/quality-blind
 
 FROM scratch AS runtime
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /out/audiobook-api /usr/local/bin/audiobook-api
 COPY --from=build /out/migrate /usr/local/bin/migrate
+COPY --from=build /out/quality-runner /usr/local/bin/quality-runner
+COPY --from=build /out/quality-blind /usr/local/bin/quality-blind
 
 USER 65532:65532
 EXPOSE 8080

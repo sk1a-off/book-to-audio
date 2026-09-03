@@ -109,6 +109,31 @@ services:
       start_period: 180s
       retries: 3
 
+  quality-runner:
+    profiles:
+      - quality
+    image: tts-microservice-mvp/audiobook-api:local
+    build:
+      context: ../../book-text-editor
+      labels:
+        com.tts-microservice-mvp.managed: "true"
+        com.tts-microservice-mvp.component: quality-runner
+    entrypoint:
+      - /usr/local/bin/quality-runner
+    user: ${QUALITY_RUNNER_UID:-1000}:${QUALITY_RUNNER_GID:-1000}
+    depends_on:
+      omnivoice-worker:
+        condition: service_healthy
+    volumes:
+      - ../../data:/data:ro
+      - ../../testdata/tts_quality:/quality:ro
+      - ${QUALITY_OUTPUT_DIR:-../../testdata/tts_quality/outputs}:/output
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+
   stt-worker:
     image: tts-microservice-mvp/stt-worker:local
     build:

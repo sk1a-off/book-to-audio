@@ -1,0 +1,18 @@
+{
+  "schema_version": "tts-quality-tail-fade-preference-v1",
+  "session_id": "tail-fade-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "B",
+  "variable": "fade_duration_ms",
+  "baseline_value_ms": 100,
+  "reveal": {
+    "A": 0,
+    "B": 30,
+    "C": 10
+  },
+  "preferred_label": "B",
+  "preferred_value_ms": 30,
+  "verdict": "short_fade_wins",
+  "decision": "Use 30 ms as the candidate OmniVoice edge fade. Keep 100 ms as the production default until multi-case regression confirms that the shorter fade does not create clicks or truncate other phrase endings."
+}

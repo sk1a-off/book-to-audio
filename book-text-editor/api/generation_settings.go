@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+
+	"book-text-editor/internal/russiantext"
 )
 
 const (
@@ -26,6 +28,23 @@ const (
 	defaultTTSPadDuration         = 0.1
 	defaultTTSFadeDuration        = 0.1
 )
+
+// PronunciationGenerationSettings contains sparse, job-scoped pronunciation
+// hints. Rules use one pair per line: "source => source with U+0301 accents".
+// The canonical fragment text is never replaced by this snapshot.
+type PronunciationGenerationSettings struct {
+	Enabled bool   `json:"enabled"`
+	Rules   string `json:"rules"`
+}
+
+// RussianTextGenerationSettings controls deterministic preparation of the
+// OmniVoice-only text representation. Version is server-owned and persisted
+// with the job so a resume cannot silently switch rulesets.
+type RussianTextGenerationSettings struct {
+	Version             string `json:"version"`
+	SelectiveStress     bool   `json:"selective_stress"`
+	NormalizeMorphology bool   `json:"normalize_morphology"`
+}
 
 // OmniVoiceGenerationSettings is the resolved, immutable worker configuration
 // stored with a generation job.
@@ -60,15 +79,29 @@ type WhisperGenerationSettings struct {
 // GenerationSettings is the resolved generation policy snapshot stored with a
 // job and returned by job APIs.
 type GenerationSettings struct {
-	OmniVoice               OmniVoiceGenerationSettings `json:"omnivoice"`
-	Whisper                 WhisperGenerationSettings   `json:"whisper"`
-	AutomaticWarningRetries int                         `json:"automatic_warning_retries"`
+	OmniVoice               OmniVoiceGenerationSettings     `json:"omnivoice"`
+	Whisper                 WhisperGenerationSettings       `json:"whisper"`
+	Pronunciation           PronunciationGenerationSettings `json:"pronunciation"`
+	RussianText             RussianTextGenerationSettings   `json:"russian_text"`
+	AutomaticWarningRetries int                             `json:"automatic_warning_retries"`
 }
 
 type generationSettingsInput struct {
-	OmniVoice               *omniVoiceGenerationSettingsInput `json:"omnivoice,omitempty"`
-	Whisper                 *whisperGenerationSettingsInput   `json:"whisper,omitempty"`
-	AutomaticWarningRetries *int                              `json:"automatic_warning_retries,omitempty"`
+	OmniVoice               *omniVoiceGenerationSettingsInput     `json:"omnivoice,omitempty"`
+	Whisper                 *whisperGenerationSettingsInput       `json:"whisper,omitempty"`
+	Pronunciation           *pronunciationGenerationSettingsInput `json:"pronunciation,omitempty"`
+	RussianText             *russianTextGenerationSettingsInput   `json:"russian_text,omitempty"`
+	AutomaticWarningRetries *int                                  `json:"automatic_warning_retries,omitempty"`
+}
+
+type pronunciationGenerationSettingsInput struct {
+	Enabled *bool   `json:"enabled,omitempty"`
+	Rules   *string `json:"rules,omitempty"`
+}
+
+type russianTextGenerationSettingsInput struct {
+	SelectiveStress     *bool `json:"selective_stress,omitempty"`
+	NormalizeMorphology *bool `json:"normalize_morphology,omitempty"`
 }
 
 type omniVoiceGenerationSettingsInput struct {
@@ -122,6 +155,11 @@ func defaultGenerationSettings() GenerationSettings {
 			Temperature:    defaultWhisperTemperature,
 			VADFilter:      defaultWhisperVADFilter,
 			WordTimestamps: defaultWhisperWordTimestamps,
+		},
+		RussianText: RussianTextGenerationSettings{
+			Version:             russiantext.Version,
+			SelectiveStress:     true,
+			NormalizeMorphology: true,
 		},
 		AutomaticWarningRetries: defaultAutomaticWarningRetries,
 	}
@@ -231,6 +269,24 @@ func resolveGenerationSettings(
 				*input.Whisper.WordTimestamps
 		}
 	}
+	if input.Pronunciation != nil {
+		if input.Pronunciation.Enabled != nil {
+			settings.Pronunciation.Enabled = *input.Pronunciation.Enabled
+		}
+		if input.Pronunciation.Rules != nil {
+			settings.Pronunciation.Rules = *input.Pronunciation.Rules
+		}
+	}
+	if input.RussianText != nil {
+		if input.RussianText.SelectiveStress != nil {
+			settings.RussianText.SelectiveStress =
+				*input.RussianText.SelectiveStress
+		}
+		if input.RussianText.NormalizeMorphology != nil {
+			settings.RussianText.NormalizeMorphology =
+				*input.RussianText.NormalizeMorphology
+		}
+	}
 	if input.AutomaticWarningRetries != nil {
 		settings.AutomaticWarningRetries = *input.AutomaticWarningRetries
 	}
@@ -329,6 +385,15 @@ func validateGenerationSettings(settings GenerationSettings) error {
 		settings.AutomaticWarningRetries > 10 {
 		return fmt.Errorf(
 			"automatic_warning_retries must be between 0 and 10",
+		)
+	}
+	if _, err := parsePronunciationRules(settings.Pronunciation.Rules); err != nil {
+		return fmt.Errorf("pronunciation.rules: %w", err)
+	}
+	if settings.RussianText.Version != russiantext.Version {
+		return fmt.Errorf(
+			"russian_text.version %q is not supported by this build",
+			settings.RussianText.Version,
 		)
 	}
 	return nil

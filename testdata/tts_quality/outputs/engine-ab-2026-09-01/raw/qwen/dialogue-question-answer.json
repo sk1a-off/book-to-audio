@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-raw-v1:dialogue-question-answer",
+  "case_id": "dialogue-question-answer",
+  "corpus_version": "1.1.0",
+  "source_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+  "tts_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "dialogue-question-answer.wav",
+    "sha256": "cbbde281942fc6111fbd862ee9ee3689224225e3beb719fd25e27b9cb1ebe639",
+    "pcm_sha256": "127d36f012263319d3abd6b8f78ff6b0ba5893a9edbe5829abb6751f138f2d8c",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.920000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 4.430251,
+    "audio_seconds": 5.920000,
+    "rtf": 0.748353209,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 4430,
+    "audio_duration_ms": 5920,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "5d23f429dc5740269594cf9c5d47c1b0",
+      "text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+      "seed": 42,
+      "pcm_sha256": "127d36f012263319d3abd6b8f78ff6b0ba5893a9edbe5829abb6751f138f2d8c",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 5920,
+      "generation_duration_ms": 4430,
+      "warnings": []
+    }
+  ]
+}

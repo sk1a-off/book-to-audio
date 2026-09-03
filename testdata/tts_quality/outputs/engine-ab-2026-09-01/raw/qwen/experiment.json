@@ -1,0 +1,28 @@
+{
+  "schema_version": "tts-quality-experiment-v1",
+  "experiment_id": "qwen3-tts-1.7b-base-raw-v1",
+  "corpus_version": "1.1.0",
+  "case_ids": [
+    "prose-long-period",
+    "dialogue-question-answer",
+    "heading-chapter-seven-words",
+    "homograph-zamok"
+  ],
+  "reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "reference_text_sha256": "b7cf7809fe734e7bc5be63271032f63df7e68e748db3454b0f03dda0fe3c2385",
+  "reference_text_file_sha256": "b30f8cf08667fef20430ee935a2884a44067366a921154dde79ea097970374ce",
+  "seed": 42,
+  "silence_threshold_dbfs": -50,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "segmenter_version": "none-whole-text-v1",
+  "segmenter_max_words": 120,
+  "normalizer_version": "canonical-source-v1",
+  "text_overrides_sha256": null
+}

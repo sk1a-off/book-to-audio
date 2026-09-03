@@ -1,0 +1,119 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "qwen17-vs-omnivoice-russian-expanded-20260901",
+  "rated_at": "2026-09-01T10:58:48Z",
+  "method": "single-listener blind A/B preference; not MOS",
+  "reveal_mapping_path": "../outputs/engine-ab-expanded-2026-09-01/blind/qwen17-vs-omnivoice-russian-expanded-20260901/reveal.json",
+  "cases": [
+    {
+      "case_id": "initials-spaced-and-compact",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "abbreviations-context",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "dates-numeric-and-words",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "B", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "B", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "preferred_label": null,
+      "verdict": "both_bad",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": null, "verdict": "both_bad"},
+        "speaker_stability": {"preferred_label": null, "verdict": "both_bad"}
+      }
+    },
+    {
+      "case_id": "units-and-percent",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "B", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "B", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "homograph-muka",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "homograph-stoit",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "homograph-plachu",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "homograph-doroga",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "homograph-organ",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": null, "verdict": "both_bad"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    }
+  ]
+}

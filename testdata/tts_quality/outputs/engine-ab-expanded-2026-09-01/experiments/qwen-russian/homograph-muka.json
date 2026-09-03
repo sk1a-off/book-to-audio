@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-muka",
+  "case_id": "homograph-muka",
+  "corpus_version": "1.1.0",
+  "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+  "tts_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "homograph-muka.wav",
+    "sha256": "9002d84ea978016de87fc879c0d96cb797a085026cb0fda8a222bdc19c1a1792",
+    "pcm_sha256": "425fb98bc98c507c49d23928ef2c4e1f42e3f61b0ccd039094d352403f1a39c9",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.160000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 3.243407,
+    "audio_seconds": 4.160000,
+    "rtf": 0.779665144,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 3243,
+    "audio_duration_ms": 4160,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "6a90e79c42bd4047bef6fbcc82b6415e",
+      "text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "seed": 42,
+      "pcm_sha256": "425fb98bc98c507c49d23928ef2c4e1f42e3f61b0ccd039094d352403f1a39c9",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 4160,
+      "generation_duration_ms": 3243,
+      "warnings": []
+    }
+  ]
+}

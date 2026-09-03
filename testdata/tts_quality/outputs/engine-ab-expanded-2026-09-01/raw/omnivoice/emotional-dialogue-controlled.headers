@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 06:20:08 GMT
+server: uvicorn
+cache-control: no-store
+content-disposition: attachment; filename="segment.wav"
+x-request-id: exp-emotional-dialogue-controlled
+x-audio-encoding: WAV_PCM_S16LE
+x-audio-sample-rate: 24000
+x-audio-channels: 1
+x-audio-bits-per-sample: 16
+x-audio-sha256: 39abd2536b9fb62ef2f8f42dd02c4f59512e7c3e98397c929fc10516858b071b
+x-audio-duration-ms: 6800
+x-generation-duration-ms: 749
+x-seed-used: 42
+x-voice-cache-hit: true
+x-model-id: k2-fsa/OmniVoice
+x-model-version: c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1
+content-length: 326444
+content-type: audio/wav
+

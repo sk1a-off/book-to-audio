@@ -1,0 +1,135 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "omnivoice-selective-stress-blind-20260901",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-zamok/A.wav",
+          "duration_seconds": 5.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-zamok/B.wav",
+          "duration_seconds": 5.6
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-muka/A.wav",
+          "duration_seconds": 3.68
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-muka/B.wav",
+          "duration_seconds": 3.68
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-plachu",
+      "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-plachu/A.wav",
+          "duration_seconds": 5.44
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-plachu/B.wav",
+          "duration_seconds": 5.44
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-atlas",
+      "source_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-atlas/A.wav",
+          "duration_seconds": 5.08
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-atlas/B.wav",
+          "duration_seconds": 5.08
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-organ",
+      "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-organ/A.wav",
+          "duration_seconds": 5.66
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-organ/B.wav",
+          "duration_seconds": 5.23
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-strelki",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-strelki/A.wav",
+          "duration_seconds": 4.84
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-strelki/B.wav",
+          "duration_seconds": 4.84
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-uzhe",
+      "source_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-uzhe/A.wav",
+          "duration_seconds": 2.84
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-uzhe/B.wav",
+          "duration_seconds": 2.84
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-belki",
+      "source_text": "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-belki/A.wav",
+          "duration_seconds": 5.2
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-belki/B.wav",
+          "duration_seconds": 5.2
+        }
+      ]
+    }
+  ]
+}

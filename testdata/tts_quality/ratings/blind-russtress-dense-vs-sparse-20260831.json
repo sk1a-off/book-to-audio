@@ -1,0 +1,45 @@
+{
+  "schema_version": "tts-quality-russtress-dense-blind-preference-v1",
+  "session_id": "blind-russtress-dense-vs-sparse-20260831",
+  "rated_on": "2026-08-31",
+  "method": "single-listener blind per-case A/B preference; not MOS",
+  "raw_response": [
+    "Стрелки: B",
+    "Замок: B",
+    "Мука: A"
+  ],
+  "conditions": {
+    "control": "accepted curated sparse U+0301 stress",
+    "candidate": "direct dense russtress 0.1.4 output converted to U+0301 without Gemini"
+  },
+  "cases": [
+    {
+      "case_id": "homograph-strelki",
+      "reveal": {"A": "control", "B": "candidate"},
+      "preferred_label": "B",
+      "preferred_condition": "candidate",
+      "verdict": "dense_russtress_wins",
+      "interpretation": "Both target homograph positions were correct, so this case primarily probes the perceptual effect of dense ordinary-word stress marks."
+    },
+    {
+      "case_id": "homograph-zamok",
+      "reveal": {"A": "candidate", "B": "control"},
+      "preferred_label": "B",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    },
+    {
+      "case_id": "homograph-muka",
+      "reveal": {"A": "control", "B": "candidate"},
+      "preferred_label": "A",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    }
+  ],
+  "summary": {
+    "control_wins": 2,
+    "dense_russtress_wins": 1,
+    "ties": 0
+  },
+  "decision": "Reject direct russtress as an autonomous production normalizer because contextual stress errors dominated two of three cases. Do not conclude that dense marking always harms prosody: the listener preferred dense russtress in the positive-control strelki case. Run a separate longer-prose A/B with independently verified correct stresses to isolate prosody and listening fatigue from pronunciation accuracy."
+}

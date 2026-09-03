@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-expanded-prosody-v1:emotional-dialogue-controlled",
+  "case_id": "emotional-dialogue-controlled",
+  "corpus_version": "1.1.0",
+  "source_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+  "tts_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "emotional-dialogue-controlled.wav",
+    "sha256": "39abd2536b9fb62ef2f8f42dd02c4f59512e7c3e98397c929fc10516858b071b",
+    "pcm_sha256": "303b88cd8bc5b94538c5209a4297bdab4d0dab2d201710a3ef4491d38ca798bd",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 6.800000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.749000,
+    "audio_seconds": 6.800000,
+    "rtf": 0.110147059,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 749,
+    "audio_duration_ms": 6800,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "exp-emotional-dialogue-controlled",
+      "text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+      "seed": 42,
+      "pcm_sha256": "303b88cd8bc5b94538c5209a4297bdab4d0dab2d201710a3ef4491d38ca798bd",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 6800,
+      "generation_duration_ms": 749,
+      "warnings": []
+    }
+  ]
+}

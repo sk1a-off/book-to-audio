@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:question-and-exclamation",
+  "case_id": "question-and-exclamation",
+  "corpus_version": "1.1.0",
+  "source_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+  "tts_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "question-and-exclamation.wav",
+    "sha256": "fb54d8ad54bfb1aff97cb8efc344964b76a0368f6f7cccdaf84711fa17895e8a",
+    "pcm_sha256": "f2dfc29a01905d2dd6e667f74491e2f1999422cbb7d2f6c3050874cc77a6b664",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.720000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 3.646538,
+    "audio_seconds": 4.720000,
+    "rtf": 0.772571610,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 3647,
+    "audio_duration_ms": 4720,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "1f172f4deaa64c8a8bee40cac71477b6",
+      "text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+      "seed": 42,
+      "pcm_sha256": "f2dfc29a01905d2dd6e667f74491e2f1999422cbb7d2f6c3050874cc77a6b664",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 4720,
+      "generation_duration_ms": 3647,
+      "warnings": []
+    }
+  ]
+}

@@ -261,13 +261,21 @@ func (r *jobRunner) processFragmentAttempt(
 		r.failFragment(fragmentID, "generation seed is unavailable", err)
 		return "", 0, fmt.Errorf("generate worker seed: %w", err)
 	}
+	ttsText, preparation, err := prepareRussianTTSText(
+		item.Resource.Text,
+		task.Settings,
+	)
+	if err != nil {
+		r.failFragment(fragmentID, "pronunciation rules are invalid", err)
+		return "", seed, fmt.Errorf("apply pronunciation rules: %w", err)
+	}
 
 	ttsContext, cancelTTS := r.server.workerContext(ctx)
-	ttsResult, err := r.server.tts.Generate(ttsContext, TTSRequest{
+	ttsResult, err := r.server.generateTTS(ttsContext, TTSRequest{
 		RequestID:            r.server.newID(),
 		JobID:                task.JobID,
 		FragmentID:           fragmentID,
-		Text:                 item.Resource.Text,
+		Text:                 ttsText,
 		ReferenceAudio:       item.Voice.Audio,
 		ReferenceContentType: item.Voice.Resource.ContentType,
 		ReferenceText:        item.Voice.ReferenceText,
@@ -337,6 +345,36 @@ func (r *jobRunner) processFragmentAttempt(
 		warningCode = "audio_warning"
 	}
 
+	workerNotes := append([]string(nil), ttsResult.Warnings...)
+	if preparation.ManualPronunciationRules > 0 {
+		workerNotes = append(
+			workerNotes,
+			fmt.Sprintf(
+				"selective pronunciation rules applied: %d",
+				preparation.ManualPronunciationRules,
+			),
+		)
+	}
+	if preparation.SelectiveStressRules > 0 {
+		workerNotes = append(
+			workerNotes,
+			fmt.Sprintf(
+				"%s selective stress rules applied: %d",
+				preparation.Version,
+				preparation.SelectiveStressRules,
+			),
+		)
+	}
+	if preparation.MorphologyReplacements > 0 {
+		workerNotes = append(
+			workerNotes,
+			fmt.Sprintf(
+				"%s morphology replacements applied: %d",
+				preparation.Version,
+				preparation.MorphologyReplacements,
+			),
+		)
+	}
 	err = r.server.store.completeFragment(
 		ctx,
 		fragmentID,
@@ -349,7 +387,7 @@ func (r *jobRunner) processFragmentAttempt(
 			STTText:     sttResult.Text,
 			STTLanguage: sttResult.Language,
 			WarningCode: warningCode,
-			WorkerNotes: append([]string(nil), ttsResult.Warnings...),
+			WorkerNotes: workerNotes,
 		},
 		r.server.now().UTC(),
 	)

@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 06:19:58 GMT
+server: uvicorn
+cache-control: no-store
+content-disposition: attachment; filename="segment.wav"
+x-request-id: exp-dates-numeric-and-words
+x-audio-encoding: WAV_PCM_S16LE
+x-audio-sample-rate: 24000
+x-audio-channels: 1
+x-audio-bits-per-sample: 16
+x-audio-sha256: 715a4452e9b4876414ee7adbd51a0bde25cf284f41279678a037ff25172d7769
+x-audio-duration-ms: 15760
+x-generation-duration-ms: 1271
+x-seed-used: 42
+x-voice-cache-hit: true
+x-model-id: k2-fsa/OmniVoice
+x-model-version: c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1
+content-length: 756524
+content-type: audio/wav
+

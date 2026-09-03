@@ -1,0 +1,96 @@
+{
+  "schema_version": "tts-quality-stress-cascade-pilot-v1",
+  "experiment_id": "russtress-gemini-sparse-filter-2026-08-31",
+  "status": "candidate-generator-tested-gemini-filter-pending",
+  "purpose": "Test dense russtress accent candidates followed by a sparse contextual selector for OmniVoice.",
+  "candidate_generator": {
+    "package": "russtress",
+    "version": "0.1.4",
+    "model_format": "Keras 2.2.4-era JSON and weights",
+    "runtime": "Python 3.11, TensorFlow 2.21, tf-keras 2.21, TF_USE_LEGACY_KERAS=1",
+    "notation": "apostrophe after stressed vowel",
+    "production_compatibility": "requires legacy Keras compatibility mode"
+  },
+  "selector": {
+    "requested_model": "Gemini 3.5 Flash Lite",
+    "status": "not rerun",
+    "reason": "Previously published credentials were not reused. A newly rotated credential must be provided through a secret environment variable, not committed or pasted into artifacts.",
+    "required_contract": "Return candidate IDs only; never rewrite source text or move an accent to another vowel."
+  },
+  "summary": {
+    "contextual_homograph_targets": 20,
+    "correct_candidate_positions": 11,
+    "incorrect_candidate_positions": 9,
+    "candidate_position_recall": 0.55,
+    "fully_correct_cases": 1,
+    "total_cases": 10
+  },
+  "cases": [
+    {
+      "id": "homograph-zamok",
+      "russtress": "Стари'нный за'мок на две'ри не открыва'лся, пока' пу'тники рассма'тривали за'мок на верши'не хо'лма.",
+      "expected_targets": ["замо́к", "за́мок"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-muka",
+      "russtress": "На столе' лежа'ла бе'лая мука', а в душе' росла' невыноси'мая мука'.",
+      "expected_targets": ["мука́", "му́ка"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-stoit",
+      "russtress": "У воро'т сто'ит часово'й, но тебе' не сто'ит подходи'ть к нему' сли'шком бли'зко.",
+      "expected_targets": ["стои́т", "сто́ит"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-plachu",
+      "russtress": "Я пла'чу за кварти'ру во'время, а сего'дня пла'чу потому', что вы'нуждена уе'хать.",
+      "expected_targets": ["плачу́", "пла́чу"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-atlas",
+      "russtress": "Она' раскры'ла географи'ческий а'тлас и положи'ла его' ря'дом с пла'тьем из си'него а'тласа.",
+      "expected_targets": ["а́тлас", "атла́са"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-organ",
+      "russtress": "Госуда'рственный о'рган запрети'л конце'рт, но стари'нный о'рган всё же зазвуча'л в пусто'м собо'ре.",
+      "expected_targets": ["о́рган", "орга́н"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-strelki",
+      "russtress": "Стре'лки часо'в за'мерли на полу'ночи, а лу'чшие стрелки' отря'да уже' за'няли пози'ции.",
+      "expected_targets": ["стре́лки", "стрелки́"],
+      "correct_targets": 2
+    },
+    {
+      "id": "homograph-doroga",
+      "russtress": "Э'та доро'га мне доро'га, потому' что по ней мы когда'-то возвраща'лись домо'й.",
+      "expected_targets": ["доро́га", "дорога́"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-uzhe",
+      "russtress": "Коридо'р стал уже', и мы уже' не могли' идти' ря'дом.",
+      "expected_targets": ["у́же", "уже́"],
+      "correct_targets": 1
+    },
+    {
+      "id": "homograph-belki",
+      "russtress": "Ры'жие белки' спря'тались в ветвя'х, а белки' из лаборато'рного образца' изуча'ли отде'льно.",
+      "expected_targets": ["бе́лки", "белки́"],
+      "correct_targets": 1
+    }
+  ],
+  "decision": {
+    "dense_text_to_omnivoice": "rejected",
+    "delete-only_selector_over_single_russtress_candidate": "insufficient",
+    "recommended_experiment": "Use a deterministic homograph lexicon to enumerate allowed variants, let Gemini select one candidate ID from context, then apply only sparse marks plus project-specific overrides.",
+    "production_default_changed": false
+  }
+}

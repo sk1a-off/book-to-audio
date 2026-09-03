@@ -1,0 +1,23 @@
+{
+  "schema_version": "tts-quality-homograph-variant-gemini-result-v1",
+  "experiment_id": "homograph-variant-gateway-gemini-coder-low-2026-09-02",
+  "model": "gemini-coder",
+  "transport": "openai-compatible-gateway",
+  "reasoning_effort": "low",
+  "temperature": 0,
+  "complete": false,
+  "results": [
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "control_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "candidate_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "selections": {
+        "o1": "o1_b",
+        "o2": "o2_a"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    }
+  ]
+}

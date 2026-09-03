@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:emotional-dialogue-controlled",
+  "case_id": "emotional-dialogue-controlled",
+  "corpus_version": "1.1.0",
+  "source_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+  "tts_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "emotional-dialogue-controlled.wav",
+    "sha256": "f9964573d4b25220a1fcc6b6b8bbae4f4806a0f9868e5c09dadb644403121c58",
+    "pcm_sha256": "edf3583cc47fb0a86ad5c7fa858130d7b4c3560c27874806becd0bb588b53729",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 6.800000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 5.200453,
+    "audio_seconds": 6.800000,
+    "rtf": 0.764772500,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 5200,
+    "audio_duration_ms": 6800,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "d8c91d14e22445ac916111a332c1b648",
+      "text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+      "seed": 42,
+      "pcm_sha256": "edf3583cc47fb0a86ad5c7fa858130d7b4c3560c27874806becd0bb588b53729",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 6800,
+      "generation_duration_ms": 5200,
+      "warnings": []
+    }
+  ]
+}

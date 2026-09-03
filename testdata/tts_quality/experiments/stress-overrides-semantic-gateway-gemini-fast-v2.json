@@ -1,0 +1,24 @@
+{
+  "schema_version": "tts-quality-text-overrides-v1",
+  "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+  "transform_kind": "stress_marks_only",
+  "description": "Semantic-gloss allowlist selected by gemini-fast through the local gateway; experiment only pending blind OmniVoice listening.",
+  "cases": [
+    {
+      "case_id": "homograph-stoit",
+      "tts_text": "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко."
+    },
+    {
+      "case_id": "homograph-strelki",
+      "tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции."
+    },
+    {
+      "case_id": "homograph-doroga",
+      "tts_text": "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой."
+    },
+    {
+      "case_id": "homograph-belki",
+      "tts_text": "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно."
+    }
+  ]
+}

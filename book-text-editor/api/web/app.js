@@ -5,6 +5,7 @@
     books: "audiobook-ui.books.v1",
     lastJobID: "audiobook-ui.last-job-id.v1",
     generationSettings: "audiobook-ui.generation-settings.v1",
+    russianTextDefaultsRevision: "audiobook-ui.russian-text-defaults-revision.v1",
     activeRewrite: "audiobook-ui.active-rewrite.v1",
   });
 
@@ -33,8 +34,25 @@
       vad_filter: false,
       word_timestamps: true,
     }),
+    pronunciation: Object.freeze({
+      enabled: false,
+      rules: "",
+    }),
+    russian_text: Object.freeze({
+      selective_stress: true,
+      normalize_morphology: true,
+    }),
     automatic_warning_retries: 1,
   });
+
+  const RUSSIAN_TEXT_DEFAULTS_REVISION = "ru-selective-morph-v3";
+
+  const DEFAULT_QUALITY_PREVIEW_TEXT =
+    "В 1941 году старинный замок на вершине холма ещё казался неприступным. " +
+    "— Ты действительно собираешься туда идти? — спросила Анна. " +
+    "— А у меня есть выбор?.. — ответил он и осторожно проверил дверной замок. " +
+    "Коридор становился уже, ветер усиливался, а стрелки часов приближались к полуночи. " +
+    "Внезапно за дверью раздался голос: «Стойте! Не открывайте её!»";
 
   const TERMINAL_JOB_STATUSES = new Set([
     "completed",
@@ -198,6 +216,34 @@
       );
     }
 
+    async generateQualityPreview(voiceID, text, settings) {
+      const response = await this.request(
+        `/v1/preview/voice/${encodeURIComponent(voiceID)}/audio.wav`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            seed: 42,
+            generation_settings: settings,
+          }),
+        },
+      );
+      return {
+        blob: await response.blob(),
+        durationMS: Number(response.headers.get("X-Audio-Duration-Ms")) || 0,
+        rulesApplied:
+          Number(response.headers.get("X-Pronunciation-Rules-Applied")) || 0,
+        selectiveStressApplied:
+          Number(response.headers.get("X-Selective-Stress-Rules-Applied")) || 0,
+        morphologyReplacements:
+          Number(response.headers.get("X-Morphology-Replacements")) || 0,
+        russianTextVersion:
+          response.headers.get("X-Russian-Text-Version") || "unknown",
+        seed: Number(response.headers.get("X-TTS-Seed")) || 42,
+      };
+    }
+
     getJob(jobID) {
       return this.request(`/v1/job/${encodeURIComponent(jobID)}`);
     }
@@ -353,9 +399,14 @@
       this.jobsTotal = 0;
       this.jobsPollToken = 0;
       this.jobsRefreshInFlight = false;
+      this.jobsRenderSignature = "";
       this.queuePollToken = 0;
       this.queueRefreshInFlight = false;
       this.queueSnapshot = null;
+      this.queueRenderSignature = "";
+      this.currentJobRenderSignature = "";
+      this.qualityPreviewAudioURL = "";
+      this.qualityPreviewRevision = 0;
 
       this.nodes = {
         healthIndicator: this.byID("health-indicator"),
@@ -416,6 +467,15 @@
         sttVADFilter: this.byID("stt-vad-filter"),
         sttWordTimestamps: this.byID("stt-word-timestamps"),
         warningRetries: this.byID("warning-retries"),
+        pronunciationEnabled: this.byID("pronunciation-enabled"),
+        pronunciationRules: this.byID("pronunciation-rules"),
+        russianSelectiveStress: this.byID("russian-selective-stress"),
+        russianNormalizeMorphology: this.byID("russian-normalize-morphology"),
+        qualityPreviewText: this.byID("quality-preview-text"),
+        qualityPreviewCount: this.byID("quality-preview-count"),
+        qualityPreviewButton: this.byID("quality-preview-button"),
+        qualityPreviewStatus: this.byID("quality-preview-status"),
+        qualityPreviewAudio: this.byID("quality-preview-audio"),
 
         jobsStatusFilter: this.byID("jobs-status-filter"),
         jobsRefreshButton: this.byID("jobs-refresh-button"),
@@ -492,6 +552,8 @@
 
     init() {
       this.restoreGenerationSettings();
+      this.nodes.qualityPreviewText.value = DEFAULT_QUALITY_PREVIEW_TEXT;
+      this.updateQualityPreviewState();
       this.bindEvents();
       this.bindFilePicker(
         this.nodes.bookFile,
@@ -532,6 +594,7 @@
         this.refreshSelectedBook();
       });
       this.nodes.voiceSelect.addEventListener("change", () => {
+        this.invalidateQualityPreview();
         this.renderSelectionSummary();
       });
       this.nodes.referenceText.addEventListener("input", () => {
@@ -570,17 +633,42 @@
       this.nodes.generateButton.addEventListener("click", () => {
         this.startGeneration();
       });
+      this.nodes.qualityPreviewButton.addEventListener("click", () => {
+        this.startQualityPreview();
+      });
+      this.nodes.qualityPreviewText.addEventListener("input", () => {
+        this.invalidateQualityPreview();
+      });
       for (const field of this.generationSettingFields()) {
         field.input.addEventListener("change", () => {
           const settings = this.collectGenerationSettings(false);
           if (settings) {
             this.persistGenerationSettings(settings);
+            this.invalidateQualityPreview();
+          }
+        });
+      }
+      for (const field of [
+        this.nodes.russianSelectiveStress,
+        this.nodes.russianNormalizeMorphology,
+        this.nodes.pronunciationEnabled,
+        this.nodes.pronunciationRules,
+      ]) {
+        const eventName = field === this.nodes.pronunciationRules
+          ? "input"
+          : "change";
+        field.addEventListener(eventName, () => {
+          const settings = this.collectGenerationSettings(false);
+          if (settings) {
+            this.persistGenerationSettings(settings);
+            this.invalidateQualityPreview();
           }
         });
       }
       this.nodes.generationSettingsReset.addEventListener("click", () => {
         this.applyGenerationSettings(DEFAULT_GENERATION_SETTINGS);
         this.persistGenerationSettings(DEFAULT_GENERATION_SETTINGS);
+        this.invalidateQualityPreview();
         this.notify("Рекомендуемые настройки генерации восстановлены.");
       });
       this.nodes.jobsStatusFilter.addEventListener("change", () => {
@@ -1004,6 +1092,24 @@
         }
       }
 
+      if (this.readStorage(STORAGE.russianTextDefaultsRevision) !==
+          RUSSIAN_TEXT_DEFAULTS_REVISION) {
+        if (stored) {
+          stored = {
+            ...stored,
+            russian_text: {
+              ...(stored.russian_text || {}),
+              selective_stress: true,
+              normalize_morphology: true,
+            },
+          };
+        }
+        this.writeStorage(
+          STORAGE.russianTextDefaultsRevision,
+          RUSSIAN_TEXT_DEFAULTS_REVISION,
+        );
+      }
+
       this.applyGenerationSettings(
         stored || DEFAULT_GENERATION_SETTINGS,
       );
@@ -1044,12 +1150,35 @@
             : fallback,
         );
       }
+      const pronunciation = settings && settings.pronunciation;
+      this.nodes.pronunciationEnabled.checked = Boolean(
+        pronunciation && pronunciation.enabled,
+      );
+      this.nodes.pronunciationRules.value =
+        pronunciation && typeof pronunciation.rules === "string"
+          ? pronunciation.rules
+          : DEFAULT_GENERATION_SETTINGS.pronunciation.rules;
+      const russianText = settings && settings.russian_text;
+      this.nodes.russianSelectiveStress.checked = Boolean(
+        russianText && russianText.selective_stress,
+      );
+      this.nodes.russianNormalizeMorphology.checked = Boolean(
+        russianText && russianText.normalize_morphology,
+      );
     }
 
     collectGenerationSettings(announce = true) {
       const settings = {
         omnivoice: {},
         whisper: {},
+        pronunciation: {
+          enabled: this.nodes.pronunciationEnabled.checked,
+          rules: this.nodes.pronunciationRules.value,
+        },
+        russian_text: {
+          selective_stress: this.nodes.russianSelectiveStress.checked,
+          normalize_morphology: this.nodes.russianNormalizeMorphology.checked,
+        },
         automatic_warning_retries:
           DEFAULT_GENERATION_SETTINGS.automatic_warning_retries,
       };
@@ -1082,13 +1211,154 @@
           settings[field.key] = value;
         }
       }
+      const pronunciationError = this.validatePronunciationRules(
+        settings.pronunciation.rules,
+      );
+      if (pronunciationError) {
+        if (announce) {
+          this.nodes.generationSettings.open = true;
+          this.notify(pronunciationError, "error");
+          this.nodes.pronunciationRules.focus();
+        }
+        return null;
+      }
       return settings;
+    }
+
+    validatePronunciationRules(raw) {
+      const acute = "\u0301";
+      const lines = String(raw || "").split(/\r?\n/u);
+      let count = 0;
+      const seen = new Set();
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index].trim();
+        if (!line || line.startsWith("#")) {
+          continue;
+        }
+        count += 1;
+        if (count > 256) {
+          return "Словарь ударений: не более 256 правил.";
+        }
+        const parts = line.split("=>");
+        if (parts.length !== 2) {
+          return `Словарь ударений, строка ${index + 1}: нужен один разделитель =>.`;
+        }
+        const source = parts[0].trim();
+        const target = parts[1].trim();
+        const stripped = target.split(acute).join("");
+        if (!source || !target || !target.includes(acute)) {
+          return `Словарь ударений, строка ${index + 1}: добавьте U+0301 в правой части.`;
+        }
+        if (source.localeCompare(stripped, "ru", { sensitivity: "accent" }) !== 0) {
+          return `Словарь ударений, строка ${index + 1}: справа можно только добавить ударение.`;
+        }
+        const key = source.toLocaleLowerCase("ru");
+        if (seen.has(key)) {
+          return `Словарь ударений, строка ${index + 1}: исходная фраза уже задана.`;
+        }
+        seen.add(key);
+      }
+      return "";
     }
 
     persistGenerationSettings(settings) {
       this.writeStorage(
         STORAGE.generationSettings,
         JSON.stringify(settings),
+      );
+    }
+
+    updateQualityPreviewState() {
+      const length = Array.from(this.nodes.qualityPreviewText.value).length;
+      const voice = this.selectedVoice();
+      this.nodes.qualityPreviewCount.textContent = String(length);
+      this.nodes.qualityPreviewButton.disabled =
+        !voice ||
+        length < 20 ||
+        length > 2000 ||
+        this.busyOperations.has("quality-preview");
+      if (this.nodes.qualityPreviewStatus.dataset.state === "idle") {
+        this.nodes.qualityPreviewStatus.textContent = voice
+          ? "Готово к preview. Он не создаёт задачу и не меняет книгу."
+          : "Выберите голос. Preview не создаёт задачу и не меняет книгу.";
+      }
+    }
+
+    invalidateQualityPreview() {
+      this.qualityPreviewRevision += 1;
+      if (this.qualityPreviewAudioURL) {
+        URL.revokeObjectURL(this.qualityPreviewAudioURL);
+        this.qualityPreviewAudioURL = "";
+      }
+      this.nodes.qualityPreviewAudio.removeAttribute("src");
+      this.nodes.qualityPreviewAudio.hidden = true;
+      this.nodes.qualityPreviewAudio.load();
+      this.nodes.qualityPreviewStatus.dataset.state = "idle";
+      this.updateQualityPreviewState();
+    }
+
+    async startQualityPreview() {
+      const voiceID = this.nodes.voiceSelect.value;
+      const text = this.nodes.qualityPreviewText.value.trim();
+      const length = Array.from(text).length;
+      if (!voiceID) {
+        this.notify("Выберите голос для preview.", "error");
+        return;
+      }
+      if (length < 20 || length > 2000) {
+        this.notify("Preview должен содержать от 20 до 2000 символов.", "error");
+        this.nodes.qualityPreviewText.focus();
+        return;
+      }
+      const settings = this.collectGenerationSettings(true);
+      if (!settings) {
+        return;
+      }
+      this.persistGenerationSettings(settings);
+      const previewRevision = this.qualityPreviewRevision;
+
+      await this.withBusy(
+        "quality-preview",
+        this.nodes.qualityPreviewButton,
+        async () => {
+          this.nodes.qualityPreviewStatus.dataset.state = "busy";
+          this.nodes.qualityPreviewStatus.textContent =
+            "OmniVoice генерирует короткий preview…";
+          let preview;
+          try {
+            preview = await this.api.generateQualityPreview(
+              voiceID,
+              text,
+              settings,
+            );
+          } catch (error) {
+            this.nodes.qualityPreviewStatus.dataset.state = "error";
+            this.nodes.qualityPreviewStatus.textContent =
+              "Preview не создан. Проверьте параметры и доступность OmniVoice.";
+            throw error;
+          }
+          if (previewRevision !== this.qualityPreviewRevision) {
+            return;
+          }
+          if (this.qualityPreviewAudioURL) {
+            URL.revokeObjectURL(this.qualityPreviewAudioURL);
+          }
+          this.qualityPreviewAudioURL = URL.createObjectURL(preview.blob);
+          this.nodes.qualityPreviewAudio.src = this.qualityPreviewAudioURL;
+          this.nodes.qualityPreviewAudio.hidden = false;
+          this.nodes.qualityPreviewAudio.load();
+          const duration = preview.durationMS > 0
+            ? `${(preview.durationMS / 1000).toFixed(1)} сек.`
+            : "длительность не сообщена";
+          this.nodes.qualityPreviewStatus.dataset.state = "ready";
+          this.nodes.qualityPreviewStatus.textContent =
+            `Готово: ${duration} · seed ${preview.seed} · ` +
+            `мои правила: ${preview.rulesApplied} · ` +
+            `омографы: ${preview.selectiveStressApplied} · ` +
+            `морфология: ${preview.morphologyReplacements} · ` +
+            `${preview.russianTextVersion}.`;
+          this.notify("Preview готов к прослушиванию.", "success");
+        },
       );
     }
 
@@ -2057,11 +2327,14 @@
       if (this.queueRefreshInFlight) {
         return null;
       }
+      const showBusy = announceError;
       this.queueRefreshInFlight = true;
-      this.nodes.queueRefreshButton.disabled = true;
-      this.nodes.queueRefreshButton.classList.add("is-busy");
-      this.nodes.queueJobsList.setAttribute("aria-busy", "true");
-      this.nodes.queueFragmentsList.setAttribute("aria-busy", "true");
+      if (showBusy) {
+        this.nodes.queueRefreshButton.disabled = true;
+        this.nodes.queueRefreshButton.classList.add("is-busy");
+        this.nodes.queueJobsList.setAttribute("aria-busy", "true");
+        this.nodes.queueFragmentsList.setAttribute("aria-busy", "true");
+      }
 
       try {
         const response = await this.api.getQueue();
@@ -2080,8 +2353,10 @@
         return false;
       } finally {
         this.queueRefreshInFlight = false;
-        this.nodes.queueRefreshButton.disabled = false;
-        this.nodes.queueRefreshButton.classList.remove("is-busy");
+        if (showBusy) {
+          this.nodes.queueRefreshButton.disabled = false;
+          this.nodes.queueRefreshButton.classList.remove("is-busy");
+        }
         this.nodes.queueJobsList.setAttribute("aria-busy", "false");
         this.nodes.queueFragmentsList.setAttribute("aria-busy", "false");
       }
@@ -2098,6 +2373,16 @@
       const totalFragments = Number.isFinite(Number(snapshot.total_fragments))
         ? this.number(snapshot.total_fragments)
         : fragments.length;
+      const signature = JSON.stringify({
+        jobs,
+        fragments: fragments.slice(0, QUEUE_FRAGMENT_RENDER_LIMIT),
+        totalJobs,
+        totalFragments,
+      });
+      if (signature === this.queueRenderSignature) {
+        return;
+      }
+      this.queueRenderSignature = signature;
 
       this.nodes.queueJobsCount.textContent = String(totalJobs);
       this.nodes.queueFragmentsCount.textContent = String(totalFragments);
@@ -2396,10 +2681,13 @@
 
       const requestedFilter = this.jobsFilter;
       const requestedOffset = this.jobsOffset;
+      const showBusy = announceError;
       this.jobsRefreshInFlight = true;
-      this.nodes.jobsRefreshButton.disabled = true;
-      this.nodes.jobsRefreshButton.classList.add("is-busy");
-      this.nodes.jobsList.setAttribute("aria-busy", "true");
+      if (showBusy) {
+        this.nodes.jobsRefreshButton.disabled = true;
+        this.nodes.jobsRefreshButton.classList.add("is-busy");
+        this.nodes.jobsList.setAttribute("aria-busy", "true");
+      }
 
       try {
         const response = await this.api.listJobs({
@@ -2443,8 +2731,10 @@
         return false;
       } finally {
         this.jobsRefreshInFlight = false;
-        this.nodes.jobsRefreshButton.disabled = false;
-        this.nodes.jobsRefreshButton.classList.remove("is-busy");
+        if (showBusy) {
+          this.nodes.jobsRefreshButton.disabled = false;
+          this.nodes.jobsRefreshButton.classList.remove("is-busy");
+        }
         this.nodes.jobsList.setAttribute("aria-busy", "false");
       }
     }
@@ -2501,6 +2791,17 @@
     }
 
     renderJobs(jobs) {
+      const signature = JSON.stringify({
+        filter: this.jobsFilter,
+        limit: this.jobsLimit,
+        offset: this.jobsOffset,
+        total: this.jobsTotal,
+        jobs,
+      });
+      if (signature === this.jobsRenderSignature) {
+        return;
+      }
+      this.jobsRenderSignature = signature;
       this.nodes.jobsList.replaceChildren();
 
       if (jobs.length === 0) {
@@ -2786,9 +3087,15 @@
         !book ||
         !voice ||
         this.busyOperations.has("generate");
+      this.updateQualityPreviewState();
     }
 
     renderJob(job) {
+      const signature = JSON.stringify(job);
+      if (signature === this.currentJobRenderSignature) {
+        return;
+      }
+      this.currentJobRenderSignature = signature;
       this.nodes.jobEmpty.hidden = true;
       this.nodes.jobDashboard.hidden = false;
 
@@ -3676,6 +3983,7 @@
     setCurrentJobID(jobID) {
       if (this.currentJobID !== jobID) {
         this.pollToken += 1;
+        this.currentJobRenderSignature = "";
         this.resetChapterDownloads();
         this.selectedWarningIDs.clear();
         this.warningFragments = [];

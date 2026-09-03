@@ -67,13 +67,19 @@ type TTSRequest struct {
 }
 
 type TTSResult struct {
-	RequestID   string
-	AudioPCM    []byte
-	SampleRate  int
-	Channels    int
-	SampleWidth int
-	DurationMS  int
-	Warnings    []string
+	RequestID            string
+	AudioPCM             []byte
+	SampleRate           int
+	Channels             int
+	SampleWidth          int
+	DurationMS           int
+	GenerationDurationMS int
+	SeedUsed             *uint32
+	VoiceCacheHit        *bool
+	ModelID              string
+	ModelVersion         string
+	AudioSHA256          string
+	Warnings             []string
 }
 
 type STTRequest struct {
@@ -158,7 +164,7 @@ func (c *OmniVoiceHTTPClient) Generate(
 	if err != nil {
 		return result, fmt.Errorf("call OmniVoice worker: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return result, workerStatusError("OmniVoice", response)
@@ -188,14 +194,47 @@ func (c *OmniVoiceHTTPClient) Generate(
 			"decode OmniVoice response: PCM payload is empty or not frame-aligned",
 		)
 	}
+	audioSHA256 := strings.ToLower(strings.TrimSpace(response.Header.Get("X-Audio-SHA256")))
+	if audioSHA256 != "" {
+		digest := sha256.Sum256(pcm)
+		actual := hex.EncodeToString(digest[:])
+		if audioSHA256 != actual {
+			return result, fmt.Errorf(
+				"decode OmniVoice response: X-Audio-SHA256 %q does not match payload %q",
+				audioSHA256,
+				actual,
+			)
+		}
+	}
+	generationDurationMS, err := parseOptionalNonNegativeHeader(
+		response.Header,
+		"X-Generation-Duration-Ms",
+	)
+	if err != nil {
+		return result, fmt.Errorf("decode OmniVoice response: %w", err)
+	}
+	seedUsed, err := parseOptionalUint32Header(response.Header, "X-Seed-Used")
+	if err != nil {
+		return result, fmt.Errorf("decode OmniVoice response: %w", err)
+	}
+	voiceCacheHit, err := parseOptionalBoolHeader(response.Header, "X-Voice-Cache-Hit")
+	if err != nil {
+		return result, fmt.Errorf("decode OmniVoice response: %w", err)
+	}
 	return TTSResult{
-		RequestID:   requestID,
-		AudioPCM:    pcm,
-		SampleRate:  audioMetadata.sampleRate,
-		Channels:    audioMetadata.channels,
-		SampleWidth: audioMetadata.sampleWidth,
-		DurationMS:  audioMetadata.durationMS,
-		Warnings:    audioMetadata.warnings,
+		RequestID:            requestID,
+		AudioPCM:             pcm,
+		SampleRate:           audioMetadata.sampleRate,
+		Channels:             audioMetadata.channels,
+		SampleWidth:          audioMetadata.sampleWidth,
+		DurationMS:           audioMetadata.durationMS,
+		GenerationDurationMS: generationDurationMS,
+		SeedUsed:             seedUsed,
+		VoiceCacheHit:        voiceCacheHit,
+		ModelID:              strings.TrimSpace(response.Header.Get("X-Model-ID")),
+		ModelVersion:         strings.TrimSpace(response.Header.Get("X-Model-Version")),
+		AudioSHA256:          audioSHA256,
+		Warnings:             audioMetadata.warnings,
 	}, nil
 }
 
@@ -236,7 +275,7 @@ func (c *STTHTTPClient) Transcribe(
 	if err != nil {
 		return result, fmt.Errorf("call STT worker: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
 		return result, workerStatusError("STT", response)
@@ -762,6 +801,43 @@ func parseNonNegativeHeader(header http.Header, name string) (int, error) {
 		return 0, fmt.Errorf("invalid %s header %q", name, value)
 	}
 	return parsed, nil
+}
+
+func parseOptionalNonNegativeHeader(header http.Header, name string) (int, error) {
+	value := strings.TrimSpace(header.Get(name))
+	if value == "" {
+		return 0, nil
+	}
+	parsed, err := strconv.Atoi(value)
+	if err != nil || parsed < 0 {
+		return 0, fmt.Errorf("invalid %s header %q", name, value)
+	}
+	return parsed, nil
+}
+
+func parseOptionalUint32Header(header http.Header, name string) (*uint32, error) {
+	value := strings.TrimSpace(header.Get(name))
+	if value == "" {
+		return nil, nil
+	}
+	parsed, err := strconv.ParseUint(value, 10, 32)
+	if err != nil {
+		return nil, fmt.Errorf("invalid %s header %q", name, value)
+	}
+	result := uint32(parsed)
+	return &result, nil
+}
+
+func parseOptionalBoolHeader(header http.Header, name string) (*bool, error) {
+	value := strings.TrimSpace(header.Get(name))
+	if value == "" {
+		return nil, nil
+	}
+	parsed, err := strconv.ParseBool(value)
+	if err != nil {
+		return nil, fmt.Errorf("invalid %s header %q", name, value)
+	}
+	return &parsed, nil
 }
 
 func splitHeaderList(value string) []string {

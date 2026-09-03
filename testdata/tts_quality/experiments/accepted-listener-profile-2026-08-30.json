@@ -1,0 +1,40 @@
+{
+  "schema_version": "tts-quality-listener-profile-v1",
+  "profile_id": "omnivoice-ru-audiobook-candidate-2026-08-30",
+  "status": "experimental_candidate",
+  "engine": "OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "language": "ru-RU",
+  "inference": {
+    "class_temperature": 0.0,
+    "position_temperature": 5.0,
+    "fade_duration_ms": 30
+  },
+  "audio_assembly": {
+    "chapter_heading_minimum_pause_ms": 800,
+    "sentence_minimum_pause_ms": 500,
+    "sentence_pause_strategy": "aligned_intra_chunk_minimum_silence",
+    "preserve_contextual_generation": true,
+    "independent_sentence_synthesis": false
+  },
+  "pronunciation": {
+    "policy": "sparse_contextual_marks_with_project_lexicon",
+    "normalizer_version": "curated-stress-accepted-v1",
+    "mark_every_word": false
+  },
+  "confirmed_negative_results": {
+    "class_temperature_above_zero": "did_not_improve_expressiveness",
+    "position_temperature_change": "default_5_won",
+    "independent_sentence_chunks": "lost_or_attenuated_first_words",
+    "text_whitespace_only_pause_control": "insufficient"
+  },
+  "evidence": [
+    "../ratings/blind-ai-text-preparation-20260830.json",
+    "../ratings/blind-adaptive-heading-pause-20260830.json",
+    "../ratings/blind-intrachunk-sentence-pause-20260830.json",
+    "../ratings/blind-expressiveness-class-temperature-20260830.json",
+    "../ratings/blind-expressiveness-position-temperature-20260830.json",
+    "../ratings/blind-tail-fade-20260830.json"
+  ],
+  "promotion_gate": "Run multi-case linguistic, dialogue, neutral narration, question, long-form transition, ASR and click regression before changing production defaults."
+}

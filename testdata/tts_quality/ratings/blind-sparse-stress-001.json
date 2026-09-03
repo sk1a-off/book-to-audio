@@ -1,0 +1,41 @@
+{
+  "schema_version": "tts-quality-blind-preference-v1",
+  "session_id": "blind-sparse-stress-001",
+  "rated_on": "2026-08-18",
+  "method": "single-listener blind A/B preference; not MOS",
+  "raw_response": [
+    "atlas A",
+    "belki B",
+    "doroga A B bad",
+    "muka B",
+    "organ B",
+    "plachu B",
+    "stoit A B",
+    "strelki A",
+    "uzhe A",
+    "zamok A"
+  ],
+  "interpretation": {
+    "stoit A B": "tie_assumed",
+    "doroga A B bad": "both_bad"
+  },
+  "cases": [
+    {"case_id": "homograph-atlas", "preferred_label": "A", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-belki", "preferred_label": "B", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-doroga", "preferred_label": null, "preferred_condition": null, "verdict": "both_bad"},
+    {"case_id": "homograph-muka", "preferred_label": "B", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-organ", "preferred_label": "B", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-plachu", "preferred_label": "B", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-stoit", "preferred_label": null, "preferred_condition": null, "verdict": "tie_assumed"},
+    {"case_id": "homograph-strelki", "preferred_label": "A", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-uzhe", "preferred_label": "A", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"},
+    {"case_id": "homograph-zamok", "preferred_label": "A", "preferred_condition": "sparse_u0301", "verdict": "sparse_wins"}
+  ],
+  "summary": {
+    "sparse_u0301_wins": 8,
+    "unmarked_wins": 0,
+    "ties_assumed": 1,
+    "both_bad": 1
+  },
+  "decision": "retain sparse targeted stress as a candidate; do not enable dense automatic accentuation; exclude stoit and doroga pending follow-up"
+}

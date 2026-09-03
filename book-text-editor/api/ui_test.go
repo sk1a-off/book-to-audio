@@ -22,6 +22,13 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 				`id="chapter-downloads"`, `src="/assets/app.js"`,
 				`id="queue-dialog"`, `id="queue-jobs-list"`,
 				`id="job-pause-button"`, `id="job-continue-button"`,
+				`id="pronunciation-enabled"`, `id="pronunciation-rules"`,
+				`id="russian-selective-stress" type="checkbox" checked`,
+				`id="russian-normalize-morphology" type="checkbox" checked`,
+				`Контекстные ударения для проверенных омографов`,
+				`Массовая разметка каждого слова ухудшает интонацию`,
+				`id="quality-preview-text"`, `id="quality-preview-button"`,
+				`id="quality-preview-audio"`, `data-state="idle"`,
 				`id="rewrite-all-button"`, `Исправить все warnings`,
 				`.fb2.zip`,
 			},
@@ -59,7 +66,8 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 				"Повторить только этот фрагмент", "transcript_score", "encodeURIComponent",
 				"rewriteModels()", "rewriteWarnings(jobID, payload)",
 				"pollRewrite(rewriteID)", "REWRITE_STORAGE_KEY",
-				"Переписать выбранные", `toFixed(1)`,
+				"Переписать выбранные", `toFixed(1)`, "snapshotRenderSignature",
+				"fragmentRenderSignature",
 			},
 		},
 		{
@@ -72,6 +80,14 @@ func TestUIServesDashboardAndChapterPages(t *testing.T) {
 				"cancelJob(jobID)", "startQueueMonitor()", "loadWarningOverview(jobID",
 				`fragment_ids: selectedIDs`,
 				"Удалить задачу", "Удалить голос", "window.confirm",
+				"jobsRenderSignature", "queueRenderSignature",
+				"currentJobRenderSignature", "validatePronunciationRules",
+				`pronunciation: Object.freeze`, "generateQualityPreview",
+				`russian_text: Object.freeze`, "russianSelectiveStress",
+				`RUSSIAN_TEXT_DEFAULTS_REVISION`, `selective_stress: true`,
+				"URL.revokeObjectURL", "DEFAULT_QUALITY_PREVIEW_TEXT",
+				"invalidateQualityPreview", "qualityPreviewRevision",
+				`field === this.nodes.pronunciationRules`, `? "input"`,
 			},
 		},
 	}
@@ -203,7 +219,7 @@ func endpointTestAssertUISecurityHeaders(t *testing.T, response *httptest.Respon
 	csp := response.Header().Get("Content-Security-Policy")
 	for _, directive := range []string{
 		"default-src 'self'", "script-src 'self'", "style-src 'self'",
-		"media-src 'self'", "connect-src 'self'", "frame-ancestors 'none'",
+		"media-src 'self' blob:", "connect-src 'self'", "frame-ancestors 'none'",
 	} {
 		if !strings.Contains(csp, directive) {
 			t.Errorf("CSP %q misses %q", csp, directive)

@@ -1,0 +1,599 @@
+{
+  "schema_version": "tts-quality-blind-reveal-v1",
+  "session_id": "qwen17-vs-omnivoice-russian-expanded-20260901",
+  "created_at": "2026-09-01T06:22:08.312139154Z",
+  "primary_variable": "engine",
+  "shuffle_seed": 20260901,
+  "cases": [
+    {
+      "case_id": "initials-spaced-and-compact",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:initials-spaced-and-compact",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+          "chunks": [
+            "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения."
+          ],
+          "artifact_sha256": "1a7b3e06583068d211e06d1092f5c4524c4e9a9ab2b97da2eed280d7cf804afc",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:initials-spaced-and-compact",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+          "chunks": [
+            "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения."
+          ],
+          "artifact_sha256": "bd3f985d5aff12eece83b9b1aa089aa5c1a563ba21cb3e7f0b5112b7d1799563",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "abbreviations-context",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:abbreviations-context",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+          "chunks": [
+            "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником."
+          ],
+          "artifact_sha256": "e31cdb8a6b3b1781a70aab73aff39ca8cbc1d091c7a45846f3d6fc9d72685a11",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:abbreviations-context",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+          "chunks": [
+            "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником."
+          ],
+          "artifact_sha256": "c74d3befdf866b5530e3cb6136a4436348226e5b7957221d3902a09166e27a44",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "dates-numeric-and-words",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:dates-numeric-and-words",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+          "chunks": [
+            "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым."
+          ],
+          "artifact_sha256": "1687e0100263231da152f8cc479ec9e11efb98c1eccdbff0cca80dfc511d39e5",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:dates-numeric-and-words",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+          "chunks": [
+            "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым."
+          ],
+          "artifact_sha256": "715a4452e9b4876414ee7adbd51a0bde25cf284f41279678a037ff25172d7769",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:numbers-gender-and-ordinal",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+          "chunks": [
+            "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра."
+          ],
+          "artifact_sha256": "f6c4069d4b893fbc582a8661b8e84366fc4457b485ccdc3bcab5ad8efb99c15c",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:numbers-gender-and-ordinal",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+          "chunks": [
+            "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра."
+          ],
+          "artifact_sha256": "f53438eb2f918cf20ab81e11fd9c7875f64f7016a92b125a318e105e2bd2f06c",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "units-and-percent",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:units-and-percent",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+          "chunks": [
+            "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км."
+          ],
+          "artifact_sha256": "418b5be2892c60b87734cbe616af628e142ce346ea78007a35c5ce53544c5b68",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:units-and-percent",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+          "chunks": [
+            "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км."
+          ],
+          "artifact_sha256": "e1cee77f7503c6ce894f134665a798524186868e7bf899d540382af45649a339",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-muka",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-muka",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+          "chunks": [
+            "На столе лежала белая мука, а в душе росла невыносимая мука."
+          ],
+          "artifact_sha256": "9002d84ea978016de87fc879c0d96cb797a085026cb0fda8a222bdc19c1a1792",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:homograph-muka",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+          "chunks": [
+            "На столе лежала белая мука, а в душе росла невыносимая мука."
+          ],
+          "artifact_sha256": "107f3b2a3c6e68ec97beb3155004a99cb122651918aeb8d1d6eff10909d07ea8",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-stoit",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:homograph-stoit",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+          "chunks": [
+            "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко."
+          ],
+          "artifact_sha256": "b6b4b63098607ed176bca420a023b1ec30e6171ee92678b90a085cbff4a90f3c",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-stoit",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+          "chunks": [
+            "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко."
+          ],
+          "artifact_sha256": "594341b313ed61c4d5fcc2a77c5a058b60a9112fcfa2450e80e35c4a33dabd6e",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-plachu",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-plachu",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+          "chunks": [
+            "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать."
+          ],
+          "artifact_sha256": "337e416b9d6d0491103384a01e633ace47d8b8c6418e767ddad7e8e59f5efafe",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:homograph-plachu",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+          "chunks": [
+            "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать."
+          ],
+          "artifact_sha256": "76fef2f435ef0f6e8e80b7b48cbef39a52cea75302732ab49269749a551dab86",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-doroga",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:homograph-doroga",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+          "chunks": [
+            "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой."
+          ],
+          "artifact_sha256": "9511529c42f398ddc4552e3097292c495ebce8774aaff56d6e4f806c5c83c95f",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-doroga",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+          "chunks": [
+            "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой."
+          ],
+          "artifact_sha256": "7a34023e727c1fa9e816e74f6e6841bfe4718c18eaba4c4763b8eba51876a15d",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-organ",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-russian-v1",
+          "sample_id": "omnivoice-current-expanded-russian-v1:homograph-organ",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+          "chunks": [
+            "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе."
+          ],
+          "artifact_sha256": "74033fe00797be460642f430bb3738fc507e78e051c1df5ad4db2b6c089be257",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-russian-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-organ",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+          "chunks": [
+            "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе."
+          ],
+          "artifact_sha256": "39550953aaf9aa638ec218041bcc3c567ac10cc27b584e081d30d5f8e7fdf718",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "chatterbox-multilingual-v3-raw-v1:heading-chapter-seven-words",
+  "case_id": "heading-chapter-seven-words",
+  "corpus_version": "1.1.0",
+  "source_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+  "tts_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Chatterbox Multilingual V3",
+  "model": "ResembleAI/chatterbox",
+  "model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "ru",
+    "t3_model": "v3",
+    "dtype": "float32",
+    "exaggeration": 0.5,
+    "cfg_weight": 0.5,
+    "temperature": 0.8,
+    "repetition_penalty": 1.2,
+    "min_p": 0.05,
+    "top_p": 1.0,
+    "speed": 1.0,
+    "reference_text_used": false,
+    "watermarked": true
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "heading-chapter-seven-words.wav",
+    "sha256": "4f8ddbe7af66bcd9620b870af9645cdcbca8a41749af5012fbfd4db7c7d774de",
+    "pcm_sha256": "89cd32b4eb2ed2c729528f959eaf7f2af6128f688f742bb2df9a2ad250bca4bf",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.400000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 1.355190,
+    "audio_seconds": 4.400000,
+    "rtf": 0.307997727,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 1355,
+    "audio_duration_ms": 4400,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "80478fa6ad164d7c846898d112d2cad4",
+      "text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "seed": 42,
+      "pcm_sha256": "89cd32b4eb2ed2c729528f959eaf7f2af6128f688f742bb2df9a2ad250bca4bf",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 4400,
+      "generation_duration_ms": 1355,
+      "warnings": []
+    }
+  ]
+}

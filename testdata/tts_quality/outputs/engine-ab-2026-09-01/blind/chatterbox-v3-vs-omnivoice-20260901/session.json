@@ -1,0 +1,71 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "chatterbox-v3-vs-omnivoice-20260901",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "prose-long-period",
+      "source_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/prose-long-period/A.wav",
+          "duration_seconds": 11.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/prose-long-period/B.wav",
+          "duration_seconds": 13.16
+        }
+      ]
+    },
+    {
+      "case_id": "dialogue-question-answer",
+      "source_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/dialogue-question-answer/A.wav",
+          "duration_seconds": 5.5
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/dialogue-question-answer/B.wav",
+          "duration_seconds": 5.04
+        }
+      ]
+    },
+    {
+      "case_id": "heading-chapter-seven-words",
+      "source_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/heading-chapter-seven-words/A.wav",
+          "duration_seconds": 4.4
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/heading-chapter-seven-words/B.wav",
+          "duration_seconds": 4.36
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-zamok/A.wav",
+          "duration_seconds": 5.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-zamok/B.wav",
+          "duration_seconds": 5.52
+        }
+      ]
+    }
+  ]
+}

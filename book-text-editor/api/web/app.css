@@ -951,6 +951,75 @@ textarea:focus {
   grid-column: 2;
 }
 
+.pronunciation-settings {
+  display: grid;
+  gap: 12px;
+}
+
+.pronunciation-rules-field {
+  display: grid;
+  gap: 7px;
+  color: var(--navy);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.pronunciation-rules-field textarea {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  font: 0.76rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.pronunciation-rules-field small {
+  color: var(--ink-soft);
+  font-size: 0.67rem;
+  font-weight: 500;
+}
+
+.quality-preview-settings {
+  display: grid;
+  gap: 12px;
+}
+
+.quality-preview-settings > label {
+  display: grid;
+  gap: 7px;
+  color: var(--navy);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.quality-preview-settings > label > small {
+  color: var(--ink-soft);
+  font-size: 0.67rem;
+  font-weight: 500;
+}
+
+.quality-preview-settings textarea {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.quality-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.quality-preview-actions p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+
+.quality-preview-settings audio {
+  width: 100%;
+}
+
 .advanced-settings {
   margin-top: 14px;
   background: #f7faf9;

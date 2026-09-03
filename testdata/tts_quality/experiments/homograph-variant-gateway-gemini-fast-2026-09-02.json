@@ -1,0 +1,131 @@
+{
+  "schema_version": "tts-quality-homograph-variant-gemini-result-v1",
+  "experiment_id": "homograph-variant-gateway-gemini-fast-2026-09-02",
+  "model": "gemini-fast",
+  "transport": "openai-compatible-gateway",
+  "reasoning_effort": null,
+  "temperature": 0,
+  "complete": true,
+  "results": [
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "control_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "candidate_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "selections": {
+        "o1": "o1_b",
+        "o2": "o2_a"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "control_tts_text": "На столе лежала белая мука́, а в душе росла невыносимая му́ка.",
+      "candidate_tts_text": "На столе лежала белая му́ка, а в душе росла невыносимая мука́.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": false,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-stoit",
+      "source_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+      "control_tts_text": "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко.",
+      "candidate_tts_text": "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко.",
+      "selections": {
+        "o1": "o1_b",
+        "o2": "o2_a"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-plachu",
+      "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "control_tts_text": "— Я плачу́ за квартиру вовремя, — сказала она. — А сегодня пла́чу потому, что вынуждена уехать.",
+      "candidate_tts_text": "— Я пла́чу за квартиру вовремя, — сказала она. — А сегодня плачу́ потому, что вынуждена уехать.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": false,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-atlas",
+      "source_text": "Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.",
+      "control_tts_text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.",
+      "candidate_tts_text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-organ",
+      "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "control_tts_text": "Государственный о́рган запретил концерт, но старинный орга́н всё же зазвучал в пустом соборе.",
+      "candidate_tts_text": "Государственный орга́н запретил концерт, но старинный о́рган всё же зазвучал в пустом соборе.",
+      "selections": {
+        "o1": "o1_b",
+        "o2": "o2_a"
+      },
+      "matches_control": false,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-strelki",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "control_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "candidate_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-doroga",
+      "source_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+      "control_tts_text": "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой.",
+      "candidate_tts_text": "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-uzhe",
+      "source_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+      "control_tts_text": "Коридор стал у́же, и мы уже́ не могли идти рядом.",
+      "candidate_tts_text": "Коридор стал у́же, и мы уже́ не могли идти рядом.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-belki",
+      "source_text": "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.",
+      "control_tts_text": "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно.",
+      "candidate_tts_text": "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно.",
+      "selections": {
+        "o1": "o1_a",
+        "o2": "o2_b"
+      },
+      "matches_control": true,
+      "text_conserved": true
+    }
+  ]
+}

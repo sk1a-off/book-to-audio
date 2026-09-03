@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 06:00:52 GMT
+server: uvicorn
+x-tts-backend: chatterbox-multilingual-v3
+x-tts-elapsed-seconds: 10.941885
+x-tts-queue-wait-seconds: 0.000002
+x-tts-audio-sha256: a2d13aaf9b2df5ca264fcc570da12d6a551a5e28b9bdf824d7f282ba358d0832
+x-tts-sample-rate: 24000
+x-tts-item-id: 63dafd4c63b04bcfbbed5b471685a6a2
+content-length: 556844
+content-type: audio/wav
+x-request-id: 5b0622c40c3b41f589a7bd15974b6dd5
+

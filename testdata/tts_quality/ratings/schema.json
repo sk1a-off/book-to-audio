@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/tts-quality/blind-rating-v1.schema.json",
+  "title": "Blind internal subjective quality rating",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "case_id",
+    "rater_id",
+    "rated_at",
+    "samples"
+  ],
+  "properties": {
+    "schema_version": {"const": "tts-quality-blind-rating-v1"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "case_id": {"type": "string", "minLength": 1},
+    "rater_id": {"type": "string", "minLength": 1},
+    "rated_at": {"type": "string", "format": "date-time"},
+    "listening_device": {"type": ["string", "null"]},
+    "samples": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["blind_label", "sample_id", "scores"],
+        "properties": {
+          "blind_label": {"type": "string", "minLength": 1},
+          "sample_id": {"type": "string", "minLength": 1},
+          "scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["naturalness", "pronunciation", "prosody", "expressiveness", "speaker_similarity", "long_form_consistency", "overall"],
+            "properties": {
+              "naturalness": {"type": "integer", "minimum": 1, "maximum": 5},
+              "pronunciation": {"type": "integer", "minimum": 1, "maximum": 5},
+              "prosody": {"type": "integer", "minimum": 1, "maximum": 5},
+              "expressiveness": {"type": "integer", "minimum": 1, "maximum": 5},
+              "speaker_similarity": {"type": "integer", "minimum": 1, "maximum": 5},
+              "long_form_consistency": {"type": "integer", "minimum": 1, "maximum": 5},
+              "overall": {"type": "integer", "minimum": 1, "maximum": 5}
+            }
+          },
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "preferred_blind_label": {"type": ["string", "null"]},
+    "reveal_mapping_path": {"type": ["string", "null"]}
+  }
+}

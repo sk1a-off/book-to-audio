@@ -1,0 +1,21 @@
+{
+  "schema_version": "tts-quality-ai-text-preparation-pilot-v1",
+  "experiment_id": "google-ai-text-preparation-2026-08-30",
+  "language": "ru-RU",
+  "purpose": "Evaluate external language models as conservative context classifiers for OmniVoice-specific TTS text preparation.",
+  "canonical_text": "Глава 7\n\nСтаринный замок стоял на вершине холма, а дверной замок оказался сломан.\n— В 1941 г. он уже стоял у старого замка? — спросил А. С. Петров.\n— Да... См. стр. 21, рис. 3.",
+  "required_behaviour": {
+    "heading": "Глава седьмая",
+    "selective_stress": ["за́мок", "холма́", "замо́к"],
+    "initials": "А. С. Петров",
+    "unsupported_inline_controls": [],
+    "pause_representation": "metadata_only"
+  },
+  "controls": {
+    "temperature": 0,
+    "single_prompt": true,
+    "canonical_text_stored_separately": true,
+    "api_credentials_recorded": false
+  },
+  "conclusion": "A language model is useful for contextual homograph selection and grammatical normalization only when combined with an OmniVoice-specific project lexicon. Generic prompting missed the known form холма́, and one light model reversed за́мок/замо́к. Do not enable autonomous dense accentuation or direct pause-tag insertion."
+}

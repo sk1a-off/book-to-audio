@@ -1,0 +1,46 @@
+{
+  "schema_version": "tts-quality-russtress-gemini-blind-preference-v1",
+  "session_id": "blind-russtress-gemini-sparse-filter-20260831",
+  "rated_on": "2026-08-31",
+  "method": "single-listener blind per-case A/B preference; not MOS",
+  "raw_response": [
+    "1. одинаковы",
+    "2. A",
+    "3. B"
+  ],
+  "conditions": {
+    "control": "accepted curated sparse U+0301 stress",
+    "candidate": "russtress 0.1.4 dense candidates filtered to selected IDs by Gemini 3.5 Flash Lite"
+  },
+  "cases": [
+    {
+      "case_id": "homograph-strelki",
+      "reveal": {"A": "control", "B": "candidate"},
+      "preferred_label": null,
+      "preferred_condition": null,
+      "verdict": "identical",
+      "evidence": "Control and candidate TTS text were equal and generated WAV SHA-256 values matched."
+    },
+    {
+      "case_id": "homograph-zamok",
+      "reveal": {"A": "control", "B": "candidate"},
+      "preferred_label": "A",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    },
+    {
+      "case_id": "homograph-muka",
+      "reveal": {"A": "candidate", "B": "control"},
+      "preferred_label": "B",
+      "preferred_condition": "control",
+      "verdict": "control_wins"
+    }
+  ],
+  "summary": {
+    "informative_cases": 2,
+    "control_wins": 2,
+    "candidate_wins": 0,
+    "identical_controls": 1
+  },
+  "decision": "Reject the simple delete-only russtress-to-Gemini cascade for production. Gemini successfully removed dense ordinary-word marks, but inherited incorrect single stress candidates from russtress. Keep the accepted sparse project lexicon baseline. The next valid experiment should enumerate all allowed homograph variants from a deterministic lexicon and ask the language model to select a candidate ID from context."
+}

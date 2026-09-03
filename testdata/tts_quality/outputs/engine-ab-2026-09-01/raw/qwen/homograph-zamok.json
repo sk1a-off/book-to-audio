@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-raw-v1:homograph-zamok",
+  "case_id": "homograph-zamok",
+  "corpus_version": "1.1.0",
+  "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+  "tts_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "homograph-zamok.wav",
+    "sha256": "8c230c31cfd3e115c62b744c0a2b5dd43c2d7ecc648f84c27acf781927871d90",
+    "pcm_sha256": "c0c2ca1312d79b2f0c07142950f12e4075a881c39d295c1627db01469e17176d",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.200000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 3.914172,
+    "audio_seconds": 5.200000,
+    "rtf": 0.752725385,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 3914,
+    "audio_duration_ms": 5200,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "cdf9dbbde7634013a1d89e365fad5de7",
+      "text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "seed": 42,
+      "pcm_sha256": "c0c2ca1312d79b2f0c07142950f12e4075a881c39d295c1627db01469e17176d",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 5200,
+      "generation_duration_ms": 3914,
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": "tts-quality-baseline-v1",
+  "baseline_id": "current-omnivoice-2026-08-18",
+  "captured_at": "2026-08-18T12:01:29Z",
+  "audit_repository_commit": "05878072c05d2e8fa2f6de336fed46c5b8e77387",
+  "audit_repository_branch": "develop",
+  "audit_worktree_dirty": true,
+  "audit_unrelated_dirty_paths": [
+    ".idea/tts-microservice-mvp.iml"
+  ],
+  "runtime_build_commit": null,
+  "runtime_build_commit_verified": false,
+  "runtime_build_note": "Запущенный Docker image не публикует проверяемый source commit; audit commit нельзя считать доказанным runtime build commit.",
+  "source": {
+    "relative_path": "data/15_zhrec_xaosa_kniga_xv.fb2",
+    "sha256": "ce90c164849f6dd4fc5a65d52eb40053a6dcdd0ef135d40c177d6b0cd55a0cba",
+    "size_bytes": 814649,
+    "book_title": "Неудержимый. Книга II"
+  },
+  "speaker_reference": {
+    "relative_path": "data/voice_reference_omnivoice.flac",
+    "sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+    "duration_seconds": 8.95,
+    "codec": "flac",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "voice_label": "Жрец",
+    "transcript_relative_path": "data/transcription.txt",
+    "transcript_sha256": "b30f8cf08667fef20430ee935a2884a44067366a921154dde79ea097970374ce",
+    "transcript_word_count": 22
+  },
+  "engine": {
+    "name": "OmniVoice",
+    "package_version": "0.2.1",
+    "model_repository": "k2-fsa/OmniVoice",
+    "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+    "device": "cuda",
+    "dtype": "float16",
+    "sample_rate_hz": 24000,
+    "model_resident": true,
+    "worker_slots": 1
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "vram_gib": 16
+  },
+  "inference_config": {
+    "steps": 32,
+    "guidance": 2.0,
+    "speed": 1.0,
+    "normalize": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_conditioning_penalty": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_reference": true,
+    "postprocess_audio": true,
+    "chunk_duration_seconds": 15.0,
+    "chunk_threshold_seconds": 30.0,
+    "boundary_pad_seconds": 0.1,
+    "boundary_fade_seconds": 0.1,
+    "max_retries": 1
+  },
+  "validation_config": {
+    "engine": "Whisper",
+    "beam_size": 5,
+    "patience": 1.0,
+    "temperature": 0.0,
+    "vad_filter": false,
+    "word_timestamps": true
+  },
+  "job": {
+    "job_id": "19252997-c113-4542-96af-aab258b0dee0",
+    "created_at": "2026-08-18T11:18:11Z",
+    "completed_at": "2026-08-18T12:01:29Z",
+    "segments_total": 1296,
+    "segments_ready": 1289,
+    "segments_warning": 7,
+    "segments_failed": 0,
+    "generated_audio_seconds": 24590.9,
+    "generation_wall_seconds": 2598.2,
+    "rtf_end_to_end": 0.10566
+  },
+  "subjective_scores": null,
+  "controlled_comparisons": {
+    "chatterbox_available": false,
+    "elevenlabs_available": false
+  },
+  "limitations": [
+    "Baseline не использует corpus.json и фиксирует существовавший full-book job.",
+    "Peak VRAM и покомпонентные timings preprocessing/tokenization/inference/vocoder/audio IO не были записаны.",
+    "Blind listening ratings отсутствуют.",
+    "Семь warning-fragments требуют отдельной классификации до признания baseline quality-valid."
+  ]
+}

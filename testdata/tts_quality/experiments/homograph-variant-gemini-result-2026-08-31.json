@@ -1,0 +1,27 @@
+{
+  "schema_version": "tts-quality-homograph-variant-gemini-result-v1",
+  "experiment_id": "homograph-variant-gemini-ab-2026-08-31",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0,
+  "summary": {
+    "cases": 10,
+    "occurrences": 20,
+    "exact_case_matches": 8,
+    "correct_occurrence_selections": 16,
+    "incorrect_occurrence_selections": 4,
+    "failed_cases": ["homograph-muka", "homograph-plachu"]
+  },
+  "results": [
+    {"case_id": "homograph-zamok", "candidate_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-muka", "candidate_tts_text": "На столе лежала белая му́ка, а в душе росла невыносимая мука́.", "matches_control": false, "text_conserved": true},
+    {"case_id": "homograph-stoit", "candidate_tts_text": "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-plachu", "candidate_tts_text": "— Я пла́чу за квартиру вовремя, — сказала она. — А сегодня плачу́ потому, что вынуждена уехать.", "matches_control": false, "text_conserved": true},
+    {"case_id": "homograph-atlas", "candidate_tts_text": "Она раскрыла географический а́тлас и положила его рядом с платьем из синего атла́са.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-organ", "candidate_tts_text": "Государственный о́рган запретил концерт, но старинный орга́н всё же зазвучал в пустом соборе.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-strelki", "candidate_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-doroga", "candidate_tts_text": "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-uzhe", "candidate_tts_text": "Коридор стал у́же, и мы уже́ не могли идти рядом.", "matches_control": true, "text_conserved": true},
+    {"case_id": "homograph-belki", "candidate_tts_text": "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно.", "matches_control": true, "text_conserved": true}
+  ],
+  "production_default_changed": false
+}

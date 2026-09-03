@@ -139,6 +139,15 @@ func TestPostgresStoreIntegration(t *testing.T) {
 		!gotVoice.CreatedAt.Equal(createdVoice.CreatedAt) {
 		t.Fatalf("voice() = (%+v, %v, %v), want %+v", gotVoice, ok, err, createdVoice)
 	}
+	gotPayload, ok, err := store.voicePayload(ctx, createdVoice.ID)
+	if err != nil || !ok ||
+		gotPayload.Resource.ID != createdVoice.ID ||
+		gotPayload.Resource.ContentType != createdVoice.ContentType ||
+		!gotPayload.Resource.CreatedAt.Equal(createdVoice.CreatedAt) ||
+		gotPayload.ReferenceText != "Эталонный текст." ||
+		string(gotPayload.Audio) != "voice-a" {
+		t.Fatalf("voicePayload() = (%+v, %v, %v)", gotPayload, ok, err)
+	}
 
 	fragmentIDs := []string{"fragment-1", "fragment-2", "fragment-3"}
 	generationSettings := defaultGenerationSettings()
@@ -163,6 +172,10 @@ func TestPostgresStoreIntegration(t *testing.T) {
 	generationSettings.Whisper.VADFilter = true
 	generationSettings.Whisper.WordTimestamps = false
 	generationSettings.AutomaticWarningRetries = 4
+	generationSettings.Pronunciation = PronunciationGenerationSettings{
+		Enabled: true,
+		Rules:   "старинный замок => старинный за́мок",
+	}
 	createdJob, task, err := store.createJob(
 		ctx,
 		"job-1",

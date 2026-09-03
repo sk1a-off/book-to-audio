@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:numbers-gender-and-ordinal",
+  "case_id": "numbers-gender-and-ordinal",
+  "corpus_version": "1.1.0",
+  "source_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+  "tts_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "numbers-gender-and-ordinal.wav",
+    "sha256": "f53438eb2f918cf20ab81e11fd9c7875f64f7016a92b125a318e105e2bd2f06c",
+    "pcm_sha256": "65438a83ca2e930eba3aab4e5d63c541229db5f578734c20fec3d6a85ccf082f",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 10.560000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 7.986793,
+    "audio_seconds": 10.560000,
+    "rtf": 0.756325095,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 7987,
+    "audio_duration_ms": 10560,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "2c4f5f487d964fd99a41b2da55b42bb8",
+      "text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+      "seed": 42,
+      "pcm_sha256": "65438a83ca2e930eba3aab4e5d63c541229db5f578734c20fec3d6a85ccf082f",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 10560,
+      "generation_duration_ms": 7987,
+      "warnings": []
+    }
+  ]
+}

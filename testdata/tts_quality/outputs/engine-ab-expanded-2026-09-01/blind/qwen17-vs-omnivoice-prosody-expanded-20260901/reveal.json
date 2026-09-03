@@ -1,0 +1,363 @@
+{
+  "schema_version": "tts-quality-blind-reveal-v1",
+  "session_id": "qwen17-vs-omnivoice-prosody-expanded-20260901",
+  "created_at": "2026-09-01T06:22:08.355238653Z",
+  "primary_variable": "engine",
+  "shuffle_seed": 20260902,
+  "cases": [
+    {
+      "case_id": "very-long-semantic-paragraph",
+      "mapping": {
+        "A": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:very-long-semantic-paragraph",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+          "chunks": [
+            "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было."
+          ],
+          "artifact_sha256": "7f29dd80bcdcc612529bbdd5f7993f649fb445f04b426b3d0f3afebfbb3f3a0d",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:very-long-semantic-paragraph",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было.",
+          "chunks": [
+            "Утро началось спокойно. На площади открыли лавки, дворник поливал пыльную мостовую, а в кофейне напротив вокзала звенела посуда. Потом ударил колокол, и люди одновременно посмотрели на башню. Никто ещё не знал, что поезд отменён, мост закрыт, а телеграфная линия оборвана ночной грозой. Старик у окна сложил газету и попросил принести ему ещё чаю. Девочка в красном пальто крепче взяла мать за руку. Через несколько минут площадь снова зашумела, но прежней беспечности в этом шуме уже не было."
+          ],
+          "artifact_sha256": "94d8bab8d97f4f798998757a0ffe94c4a4853bba5de8e13ad7c09527877813df",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "emotional-dialogue-controlled",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:emotional-dialogue-controlled",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+          "chunks": [
+            "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори."
+          ],
+          "artifact_sha256": "39abd2536b9fb62ef2f8f42dd02c4f59512e7c3e98397c929fc10516858b071b",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:emotional-dialogue-controlled",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори.",
+          "chunks": [
+            "— Вернись! — крикнула она, но тут же понизила голос. — Пожалуйста... просто выслушай меня.\nОн остановился.\n— Говори."
+          ],
+          "artifact_sha256": "f9964573d4b25220a1fcc6b6b8bbae4f4806a0f9868e5c09dadb644403121c58",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "ellipsis-interruption",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:ellipsis-interruption",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+          "chunks": [
+            "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас."
+          ],
+          "artifact_sha256": "90253de0581ac42ac4ac15720286ad9b509ed61147869655cfb57e4f6abc87ff",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:ellipsis-interruption",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас.",
+          "chunks": [
+            "— Если ты думаешь, что я...\nОн замолчал, отвёл глаза и тихо добавил:\n— Нет, не сейчас."
+          ],
+          "artifact_sha256": "35360efe0c3d45ce9f90a2b6d219d85c0fcd35ff99ef0926a80b9c4828bca277",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "poetry-stanza",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:poetry-stanza",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+          "chunks": [
+            "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится."
+          ],
+          "artifact_sha256": "e710f6c7d4dcc33d6c63551136674ccf8c61fc80826413108da5872fe7bea2bc",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:poetry-stanza",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится.",
+          "chunks": [
+            "Ночь над рекою тиха,\nСвет от луны серебрится.\nЛодка качнулась слегка —\nПутнику снова не спится."
+          ],
+          "artifact_sha256": "ded3e9807c5d789b66e88147356a7bbd7680765303c78dff520dfa50015a3bac",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "question-and-exclamation",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:question-and-exclamation",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+          "chunks": [
+            "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!"
+          ],
+          "artifact_sha256": "f41ed1845c8a7b878a6a9dfce6848b3090a25c559aae851290c05a00db940b38",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:question-and-exclamation",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!",
+          "chunks": [
+            "— Что?! Ты всё это время знал правду?\n— Нет! Клянусь, я узнал только сегодня!"
+          ],
+          "artifact_sha256": "fb54d8ad54bfb1aff97cb8efc344964b76a0368f6f7cccdaf84711fa17895e8a",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    },
+    {
+      "case_id": "dialogue-with-author-words",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-expanded-prosody-v1",
+          "sample_id": "omnivoice-current-expanded-prosody-v1:dialogue-with-author-words",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+          "chunks": [
+            "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу."
+          ],
+          "artifact_sha256": "a3d96708ded7a36f4a1be6198b4049f5eda693e73b8e59c903e0a04f3f9c70e7",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "qwen3-tts-1.7b-base-expanded-prosody-v1",
+          "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:dialogue-with-author-words",
+          "engine": "Qwen3-TTS",
+          "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+          "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+          "chunks": [
+            "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу."
+          ],
+          "artifact_sha256": "0c2b0a67dfa9bc7f844953a50fc71ce66cdf80efde803203cb642f521ef6af19",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "Russian",
+            "dtype": "bfloat16",
+            "attention": "sdpa",
+            "generation_options": "checkpoint_defaults",
+            "speed": 1.0
+          }
+        }
+      }
+    }
+  ]
+}

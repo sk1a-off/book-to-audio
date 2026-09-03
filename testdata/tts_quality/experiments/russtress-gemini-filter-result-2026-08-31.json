@@ -1,0 +1,38 @@
+{
+  "schema_version": "tts-quality-russtress-gemini-filter-result-v1",
+  "experiment_id": "russtress-gemini-sparse-filter-ab-2026-08-31",
+  "model": "gemini-3.5-flash-lite",
+  "temperature": 0,
+  "results": [
+    {
+      "case_id": "homograph-strelki",
+      "source_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+      "control_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "candidate_tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+      "selected_ids": ["c001", "c006"],
+      "candidate_count": 10,
+      "selected_count": 2,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-zamok",
+      "source_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+      "control_tts_text": "Старинный замо́к на двери не открывался, пока путники рассматривали за́мок на вершине холма́.",
+      "candidate_tts_text": "Старинный за́мок на двери не открывался, пока путники рассматривали за́мок на вершине холма.",
+      "selected_ids": ["c002", "c008"],
+      "candidate_count": 10,
+      "selected_count": 2,
+      "text_conserved": true
+    },
+    {
+      "case_id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "control_tts_text": "На столе лежала белая мука́, а в душе росла невыносимая му́ка.",
+      "candidate_tts_text": "На столе лежала белая мука́, а в душе росла невыносимая мука́.",
+      "selected_ids": ["c004", "c008"],
+      "candidate_count": 8,
+      "selected_count": 2,
+      "text_conserved": true
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-morphology-control-20260901:roman-book-and-chapter",
+  "case_id": "roman-book-and-chapter",
+  "corpus_version": "1.1.0",
+  "source_text": "Книга XV. Глава XIV",
+  "tts_text": "Книга XV. Глава XIV",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "roman-book-and-chapter.wav",
+    "sha256": "17fd255d144d2ba035189f0b36905dd402c02a7f90d347fba53c5977ed50ff39",
+    "pcm_sha256": "17cad324c96b0dcb46cf7c7acc0d8fa45f78faa8c83057689a8109e0455dff4a",
+    "worker_reported_pcm_sha256": "17cad324c96b0dcb46cf7c7acc0d8fa45f78faa8c83057689a8109e0455dff4a",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 1.29,
+    "peak_dbfs": -6.9833573528629405,
+    "rms_dbfs": -26.019098168727584,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.3861111111111111,
+    "leading_silence_seconds": 0.203125,
+    "trailing_silence_seconds": 0.19279166666666667,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.583,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.584712371,
+    "audio_seconds": 1.29,
+    "rtf": 0.4532654038759689,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 583,
+    "audio_duration_ms": 1290,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-006-roman-book-and-chapter-001",
+      "text": "Книга XV. Глава XIV",
+      "seed": 42,
+      "pcm_sha256": "17cad324c96b0dcb46cf7c7acc0d8fa45f78faa8c83057689a8109e0455dff4a",
+      "worker_reported_pcm_sha256": "17cad324c96b0dcb46cf7c7acc0d8fa45f78faa8c83057689a8109e0455dff4a",
+      "audio_duration_ms": 1290,
+      "generation_duration_ms": 583,
+      "warnings": []
+    }
+  ]
+}

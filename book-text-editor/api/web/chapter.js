@@ -146,6 +146,8 @@
       this.rewriteModelsResponse = null;
       this.activeRewrite = null;
       this.rewritePollToken = 0;
+      this.snapshotRenderSignature = "";
+      this.fragmentRenderSignature = "";
       this.nodes = {
         title: this.required("chapter-title"),
         subtitle: this.required("chapter-subtitle"),
@@ -307,14 +309,22 @@
       if (this.busy.has("refresh")) {
         return;
       }
+      const showBusy = announce || !this.snapshot;
       this.busy.add("refresh");
-      this.nodes.refresh.disabled = true;
-      this.nodes.refresh.classList.add("is-busy");
+      if (showBusy) {
+        this.nodes.refresh.disabled = true;
+        this.nodes.refresh.classList.add("is-busy");
+      }
       try {
         const snapshot = await this.api.chapter(this.jobID, this.chapterNumber);
+        const signature = JSON.stringify(snapshot);
+        const changed = signature !== this.snapshotRenderSignature;
         this.snapshot = snapshot;
-        this.pruneRewriteSelection();
-        this.render();
+        if (changed) {
+          this.snapshotRenderSignature = signature;
+          this.pruneRewriteSelection();
+          this.render();
+        }
         this.nodes.refreshState.textContent =
           `Обновлено ${new Intl.DateTimeFormat("ru-RU", {
             hour: "2-digit",
@@ -334,8 +344,10 @@
         }
       } finally {
         this.busy.delete("refresh");
-        this.nodes.refresh.disabled = false;
-        this.nodes.refresh.classList.remove("is-busy");
+        if (showBusy) {
+          this.nodes.refresh.disabled = false;
+          this.nodes.refresh.classList.remove("is-busy");
+        }
       }
     }
 
@@ -472,6 +484,17 @@
         this.page * PAGE_SIZE,
         (this.page + 1) * PAGE_SIZE,
       );
+      const signature = JSON.stringify({
+        filter: this.nodes.filter.value,
+        query: this.nodes.search.value,
+        page: this.page,
+        selected: Array.from(this.selectedRewriteIDs).sort(),
+        visible,
+      });
+      if (signature === this.fragmentRenderSignature) {
+        return;
+      }
+      this.fragmentRenderSignature = signature;
       this.nodes.list.replaceChildren();
       for (const fragment of visible) {
         this.nodes.list.append(this.createCard(fragment));

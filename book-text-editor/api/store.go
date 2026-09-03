@@ -54,6 +54,7 @@ type repository interface {
 		time.Time,
 	) (VoiceResource, error)
 	voice(context.Context, string) (VoiceResource, bool, error)
+	voicePayload(context.Context, string) (voicePayload, bool, error)
 	voices(context.Context) ([]VoiceResource, error)
 	deleteVoice(context.Context, string) (bool, error)
 
@@ -378,6 +379,23 @@ func (s *memoryStore) voice(
 	}
 
 	return record.Payload.Resource, true, nil
+}
+
+func (s *memoryStore) voicePayload(
+	_ context.Context,
+	id string,
+) (voicePayload, bool, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	record, ok := s.voicesMap[id]
+	if !ok {
+		return voicePayload{}, false, nil
+	}
+	return voicePayload{
+		Resource:      record.Payload.Resource,
+		ReferenceText: record.Payload.ReferenceText,
+		Audio:         slices.Clone(record.Payload.Audio),
+	}, true, nil
 }
 
 func (s *memoryStore) voices(

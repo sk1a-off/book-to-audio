@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-semantic-gateway-control-20260902:homograph-stoit",
+  "case_id": "homograph-stoit",
+  "corpus_version": "1.1.0",
+  "source_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+  "tts_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-stoit.wav",
+    "sha256": "821b58c88764f63064c29229420659d544b00d5e680db4b422bc87cca45b69d9",
+    "pcm_sha256": "237f1818de4ad1d94e131653334f3075938961e191b8f1bf424ad74baee806cf",
+    "worker_reported_pcm_sha256": "237f1818de4ad1d94e131653334f3075938961e191b8f1bf424ad74baee806cf",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.36,
+    "peak_dbfs": -2.537384259701204,
+    "rms_dbfs": -19.006425719944595,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.29868119266055043,
+    "leading_silence_seconds": 0.11420833333333333,
+    "trailing_silence_seconds": 0.11045833333333334,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.911,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.915189254,
+    "audio_seconds": 4.36,
+    "rtf": 0.20990579220183483,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 911,
+    "audio_duration_ms": 4360,
+    "seed_used": 42,
+    "voice_cache_hit": false,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-001-homograph-stoit-001",
+      "text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+      "seed": 42,
+      "pcm_sha256": "237f1818de4ad1d94e131653334f3075938961e191b8f1bf424ad74baee806cf",
+      "worker_reported_pcm_sha256": "237f1818de4ad1d94e131653334f3075938961e191b8f1bf424ad74baee806cf",
+      "audio_duration_ms": 4360,
+      "generation_duration_ms": 911,
+      "warnings": []
+    }
+  ]
+}

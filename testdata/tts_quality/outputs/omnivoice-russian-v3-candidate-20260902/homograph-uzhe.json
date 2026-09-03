@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-russian-v3-candidate-20260902:homograph-uzhe",
+  "case_id": "homograph-uzhe",
+  "corpus_version": "1.1.0",
+  "source_text": "Коридор стал уже, и мы уже не могли идти рядом.",
+  "tts_text": "Коридор стал у́же, и мы уже́ не могли идти рядом.",
+  "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-uzhe.wav",
+    "sha256": "f549376f9e205c5d8413bf6f8307364d610812802ee1fcaacd82e25372f80bf2",
+    "pcm_sha256": "da60d61588c6eb186d92997a11ed8d84f34da087c2816c74bfb316bb68075abd",
+    "worker_reported_pcm_sha256": "da60d61588c6eb186d92997a11ed8d84f34da087c2816c74bfb316bb68075abd",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 2.84,
+    "peak_dbfs": -2.443462749303142,
+    "rms_dbfs": -18.976397371462873,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.22084800469483568,
+    "leading_silence_seconds": 0.31445833333333334,
+    "trailing_silence_seconds": 0.111125,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.604,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.605892084,
+    "audio_seconds": 2.84,
+    "rtf": 0.21334228309859157,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 604,
+    "audio_duration_ms": 2840,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-011-homograph-uzhe-001",
+      "text": "Коридор стал у́же, и мы уже́ не могли идти рядом.",
+      "seed": 42,
+      "pcm_sha256": "da60d61588c6eb186d92997a11ed8d84f34da087c2816c74bfb316bb68075abd",
+      "worker_reported_pcm_sha256": "da60d61588c6eb186d92997a11ed8d84f34da087c2816c74bfb316bb68075abd",
+      "audio_duration_ms": 2840,
+      "generation_duration_ms": 604,
+      "warnings": []
+    }
+  ]
+}

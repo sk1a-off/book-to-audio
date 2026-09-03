@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-russian-v1:homograph-plachu",
+  "case_id": "homograph-plachu",
+  "corpus_version": "1.1.0",
+  "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+  "tts_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "homograph-plachu.wav",
+    "sha256": "337e416b9d6d0491103384a01e633ace47d8b8c6418e767ddad7e8e59f5efafe",
+    "pcm_sha256": "8f50d5f40187ca41b321a7c200a1cb33fc13add92748380cb3c9813b1d8ac623",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 6.160000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 4.711296,
+    "audio_seconds": 6.160000,
+    "rtf": 0.764820779,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 4711,
+    "audio_duration_ms": 6160,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "5b01f739a5fc4b52955a0c151030dfa3",
+      "text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "seed": 42,
+      "pcm_sha256": "8f50d5f40187ca41b321a7c200a1cb33fc13add92748380cb3c9813b1d8ac623",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 6160,
+      "generation_duration_ms": 4711,
+      "warnings": []
+    }
+  ]
+}

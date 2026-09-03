@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-morphology-control-20260901:units-and-percent",
+  "case_id": "units-and-percent",
+  "corpus_version": "1.1.0",
+  "source_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+  "tts_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "units-and-percent.wav",
+    "sha256": "6899f7bd6a65b50ac10fdf601396c19eb5f4e97b4be8224cff07616fdb446ca4",
+    "pcm_sha256": "6fd7540e07c2ffbf446a9251cd80ca7f4a0eb142c01952f258c5108aa9c03c7c",
+    "worker_reported_pcm_sha256": "6fd7540e07c2ffbf446a9251cd80ca7f4a0eb142c01952f258c5108aa9c03c7c",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 7.88,
+    "peak_dbfs": -1.6833320630491324,
+    "rms_dbfs": -17.504695594205298,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.13475042301184434,
+    "leading_silence_seconds": 0.278625,
+    "trailing_silence_seconds": 0.10291666666666667,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.92,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.921913628,
+    "audio_seconds": 7.88,
+    "rtf": 0.1169941152284264,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 920,
+    "audio_duration_ms": 7880,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-004-units-and-percent-001",
+      "text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+      "seed": 42,
+      "pcm_sha256": "6fd7540e07c2ffbf446a9251cd80ca7f4a0eb142c01952f258c5108aa9c03c7c",
+      "worker_reported_pcm_sha256": "6fd7540e07c2ffbf446a9251cd80ca7f4a0eb142c01952f258c5108aa9c03c7c",
+      "audio_duration_ms": 7880,
+      "generation_duration_ms": 920,
+      "warnings": []
+    }
+  ]
+}

@@ -90,7 +90,7 @@ func setUISecurityHeaders(header http.Header) {
 		"default-src 'self'; base-uri 'none'; object-src 'none'; "+
 			"frame-ancestors 'none'; form-action 'self'; "+
 			"script-src 'self'; style-src 'self'; img-src 'self' data:; "+
-			"media-src 'self'; connect-src 'self'")
+			"media-src 'self' blob:; connect-src 'self'")
 	header.Set("Cross-Origin-Opener-Policy", "same-origin")
 	header.Set("Cross-Origin-Resource-Policy", "same-origin")
 	header.Set("Permissions-Policy", "camera=(), geolocation=(), microphone=()")

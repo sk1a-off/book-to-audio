@@ -1,0 +1,167 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "qwen17-vs-omnivoice-russian-expanded-20260901",
+  "method": "single-listener blind A/B preference; not MOS",
+  "cases": [
+    {
+      "case_id": "initials-spaced-and-compact",
+      "source_text": "А. С. Пушкин родился в Москве, а Л.Н. Толстой — в Ясной Поляне. Инициалы И. А. Бунина нельзя превращать в отдельные предложения.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/initials-spaced-and-compact/A.wav",
+          "duration_seconds": 9.04
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/initials-spaced-and-compact/B.wav",
+          "duration_seconds": 7.44
+        }
+      ]
+    },
+    {
+      "case_id": "abbreviations-context",
+      "source_text": "В примечании на стр. 15, т. е. в конце главы, см. рис. 3 и т. д. Дом находился на ул. Чехова; в 2026 г. его признали памятником.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/abbreviations-context/A.wav",
+          "duration_seconds": 11.04
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/abbreviations-context/B.wav",
+          "duration_seconds": 9.04
+        }
+      ]
+    },
+    {
+      "case_id": "dates-numeric-and-words",
+      "source_text": "Встречу назначили на 18.08.2026, а письмо было отправлено 18 августа 2026 года. В 1941 году семья уехала; до 2026 года архив оставался закрытым.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/dates-numeric-and-words/A.wav",
+          "duration_seconds": 15.6
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/dates-numeric-and-words/B.wav",
+          "duration_seconds": 15.76
+        }
+      ]
+    },
+    {
+      "case_id": "numbers-gender-and-ordinal",
+      "source_text": "В комнате стоял 21 стул и лежала 21 книга. Он занял 21-й ряд, вернулся к 21-му пункту и не дошёл до 21-го километра.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/numbers-gender-and-ordinal/A.wav",
+          "duration_seconds": 10.2
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/numbers-gender-and-ordinal/B.wav",
+          "duration_seconds": 10.56
+        }
+      ]
+    },
+    {
+      "case_id": "units-and-percent",
+      "source_text": "Посылка весила 5 кг, влажность достигла 3 %, а машина двигалась со скоростью 10 км/ч. До станции оставалось 12 км.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/units-and-percent/A.wav",
+          "duration_seconds": 7.88
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/units-and-percent/B.wav",
+          "duration_seconds": 9.2
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-muka",
+      "source_text": "На столе лежала белая мука, а в душе росла невыносимая мука.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-muka/A.wav",
+          "duration_seconds": 4.16
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-muka/B.wav",
+          "duration_seconds": 3.68
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-stoit",
+      "source_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-stoit/A.wav",
+          "duration_seconds": 4.36
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-stoit/B.wav",
+          "duration_seconds": 4.16
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-plachu",
+      "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-plachu/A.wav",
+          "duration_seconds": 6.16
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-plachu/B.wav",
+          "duration_seconds": 5.44
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-doroga",
+      "source_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-doroga/A.wav",
+          "duration_seconds": 4.4
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-doroga/B.wav",
+          "duration_seconds": 4.24
+        }
+      ]
+    },
+    {
+      "case_id": "homograph-organ",
+      "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "samples": [
+        {
+          "blind_label": "A",
+          "relative_path": "samples/homograph-organ/A.wav",
+          "duration_seconds": 5.23
+        },
+        {
+          "blind_label": "B",
+          "relative_path": "samples/homograph-organ/B.wav",
+          "duration_seconds": 5.52
+        }
+      ]
+    }
+  ]
+}

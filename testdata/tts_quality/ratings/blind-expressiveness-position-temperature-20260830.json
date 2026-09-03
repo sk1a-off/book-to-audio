@@ -1,0 +1,19 @@
+{
+  "schema_version": "tts-quality-expressiveness-preference-v1",
+  "session_id": "expressiveness-position-temperature-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "B везде правильно но обрывается немного и выбор B",
+  "variable": "position_temperature",
+  "reveal": {
+    "A": 8.0,
+    "B": 5.0,
+    "C": 2.0
+  },
+  "preferred_label": "B",
+  "preferred_value": 5.0,
+  "pronunciation_correct": true,
+  "observed_defect": "The final phrase sounds slightly cut off.",
+  "verdict": "current_default_wins_with_tail_defect",
+  "decision": "Keep position_temperature at 5. Parameter variation did not improve the baseline. Test output tail fade independently before changing prosody text or reference conditioning."
+}

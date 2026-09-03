@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-morphology-control-20260901:numbers-decimals-and-grouping",
+  "case_id": "numbers-decimals-and-grouping",
+  "corpus_version": "1.1.0",
+  "source_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+  "tts_text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "numbers-decimals-and-grouping.wav",
+    "sha256": "6f8f2a32d0835bf9ec9bb2f669e66bc8d5bbacf89df6266a97bd3b3514096c9d",
+    "pcm_sha256": "621dbae1a0e63b022791c134501ce0ad6b5fc5fa0abe4336391194f83805f1ba",
+    "worker_reported_pcm_sha256": "621dbae1a0e63b022791c134501ce0ad6b5fc5fa0abe4336391194f83805f1ba",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 10.72,
+    "peak_dbfs": -1.061038741215237,
+    "rms_dbfs": -17.80056559880225,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.18098958333333334,
+    "leading_silence_seconds": 0.11366666666666667,
+    "trailing_silence_seconds": 0.106625,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 1.123,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 1.125312271,
+    "audio_seconds": 10.72,
+    "rtf": 0.10497315960820895,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 1123,
+    "audio_duration_ms": 10720,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-003-numbers-decimals-and-grouping-001",
+      "text": "В отчёте указали 12 500 участников, 1,5 литра воды и коэффициент 3.14. Из них 2026 человек ответили на 21 вопрос.",
+      "seed": 42,
+      "pcm_sha256": "621dbae1a0e63b022791c134501ce0ad6b5fc5fa0abe4336391194f83805f1ba",
+      "worker_reported_pcm_sha256": "621dbae1a0e63b022791c134501ce0ad6b5fc5fa0abe4336391194f83805f1ba",
+      "audio_duration_ms": 10720,
+      "generation_duration_ms": 1123,
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-selective-stress-v1-20260901:homograph-plachu",
+  "case_id": "homograph-plachu",
+  "corpus_version": "1.1.0",
+  "source_text": "— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.",
+  "tts_text": "— Я плачу́ за квартиру вовремя, — сказала она. — А сегодня пла́чу потому, что вынуждена уехать.",
+  "normalizer_version": "ru-selective-morph-v1:stress",
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-plachu.wav",
+    "sha256": "444ac6eaae59500a224d7e29b934cc9e3d21a11fbc15d58b9345aef6443412d2",
+    "pcm_sha256": "b0d96f9ad0984fe31fd50c5e6180900af91d0fc5b51c0e306ab0fa9278e42f0f",
+    "worker_reported_pcm_sha256": "b0d96f9ad0984fe31fd50c5e6180900af91d0fc5b51c0e306ab0fa9278e42f0f",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.44,
+    "peak_dbfs": -1.2050946606428279,
+    "rms_dbfs": -18.7908144780454,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.20670189950980392,
+    "leading_silence_seconds": 0.11179166666666666,
+    "trailing_silence_seconds": 0.14241666666666666,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.717,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.718578655,
+    "audio_seconds": 5.44,
+    "rtf": 0.1320916645220588,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 717,
+    "audio_duration_ms": 5440,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-003-homograph-plachu-001",
+      "text": "— Я плачу́ за квартиру вовремя, — сказала она. — А сегодня пла́чу потому, что вынуждена уехать.",
+      "seed": 42,
+      "pcm_sha256": "b0d96f9ad0984fe31fd50c5e6180900af91d0fc5b51c0e306ab0fa9278e42f0f",
+      "worker_reported_pcm_sha256": "b0d96f9ad0984fe31fd50c5e6180900af91d0fc5b51c0e306ab0fa9278e42f0f",
+      "audio_duration_ms": 5440,
+      "generation_duration_ms": 717,
+      "warnings": []
+    }
+  ]
+}

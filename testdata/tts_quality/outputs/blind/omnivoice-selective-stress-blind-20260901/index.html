@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Слепое сравнение TTS</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; background: #101318; color: #edf2f7; }
+    body { margin: 0; }
+    main { width: min(960px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 64px; }
+    header, article { background: #181d25; border: 1px solid #2a3340; border-radius: 16px; padding: 22px; margin-bottom: 18px; }
+    h1, h2, h3 { margin-top: 0; }
+    .muted { color: #aab4c2; }
+    .source { line-height: 1.6; white-space: pre-wrap; padding: 14px; background: #11161d; border-radius: 10px; }
+    .samples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .sample { padding: 14px; background: #11161d; border-radius: 12px; }
+    audio { width: 100%; }
+    fieldset { border: 0; padding: 14px 0 0; display: flex; flex-wrap: wrap; gap: 12px 18px; }
+    fieldset.dimension { margin-top: 8px; padding: 12px; background: #141a22; border-radius: 10px; }
+    fieldset.dimension legend { font-weight: 700; padding: 0 6px; }
+    label { cursor: pointer; }
+    textarea { box-sizing: border-box; width: 100%; min-height: 72px; margin-top: 12px; padding: 10px; border-radius: 10px; border: 1px solid #354152; background: #0f141a; color: inherit; }
+    button { border: 0; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; background: #67e8b2; color: #092217; }
+    #status { min-height: 1.5em; color: #aab4c2; }
+    @media (max-width: 680px) { .samples { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-session="omnivoice-selective-stress-blind-20260901">
+<main>
+  <header>
+    <p class="muted">Внутренняя субъективная оценка · не официальный MOS</p>
+    <h1>Слепое сравнение TTS</h1>
+    <p>Названия алгоритмов скрыты. Прослушайте A и B в одинаковых наушниках и громкости. Оценивайте естественность, произношение, интонацию и целостность фразы.</p>
+  </header>
+  <form id="rating-form">
+  
+    <article data-case-id="homograph-zamok">
+      <p class="muted">Случай 1 из 8</p>
+      <h2>homograph-zamok</h2>
+      <p class="source">Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-zamok/A.wav"></audio>
+          <p class="muted">5.60 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-zamok/B.wav"></audio>
+          <p class="muted">5.60 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-zamok-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-zamok-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-zamok-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-zamok-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-zamok-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-zamok-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-zamok-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-zamok-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-zamok-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-zamok-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-zamok-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-zamok-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-zamok-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-zamok-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-zamok-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-muka">
+      <p class="muted">Случай 2 из 8</p>
+      <h2>homograph-muka</h2>
+      <p class="source">На столе лежала белая мука, а в душе росла невыносимая мука.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-muka/A.wav"></audio>
+          <p class="muted">3.68 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-muka/B.wav"></audio>
+          <p class="muted">3.68 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-muka-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-muka-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-muka-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-muka-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-muka-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-muka-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-muka-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-muka-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-muka-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-muka-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-muka-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-muka-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-muka-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-muka-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-muka-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-muka-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-muka-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-plachu">
+      <p class="muted">Случай 3 из 8</p>
+      <h2>homograph-plachu</h2>
+      <p class="source">— Я плачу за квартиру вовремя, — сказала она. — А сегодня плачу потому, что вынуждена уехать.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-plachu/A.wav"></audio>
+          <p class="muted">5.44 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-plachu/B.wav"></audio>
+          <p class="muted">5.44 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-plachu-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-plachu-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-plachu-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-plachu-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-plachu-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-plachu-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-plachu-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-plachu-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-plachu-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-plachu-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-plachu-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-plachu-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-plachu-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-plachu-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-plachu-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-plachu-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-plachu-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-atlas">
+      <p class="muted">Случай 4 из 8</p>
+      <h2>homograph-atlas</h2>
+      <p class="source">Она раскрыла географический атлас и положила его рядом с платьем из синего атласа.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-atlas/A.wav"></audio>
+          <p class="muted">5.08 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-atlas/B.wav"></audio>
+          <p class="muted">5.08 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-atlas-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-atlas-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-atlas-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-atlas-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-atlas-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-atlas-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-atlas-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-atlas-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-atlas-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-atlas-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-atlas-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-atlas-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-atlas-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-atlas-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-atlas-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-atlas-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-atlas-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-organ">
+      <p class="muted">Случай 5 из 8</p>
+      <h2>homograph-organ</h2>
+      <p class="source">Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-organ/A.wav"></audio>
+          <p class="muted">5.66 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-organ/B.wav"></audio>
+          <p class="muted">5.23 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-organ-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-organ-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-organ-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-organ-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-organ-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-organ-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-organ-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-organ-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-organ-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-organ-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-organ-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-organ-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-organ-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-organ-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-organ-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-organ-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-organ-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-strelki">
+      <p class="muted">Случай 6 из 8</p>
+      <h2>homograph-strelki</h2>
+      <p class="source">Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-strelki/A.wav"></audio>
+          <p class="muted">4.84 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-strelki/B.wav"></audio>
+          <p class="muted">4.84 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-strelki-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-strelki-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-strelki-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-strelki-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-strelki-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-strelki-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-strelki-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-strelki-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-strelki-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-strelki-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-strelki-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-strelki-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-strelki-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-strelki-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-strelki-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-strelki-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-strelki-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-uzhe">
+      <p class="muted">Случай 7 из 8</p>
+      <h2>homograph-uzhe</h2>
+      <p class="source">Коридор стал уже, и мы уже не могли идти рядом.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-uzhe/A.wav"></audio>
+          <p class="muted">2.84 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-uzhe/B.wav"></audio>
+          <p class="muted">2.84 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-uzhe-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-uzhe-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-uzhe-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-uzhe-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-uzhe-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-uzhe-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-uzhe-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-uzhe-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-uzhe-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-uzhe-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-uzhe-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-uzhe-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-uzhe-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-uzhe-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-uzhe-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-uzhe-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-uzhe-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+    <article data-case-id="homograph-belki">
+      <p class="muted">Случай 8 из 8</p>
+      <h2>homograph-belki</h2>
+      <p class="source">Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.</p>
+      <div class="samples">
+      
+        <section class="sample">
+          <h3>Sample A</h3>
+          <audio controls preload="metadata" src="samples/homograph-belki/A.wav"></audio>
+          <p class="muted">5.20 сек.</p>
+        </section>
+      
+        <section class="sample">
+          <h3>Sample B</h3>
+          <audio controls preload="metadata" src="samples/homograph-belki/B.wav"></audio>
+          <p class="muted">5.20 сек.</p>
+        </section>
+      
+      </div>
+      <fieldset>
+        <legend>Какой вариант лучше?</legend>
+        <label><input type="radio" name="homograph-belki-verdict" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-belki-verdict" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-belki-verdict" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-belki-verdict" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="pronunciation">
+        <legend>Произношение и ударения</legend>
+        <label><input type="radio" name="homograph-belki-pronunciation" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-belki-pronunciation" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-belki-pronunciation" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-belki-pronunciation" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="prosody">
+        <legend>Просодия и паузы</legend>
+        <label><input type="radio" name="homograph-belki-prosody" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-belki-prosody" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-belki-prosody" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-belki-prosody" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <fieldset class="dimension" data-dimension="speaker_stability">
+        <legend>Сходство и стабильность голоса</legend>
+        <label><input type="radio" name="homograph-belki-speaker_stability" value="prefer_a"> A</label>
+        <label><input type="radio" name="homograph-belki-speaker_stability" value="prefer_b"> B</label>
+        <label><input type="radio" name="homograph-belki-speaker_stability" value="tie"> Одинаково</label>
+        <label><input type="radio" name="homograph-belki-speaker_stability" value="both_bad"> Оба плохие</label>
+      </fieldset>
+      <textarea name="homograph-belki-notes" maxlength="1000" placeholder="Что именно отличалось: паузы, инициалы, ритм, интонация…"></textarea>
+    </article>
+  
+  </form>
+  <button id="download" type="button">Сохранить оценки JSON</button>
+  <p id="status" role="status" aria-live="polite"></p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const form = document.getElementById("rating-form");
+  const status = document.getElementById("status");
+  const sessionID = document.body.dataset.session;
+  const storageKey = "tts-quality-blind:" + sessionID;
+  const articles = Array.from(form.querySelectorAll("article[data-case-id]"));
+
+  function snapshot() {
+    const state = {};
+    for (const article of articles) {
+      const caseID = article.dataset.caseId;
+      const selected = article.querySelector("input[type=radio]:checked");
+      const dimensions = {};
+      for (const fieldset of article.querySelectorAll("fieldset[data-dimension]")) {
+        const dimensionSelected = fieldset.querySelector("input[type=radio]:checked");
+        dimensions[fieldset.dataset.dimension] = dimensionSelected ? dimensionSelected.value : "";
+      }
+      state[caseID] = {
+        verdict: selected ? selected.value : "",
+        dimensions,
+        notes: article.querySelector("textarea").value,
+      };
+    }
+    return state;
+  }
+
+  function persist() {
+    localStorage.setItem(storageKey, JSON.stringify(snapshot()));
+    status.textContent = "Черновик сохранён в браузере.";
+  }
+
+  function restore() {
+    let state;
+    try { state = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch (_) { state = {}; }
+    for (const article of articles) {
+      const saved = state[article.dataset.caseId];
+      if (!saved) continue;
+      const radio = Array.from(article.querySelectorAll("input[type=radio]"))
+        .find(input => input.value === saved.verdict);
+      if (radio) radio.checked = true;
+      for (const fieldset of article.querySelectorAll("fieldset[data-dimension]")) {
+        const value = saved.dimensions && saved.dimensions[fieldset.dataset.dimension];
+        const dimensionRadio = Array.from(fieldset.querySelectorAll("input[type=radio]"))
+          .find(input => input.value === value);
+        if (dimensionRadio) dimensionRadio.checked = true;
+      }
+      article.querySelector("textarea").value = saved.notes || "";
+    }
+  }
+
+  form.addEventListener("input", persist);
+  restore();
+  document.getElementById("download").addEventListener("click", () => {
+    const state = snapshot();
+    const missing = articles.filter(article => {
+      const saved = state[article.dataset.caseId];
+      return !saved.verdict || Object.values(saved.dimensions).some(value => !value);
+    });
+    if (missing.length) {
+      status.textContent = "Оцените все случаи. Осталось: " + missing.length + ".";
+      missing[0].scrollIntoView({behavior: "smooth", block: "center"});
+      return;
+    }
+    const cases = articles.map(article => {
+      const caseID = article.dataset.caseId;
+      const saved = state[caseID];
+      const preferred = saved.verdict === "prefer_a" ? "A" : saved.verdict === "prefer_b" ? "B" : null;
+      const dimensionRatings = {};
+      for (const [dimension, verdict] of Object.entries(saved.dimensions)) {
+        dimensionRatings[dimension] = {
+          preferred_label: verdict === "prefer_a" ? "A" : verdict === "prefer_b" ? "B" : null,
+          verdict: verdict === "prefer_a" || verdict === "prefer_b" ? "preference" : verdict,
+        };
+      }
+      return {
+        case_id: caseID,
+        preferred_label: preferred,
+        verdict: preferred ? "preference" : saved.verdict,
+        dimension_ratings: dimensionRatings,
+        notes: saved.notes,
+      };
+    });
+    const result = {
+      schema_version: "tts-quality-blind-session-v1",
+      session_id: sessionID,
+      rated_at: new Date().toISOString(),
+      method: "single-listener blind A/B preference; not MOS",
+      reveal_mapping_path: "reveal.json",
+      cases,
+    };
+    const blob = new Blob([JSON.stringify(result, null, 2) + "\n"], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ratings-" + sessionID + ".json";
+    link.click();
+    URL.revokeObjectURL(url);
+    status.textContent = "Оценки сохранены. Reveal mapping пока не открывайте.";
+  });
+})();
+</script>
+</body>
+</html>

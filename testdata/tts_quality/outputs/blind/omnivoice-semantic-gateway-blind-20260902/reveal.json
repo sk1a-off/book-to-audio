@@ -1,0 +1,277 @@
+{
+  "schema_version": "tts-quality-blind-reveal-v1",
+  "session_id": "omnivoice-semantic-gateway-blind-20260902",
+  "created_at": "2026-09-02T09:14:41.603837613Z",
+  "primary_variable": "normalizer_version",
+  "shuffle_seed": 4402,
+  "cases": [
+    {
+      "case_id": "homograph-stoit",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-semantic-gateway-control-20260902",
+          "sample_id": "omnivoice-semantic-gateway-control-20260902:homograph-stoit",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко.",
+          "chunks": [
+            "У ворот стоит часовой, но тебе не стоит подходить к нему слишком близко."
+          ],
+          "artifact_sha256": "821b58c88764f63064c29229420659d544b00d5e680db4b422bc87cca45b69d9",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-semantic-gateway-candidate-20260902",
+          "sample_id": "omnivoice-semantic-gateway-candidate-20260902:homograph-stoit",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+          "tts_text": "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко.",
+          "chunks": [
+            "У ворот стои́т часовой, но тебе не сто́ит подходить к нему слишком близко."
+          ],
+          "artifact_sha256": "8f3afe70ac7a2eb4fb3205c3daf2ca8e89ce01f876ade4e8b3f609fa7c332a6c",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-strelki",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-semantic-gateway-candidate-20260902",
+          "sample_id": "omnivoice-semantic-gateway-candidate-20260902:homograph-strelki",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+          "tts_text": "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции.",
+          "chunks": [
+            "Стре́лки часов замерли на полуночи, а лучшие стрелки́ отряда уже заняли позиции."
+          ],
+          "artifact_sha256": "c8049049698be21d68fac7cfc3486ea78e7b07e1f98fa1a97e2f12049e803e6f",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-semantic-gateway-control-20260902",
+          "sample_id": "omnivoice-semantic-gateway-control-20260902:homograph-strelki",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции.",
+          "chunks": [
+            "Стрелки часов замерли на полуночи, а лучшие стрелки отряда уже заняли позиции."
+          ],
+          "artifact_sha256": "e01ff5f7e56dfc2ee7c3ee45652275fef2031ff73df68e476712fd5218fc2574",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-doroga",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-semantic-gateway-control-20260902",
+          "sample_id": "omnivoice-semantic-gateway-control-20260902:homograph-doroga",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой.",
+          "chunks": [
+            "Эта дорога мне дорога, потому что по ней мы когда-то возвращались домой."
+          ],
+          "artifact_sha256": "08e30a9e22858f51c159e045d88d00b40bc36118f314e52117a331687614f607",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-semantic-gateway-candidate-20260902",
+          "sample_id": "omnivoice-semantic-gateway-candidate-20260902:homograph-doroga",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+          "tts_text": "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой.",
+          "chunks": [
+            "Эта доро́га мне дорога́, потому что по ней мы когда-то возвращались домой."
+          ],
+          "artifact_sha256": "9240b349d2dd7110f166f1947e907f7df61897466b89dd9a62fb218867ba43ea",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-belki",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-semantic-gateway-candidate-20260902",
+          "sample_id": "omnivoice-semantic-gateway-candidate-20260902:homograph-belki",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": "homograph-semantic-gateway-gemini-fast-v2",
+          "tts_text": "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно.",
+          "chunks": [
+            "Рыжие бе́лки спрятались в ветвях, а белки́ из лабораторного образца изучали отдельно."
+          ],
+          "artifact_sha256": "07320521f2f3859d73d500f3562f7c84bddfea67c4b8c56d51d5eee9f4a71217",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-semantic-gateway-control-20260902",
+          "sample_id": "omnivoice-semantic-gateway-control-20260902:homograph-belki",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+          "segmenter_version": "legacy-v1",
+          "normalizer_version": null,
+          "tts_text": "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно.",
+          "chunks": [
+            "Рыжие белки спрятались в ветвях, а белки из лабораторного образца изучали отдельно."
+          ],
+          "artifact_sha256": "bdccb422c3cbffd1c69bfc2472df44547ee6c630ad8e5a8019c20a5548cf7bdc",
+          "inference_config": {
+            "num_steps": 32,
+            "guidance_scale": 2,
+            "speed": 1,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5,
+            "position_temperature": 5,
+            "class_temperature": 0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15,
+            "audio_chunk_threshold": 30,
+            "pad_duration": 0.1,
+            "fade_duration": 0.1
+          }
+        }
+      }
+    }
+  ]
+}

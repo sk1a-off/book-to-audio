@@ -1,0 +1,75 @@
+{
+  "schema_version": "tts-quality-blind-session-v1",
+  "session_id": "qwen17-vs-omnivoice-prosody-expanded-20260901",
+  "rated_at": "2026-09-01T10:53:51Z",
+  "method": "single-listener blind A/B preference; not MOS",
+  "reveal_mapping_path": "../outputs/engine-ab-expanded-2026-09-01/blind/qwen17-vs-omnivoice-prosody-expanded-20260901/reveal.json",
+  "cases": [
+    {
+      "case_id": "very-long-semantic-paragraph",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "B", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "B", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "emotional-dialogue-controlled",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "ellipsis-interruption",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "B", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "B", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "poetry-stanza",
+      "preferred_label": "B",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "B", "verdict": "preference"},
+        "prosody": {"preferred_label": "B", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "B", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "question-and-exclamation",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    },
+    {
+      "case_id": "dialogue-with-author-words",
+      "preferred_label": "A",
+      "verdict": "preference",
+      "notes": "",
+      "dimension_ratings": {
+        "pronunciation": {"preferred_label": "A", "verdict": "preference"},
+        "prosody": {"preferred_label": "A", "verdict": "preference"},
+        "speaker_stability": {"preferred_label": "A", "verdict": "preference"}
+      }
+    }
+  ]
+}

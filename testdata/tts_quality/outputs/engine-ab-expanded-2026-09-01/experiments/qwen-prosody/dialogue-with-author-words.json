@@ -1,0 +1,72 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "qwen3-tts-1.7b-base-expanded-prosody-v1:dialogue-with-author-words",
+  "case_id": "dialogue-with-author-words",
+  "corpus_version": "1.1.0",
+  "source_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+  "tts_text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "Qwen3-TTS",
+  "model": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "model_revision": "fd4b254389122332181a7c3db7f27e918eec64e3",
+  "seed": 42,
+  "inference_config": {
+    "mode": "voice_clone",
+    "language": "Russian",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "generation_options": "checkpoint_defaults",
+    "speed": 1.0
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "dialogue-with-author-words.wav",
+    "sha256": "0c2b0a67dfa9bc7f844953a50fc71ce66cdf80efde803203cb642f521ef6af19",
+    "pcm_sha256": "f47a0fdeb21ff346635eb1aa5a0e4267c2bb50b70c06575e4f563b61dec0c40d",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 4.880000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 3.725243,
+    "audio_seconds": 4.880000,
+    "rtf": 0.763369467,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 3725,
+    "audio_duration_ms": 4880,
+    "seed_used": 42,
+    "voice_cache_hit": null,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "50a60026ad1b45ef8de91d1c6a9dd616",
+      "text": "— Я вернусь, — тихо сказал он, не поднимая глаз, — но обещать, что останусь, не могу.",
+      "seed": 42,
+      "pcm_sha256": "f47a0fdeb21ff346635eb1aa5a0e4267c2bb50b70c06575e4f563b61dec0c40d",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 4880,
+      "generation_duration_ms": 3725,
+      "warnings": []
+    }
+  ]
+}

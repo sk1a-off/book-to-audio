@@ -1,0 +1,82 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-current-raw-v1:dialogue-question-answer",
+  "case_id": "dialogue-question-answer",
+  "corpus_version": "1.1.0",
+  "source_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+  "tts_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+  "normalizer_version": "canonical-source-v1",
+  "segmenter_version": "none-whole-text-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+  "seed": 42,
+  "inference_config": {
+    "mode": "VOICE_CLONE",
+    "num_steps": 32,
+    "guidance_scale": 2.0,
+    "speed": 1.0,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5.0,
+    "position_temperature": 5.0,
+    "class_temperature": 0.0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15.0,
+    "audio_chunk_threshold": 30.0,
+    "pad_duration": 0.1,
+    "fade_duration": 0.03
+  },
+  "speaker_reference_sha256": "79c7e0aed87028368af208f8e7cb1a0d9716eddfa83336dcdd840f5fe95975f8",
+  "artifact": {
+    "relative_path": "dialogue-question-answer.wav",
+    "sha256": "adb1a9b22fac6c7c0454a799479f15cb61a809f988a86faedcc9ef6831888608",
+    "pcm_sha256": "89f0c2d8abb8d19ff9020672d75f6069ce79de3d7e3ce31f12f18f44b34eac47",
+    "worker_reported_pcm_sha256": null,
+    "codec": "pcm_s16le",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.500000,
+    "peak_dbfs": null,
+    "rms_dbfs": null,
+    "lufs_i": null,
+    "clipping_percent": null,
+    "silence_ratio": null,
+    "leading_silence_seconds": null,
+    "trailing_silence_seconds": null,
+    "contains_nan_or_inf": null
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": null,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.714000,
+    "audio_seconds": 5.500000,
+    "rtf": 0.129818182,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 714,
+    "audio_duration_ms": 5500,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "engine-ab-omnivoice-dialogue-question-answer",
+      "text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+      "seed": 42,
+      "pcm_sha256": "89f0c2d8abb8d19ff9020672d75f6069ce79de3d7e3ce31f12f18f44b34eac47",
+      "worker_reported_pcm_sha256": null,
+      "audio_duration_ms": 5500,
+      "generation_duration_ms": 714,
+      "warnings": []
+    }
+  ]
+}

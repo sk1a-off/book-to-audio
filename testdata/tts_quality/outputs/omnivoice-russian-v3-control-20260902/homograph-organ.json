@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-russian-v3-control-20260902:homograph-organ",
+  "case_id": "homograph-organ",
+  "corpus_version": "1.1.0",
+  "source_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+  "tts_text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+  "normalizer_version": null,
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "homograph-organ.wav",
+    "sha256": "11d1fbc1cd0bc68f7ab354e9a29c27520a25a64067368e7dfd9ac67af2d502a3",
+    "pcm_sha256": "540e2e1f70955a44d9b2dfd2c29d1db65447657c93bbc1c8db82154f0476b80d",
+    "worker_reported_pcm_sha256": "540e2e1f70955a44d9b2dfd2c29d1db65447657c93bbc1c8db82154f0476b80d",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.23,
+    "peak_dbfs": -2.2311527880059474,
+    "rms_dbfs": -18.22760303084287,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.16101019757807522,
+    "leading_silence_seconds": 0.20233333333333334,
+    "trailing_silence_seconds": 0.11191666666666666,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.794,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.796485125,
+    "audio_seconds": 5.23,
+    "rtf": 0.15229161089866156,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 794,
+    "audio_duration_ms": 5230,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-010-homograph-organ-001",
+      "text": "Государственный орган запретил концерт, но старинный орган всё же зазвучал в пустом соборе.",
+      "seed": 42,
+      "pcm_sha256": "540e2e1f70955a44d9b2dfd2c29d1db65447657c93bbc1c8db82154f0476b80d",
+      "worker_reported_pcm_sha256": "540e2e1f70955a44d9b2dfd2c29d1db65447657c93bbc1c8db82154f0476b80d",
+      "audio_duration_ms": 5230,
+      "generation_duration_ms": 794,
+      "warnings": []
+    }
+  ]
+}

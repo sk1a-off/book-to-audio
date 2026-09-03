@@ -1,0 +1,13 @@
+{
+  "schema_version": "tts-quality-adaptive-pause-preference-v1",
+  "session_id": "adaptive-sentence-pause-20260830",
+  "rated_on": "2026-08-30",
+  "method": "single-listener blind A/B/C preference; not MOS",
+  "raw_response": "все плохие тут не слышно первый слова",
+  "fixed_heading_minimum_pause_ms": 800,
+  "tested_sentence_minimum_pauses_ms": [350, 500, 650],
+  "verdict": "all_bad",
+  "observed_defect": "The first word at independently generated chunk starts is not fully audible.",
+  "root_cause_hypothesis": "OmniVoice applies the configured 100 ms fade-in to every independent chunk before edge padding, attenuating speech when the model output has no sufficient leading silence.",
+  "decision": "Reject all sentence-pause candidates. Test chunk-onset preservation independently before evaluating sentence pause duration again."
+}

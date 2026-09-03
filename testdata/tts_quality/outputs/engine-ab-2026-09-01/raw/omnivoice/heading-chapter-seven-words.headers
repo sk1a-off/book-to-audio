@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+date: Tue, 01 Sep 2026 05:45:47 GMT
+server: uvicorn
+cache-control: no-store
+content-disposition: attachment; filename="segment.wav"
+x-request-id: engine-ab-omnivoice-heading-chapter-seven-words
+x-audio-encoding: WAV_PCM_S16LE
+x-audio-sample-rate: 24000
+x-audio-channels: 1
+x-audio-bits-per-sample: 16
+x-audio-sha256: 9d08562d68eba5c74150dc621a833ee43175da18abd81f888d1535dd32a5463e
+x-audio-duration-ms: 4360
+x-generation-duration-ms: 678
+x-seed-used: 42
+x-voice-cache-hit: true
+x-model-id: k2-fsa/OmniVoice
+x-model-version: c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1
+content-length: 209324
+content-type: audio/wav
+

@@ -1,0 +1,273 @@
+{
+  "schema_version": "tts-quality-blind-reveal-v1",
+  "session_id": "chatterbox-v3-vs-omnivoice-20260901",
+  "created_at": "2026-09-01T06:02:26.017865721Z",
+  "primary_variable": "engine",
+  "shuffle_seed": 2301,
+  "cases": [
+    {
+      "case_id": "prose-long-period",
+      "mapping": {
+        "A": {
+          "experiment_id": "chatterbox-multilingual-v3-raw-v1",
+          "sample_id": "chatterbox-multilingual-v3-raw-v1:prose-long-period",
+          "engine": "Chatterbox Multilingual V3",
+          "model": "ResembleAI/chatterbox",
+          "model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+          "chunks": [
+            "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить."
+          ],
+          "artifact_sha256": "a2d13aaf9b2df5ca264fcc570da12d6a551a5e28b9bdf824d7f282ba358d0832",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "ru",
+            "t3_model": "v3",
+            "dtype": "float32",
+            "exaggeration": 0.5,
+            "cfg_weight": 0.5,
+            "temperature": 0.8,
+            "repetition_penalty": 1.2,
+            "min_p": 0.05,
+            "top_p": 1.0,
+            "speed": 1.0,
+            "reference_text_used": false,
+            "watermarked": true
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-raw-v1",
+          "sample_id": "omnivoice-current-raw-v1:prose-long-period",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить.",
+          "chunks": [
+            "К вечеру ветер стих, тяжёлые облака разошлись, и над рекой показалась узкая полоса холодного света. Андрей остановился у старой пристани, прислушался к плеску воды и впервые за весь день позволил себе никуда не спешить."
+          ],
+          "artifact_sha256": "b43b8eea529638b6d7437b9a9eb0b36e0b1087871fbaefd56ff611af3351e23d",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "dialogue-question-answer",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-raw-v1",
+          "sample_id": "omnivoice-current-raw-v1:dialogue-question-answer",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+          "chunks": [
+            "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он."
+          ],
+          "artifact_sha256": "adb1a9b22fac6c7c0454a799479f15cb61a809f988a86faedcc9ef6831888608",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "chatterbox-multilingual-v3-raw-v1",
+          "sample_id": "chatterbox-multilingual-v3-raw-v1:dialogue-question-answer",
+          "engine": "Chatterbox Multilingual V3",
+          "model": "ResembleAI/chatterbox",
+          "model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он.",
+          "chunks": [
+            "— Ты действительно собираешься туда идти? — спросила Анна.\n— А у меня есть выбор? — ответил он."
+          ],
+          "artifact_sha256": "63de9350754d87269b9e2a189a318418a899db1d5410a9525a374d74a8af17c0",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "ru",
+            "t3_model": "v3",
+            "dtype": "float32",
+            "exaggeration": 0.5,
+            "cfg_weight": 0.5,
+            "temperature": 0.8,
+            "repetition_penalty": 1.2,
+            "min_p": 0.05,
+            "top_p": 1.0,
+            "speed": 1.0,
+            "reference_text_used": false,
+            "watermarked": true
+          }
+        }
+      }
+    },
+    {
+      "case_id": "heading-chapter-seven-words",
+      "mapping": {
+        "A": {
+          "experiment_id": "chatterbox-multilingual-v3-raw-v1",
+          "sample_id": "chatterbox-multilingual-v3-raw-v1:heading-chapter-seven-words",
+          "engine": "Chatterbox Multilingual V3",
+          "model": "ResembleAI/chatterbox",
+          "model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+          "chunks": [
+            "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем."
+          ],
+          "artifact_sha256": "4f8ddbe7af66bcd9620b870af9645cdcbca8a41749af5012fbfd4db7c7d774de",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "ru",
+            "t3_model": "v3",
+            "dtype": "float32",
+            "exaggeration": 0.5,
+            "cfg_weight": 0.5,
+            "temperature": 0.8,
+            "repetition_penalty": 1.2,
+            "min_p": 0.05,
+            "top_p": 1.0,
+            "speed": 1.0,
+            "reference_text_used": false,
+            "watermarked": true
+          }
+        },
+        "B": {
+          "experiment_id": "omnivoice-current-raw-v1",
+          "sample_id": "omnivoice-current-raw-v1:heading-chapter-seven-words",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем.",
+          "chunks": [
+            "Глава седьмая.\n\nПервый снег выпал ночью. К утру город стал неузнаваем."
+          ],
+          "artifact_sha256": "9d08562d68eba5c74150dc621a833ee43175da18abd81f888d1535dd32a5463e",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        }
+      }
+    },
+    {
+      "case_id": "homograph-zamok",
+      "mapping": {
+        "A": {
+          "experiment_id": "omnivoice-current-raw-v1",
+          "sample_id": "omnivoice-current-raw-v1:homograph-zamok",
+          "engine": "OmniVoice",
+          "model": "k2-fsa/OmniVoice",
+          "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+          "chunks": [
+            "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма."
+          ],
+          "artifact_sha256": "478f1cdf0ffdf5b3844f7c4b05089e68777dc9ef2f31c200bbfd4c3ff2006081",
+          "inference_config": {
+            "mode": "VOICE_CLONE",
+            "num_steps": 32,
+            "guidance_scale": 2.0,
+            "speed": 1.0,
+            "normalize_text": true,
+            "denoise": true,
+            "t_shift": 0.1,
+            "layer_penalty_factor": 5.0,
+            "position_temperature": 5.0,
+            "class_temperature": 0.0,
+            "preprocess_prompt": true,
+            "postprocess_output": true,
+            "audio_chunk_duration": 15.0,
+            "audio_chunk_threshold": 30.0,
+            "pad_duration": 0.1,
+            "fade_duration": 0.03
+          }
+        },
+        "B": {
+          "experiment_id": "chatterbox-multilingual-v3-raw-v1",
+          "sample_id": "chatterbox-multilingual-v3-raw-v1:homograph-zamok",
+          "engine": "Chatterbox Multilingual V3",
+          "model": "ResembleAI/chatterbox",
+          "model_revision": "5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18",
+          "segmenter_version": "none-whole-text-v1",
+          "normalizer_version": "canonical-source-v1",
+          "tts_text": "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма.",
+          "chunks": [
+            "Старинный замок на двери не открывался, пока путники рассматривали замок на вершине холма."
+          ],
+          "artifact_sha256": "3c7fc38453f0d1d510afb32ae091eb5f3c814b2f35fdcc85edbed5db3251dae1",
+          "inference_config": {
+            "mode": "voice_clone",
+            "language": "ru",
+            "t3_model": "v3",
+            "dtype": "float32",
+            "exaggeration": 0.5,
+            "cfg_weight": 0.5,
+            "temperature": 0.8,
+            "repetition_penalty": 1.2,
+            "min_p": 0.05,
+            "top_p": 1.0,
+            "speed": 1.0,
+            "reference_text_used": false,
+            "watermarked": true
+          }
+        }
+      }
+    }
+  ]
+}

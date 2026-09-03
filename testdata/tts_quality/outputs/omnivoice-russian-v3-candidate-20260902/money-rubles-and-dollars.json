@@ -1,0 +1,86 @@
+{
+  "schema_version": "tts-quality-sample-v1",
+  "sample_id": "omnivoice-russian-v3-candidate-20260902:money-rubles-and-dollars",
+  "case_id": "money-rubles-and-dollars",
+  "corpus_version": "1.1.0",
+  "source_text": "Билет стоил 100 ₽, залог — $100, а сдача составила 21 рубль 5 копеек.",
+  "tts_text": "Билет стоил сто рублей, залог — сто долларов, а сдача составила двадцать один рубль пять копеек.",
+  "normalizer_version": "ru-selective-morph-v3:stress+morphology",
+  "segmenter_version": "legacy-v1",
+  "engine": "OmniVoice",
+  "model": "k2-fsa/OmniVoice",
+  "model_revision": "c5fdb5ccb189668d56333f77ba2629f4cd7535f4+omnivoice-0.2.1",
+  "seed": 42,
+  "inference_config": {
+    "num_steps": 32,
+    "guidance_scale": 2,
+    "speed": 1,
+    "normalize_text": true,
+    "denoise": true,
+    "t_shift": 0.1,
+    "layer_penalty_factor": 5,
+    "position_temperature": 5,
+    "class_temperature": 0,
+    "preprocess_prompt": true,
+    "postprocess_output": true,
+    "audio_chunk_duration": 15,
+    "audio_chunk_threshold": 30,
+    "pad_duration": 0.1,
+    "fade_duration": 0.1
+  },
+  "audio_assembly": {
+    "policy": "disabled",
+    "inter_chunk_min_pause_ms": 0,
+    "silence_threshold_dbfs": -50
+  },
+  "speaker_reference_sha256": "ce74f6319ecaa684232d314b2f0ce23e163a7a7c2080670bc7369d2203fa8aff",
+  "artifact": {
+    "relative_path": "money-rubles-and-dollars.wav",
+    "sha256": "7a1ca3602f7b3d9f4b5dfc21b96d60cddfad03ad1b183f59c965cd5200fa501a",
+    "pcm_sha256": "60cc677dc8045b129febe5315cca11641686e66e5b37bd28df0adcbb9b7b8180",
+    "worker_reported_pcm_sha256": "60cc677dc8045b129febe5315cca11641686e66e5b37bd28df0adcbb9b7b8180",
+    "codec": "pcm_s16le_wav",
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "duration_seconds": 5.8,
+    "peak_dbfs": -2.2318382275295083,
+    "rms_dbfs": -16.948044189333,
+    "lufs_i": null,
+    "clipping_percent": 0,
+    "silence_ratio": 0.17725574712643677,
+    "leading_silence_seconds": 0.11425,
+    "trailing_silence_seconds": 0.16241666666666665,
+    "contains_nan_or_inf": false
+  },
+  "timing": {
+    "preprocessing_seconds": null,
+    "tokenization_seconds": null,
+    "inference_seconds": 0.833,
+    "vocoder_seconds": null,
+    "audio_io_seconds": null,
+    "generation_seconds": 0.835065747,
+    "audio_seconds": 5.8,
+    "rtf": 0.1439768529310345,
+    "peak_vram_bytes": null
+  },
+  "worker_response": {
+    "generation_duration_ms": 833,
+    "audio_duration_ms": 5800,
+    "seed_used": 42,
+    "voice_cache_hit": true,
+    "warnings": []
+  },
+  "chunks": [
+    {
+      "index": 0,
+      "request_id": "quality-004-money-rubles-and-dollars-001",
+      "text": "Билет стоил сто рублей, залог — сто долларов, а сдача составила двадцать один рубль пять копеек.",
+      "seed": 42,
+      "pcm_sha256": "60cc677dc8045b129febe5315cca11641686e66e5b37bd28df0adcbb9b7b8180",
+      "worker_reported_pcm_sha256": "60cc677dc8045b129febe5315cca11641686e66e5b37bd28df0adcbb9b7b8180",
+      "audio_duration_ms": 5800,
+      "generation_duration_ms": 833,
+      "warnings": []
+    }
+  ]
+}
